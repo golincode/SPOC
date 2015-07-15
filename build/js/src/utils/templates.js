@@ -1,5 +1,5 @@
 // Create objects for Utils conversion
-SPOC.Utils.tpls = {};
+SPOC.Tpl = {};
 
 /**
  * Gets object propery value by string representation eg. Obj.prop.prop2
@@ -7,7 +7,7 @@ SPOC.Utils.tpls = {};
  * @params  obj Object to evaulate
  * @return  property string value of property
  */
-SPOC.Utils.tpls.getProperty = function(propertyName, obj) {
+SPOC.Tpl.getProperty = function(propertyName, obj) {
     var parts = propertyName.split("."),
         length = parts.length,
         i,
@@ -26,12 +26,12 @@ SPOC.Utils.tpls.getProperty = function(propertyName, obj) {
  * @params  data Object
  * @return  tpl string
  */
-SPOC.Utils.tpls.render = function(tpl, data) {
+SPOC.Tpl.render = function(tpl, data) {
     var regex = /{{(.*?)}}/g;
     var matches = tpl.match(regex);
     if (matches && matches.length) {
         for (var i = 0, len = matches.length; i < len; i++) {
-            tpl = tpl.replace(new RegExp(matches[i], 'g'), SPOC.Utils.tpls.getProperty(matches[i].replace(/{{|}}/g, ""), data));
+            tpl = tpl.replace(new RegExp(matches[i], 'g'), SPOC.Tpl.getProperty(matches[i].replace(/{{|}}/g, ""), data));
         }
     }
 

@@ -1,4 +1,4 @@
-/*! SPOC 03-06-2015 */
+/*! SPOC 15-07-2015 */
 
 
 /**
@@ -15,17 +15,35 @@
   // Define all top level namespaces.
   SPOC.Utils = {};
   SPOC.SPSite = null;
+  SPOC.Yam = null;
 
   
 // Create objects for Utils conversion
-SPOC.Utils.conversion = {};
+SPOC.Utils.Arrays = {};
 
 /**
  * Converts a Javascript object to SP API query string format
  * @params  obj Object of props to convert
  * @return  string
  */
-SPOC.Utils.conversion.ObjToQueryString = function(obj) {
+SPOC.Utils.Arrays.findByProperty = function(data, prop, value) {
+    var i;
+    for (i = 0; i < data.length; i++) {
+        if (data[i][prop] === value) {
+            return data[i];
+        }
+    }
+    return false;
+};
+// Create objects for Utils conversion
+SPOC.Utils.Conversion = {};
+
+/**
+ * Converts a Javascript object to SP API query string format
+ * @params  obj Object of props to convert
+ * @return  string
+ */
+SPOC.Utils.Conversion.objToQueryString = function(obj) {
     var str = '';
     for (var propertyName in obj) {
         str += '&$' + propertyName + '=' + obj[propertyName];
@@ -34,13 +52,25 @@ SPOC.Utils.conversion.ObjToQueryString = function(obj) {
 };
 
 // Create objects for Utils conversion
-SPOC.Utils.storage = {};
+SPOC.Utils.SP = {};
+
+/**
+ * Returns data type for list items
+ * @return  bool
+ */
+SPOC.Utils.SP.getListItemType = function(name) {
+  return "SP.Data." + name[0].toUpperCase() + name.substring(1) + "ListItem";
+};
+
+
+// Create objects for Utils conversion
+SPOC.Utils.Storage = {};
 
 /**
  * Checks if session and local storage is available
  * @return  bool
  */
-SPOC.Utils.storage.storageAvailable = function() {
+SPOC.Utils.Storage.storageAvailable = function() {
     return (typeof(Storage) !== "undefined");
 };
 
@@ -51,8 +81,8 @@ SPOC.Utils.storage.storageAvailable = function() {
  * @params  isLocal bool to us local storage rather than session
  * @return  void
  */
-SPOC.Utils.storage.set = function(key, data, isLocal) {
-    if (SPOC.Utils.storage.storageAvailable()) {
+SPOC.Utils.Storage.set = function(key, data, isLocal) {
+    if (SPOC.Utils.Storage.storageAvailable()) {
         var storageObj = isLocal ? localStorage : sessionStorage;
         storageObj.setItem(key, (data === Object(data)) ? JSON.stringify(data) : data);
     }
@@ -64,8 +94,8 @@ SPOC.Utils.storage.set = function(key, data, isLocal) {
  * @params  isLocal bool to set local storage rather than session
  * @return  string | object | null
  */
-SPOC.Utils.storage.get = function(key, isLocal) {
-    if (SPOC.Utils.storage.storageAvailable()) {
+SPOC.Utils.Storage.get = function(key, isLocal) {
+    if (SPOC.Utils.Storage.storageAvailable()) {
         var storageObj = isLocal ? localStorage : sessionStorage;
         return JSON.parse(storageObj.getItem(key));
     } else {
@@ -79,15 +109,15 @@ SPOC.Utils.storage.get = function(key, isLocal) {
  * @params  isLocal bool to set local storage rather than session
  * @return  void
  */
-SPOC.Utils.storage.remove = function(key, isLocal) {
-    if (SPOC.Utils.storage.storageAvailable()) {
+SPOC.Utils.Storage.remove = function(key, isLocal) {
+    if (SPOC.Utils.Storage.storageAvailable()) {
         var storageObj = isLocal ? localStorage : sessionStorage;
         localStorage.removeItem(key);
     }
 };
 
 // Create objects for Utils conversion
-SPOC.Utils.tpls = {};
+SPOC.Tpl = {};
 
 /**
  * Gets object propery value by string representation eg. Obj.prop.prop2
@@ -95,7 +125,7 @@ SPOC.Utils.tpls = {};
  * @params  obj Object to evaulate
  * @return  property string value of property
  */
-SPOC.Utils.tpls.getProperty = function(propertyName, obj) {
+SPOC.Tpl.getProperty = function(propertyName, obj) {
     var parts = propertyName.split("."),
         length = parts.length,
         i,
@@ -114,16 +144,33 @@ SPOC.Utils.tpls.getProperty = function(propertyName, obj) {
  * @params  data Object
  * @return  tpl string
  */
-SPOC.Utils.tpls.render = function(tpl, data) {
+SPOC.Tpl.render = function(tpl, data) {
     var regex = /{{(.*?)}}/g;
     var matches = tpl.match(regex);
     if (matches && matches.length) {
         for (var i = 0, len = matches.length; i < len; i++) {
-            tpl = tpl.replace(new RegExp(matches[i], 'g'), SPOC.Utils.tpls.getProperty(matches[i].replace(/{{|}}/g, ""), data));
+            tpl = tpl.replace(new RegExp(matches[i], 'g'), SPOC.Tpl.getProperty(matches[i].replace(/{{|}}/g, ""), data));
         }
     }
 
     return tpl;
+};
+// Create objects for Utils conversion
+SPOC.Utils.Yammer = {};
+
+/**
+ * Matches references with messages and returns tidier data object
+ * @params  array obj Yammer feed Object
+ * @return  array
+ */
+SPOC.Utils.Yammer.formatFeedResponse = function(data) {
+    var i;
+    for (i = 0; i < data.messages.length; i++) {
+        if (data.messages[i].sender_type && data.messages[i].sender_type === 'user') {
+            data.messages[i].user = SPOC.Utils.Arrays.findByProperty(data.references, 'id', data.messages[i].sender_id);
+        }
+    }
+    return data.messages;
 };
 /**
  * Define Sp Site Object constructor
@@ -137,9 +184,42 @@ SPOC.SPSite = function(url) {
     this.url = url ? url : _spPageContextInfo.webAbsoluteUrl;
 };
 
+
+/**
+ * Define Yam Object constructor & ensure login
+ * @params  url  url of Sharepoint site
+ * @author  Martin Pomeroy <mpomeroy@wearearchitect.com>
+ * @return  void
+ */
+SPOC.Yam = function() {
+
+    /**
+     * Checks that user is logged into Yammer. If not, Logins user and fetches access token.
+     * @return  jQuery Deferred Object
+     */
+    this.checkLogin = function() {
+        var promise = $.Deferred();
+
+        yam.getLoginStatus(function(response) {
+            if (!response.authResponse) {
+                yam.platform.login(function(user) {
+                    if (user) {
+                        promise.resolve(user);
+                    }
+                });
+            } else {
+                promise.resolve(response);
+            }
+        });
+
+        return promise;
+    };
+};
 // SharePoint List Items Functionlity
 
-SPOC.SPSite.prototype.list = function(listTitle) {
+
+
+SPOC.SPSite.prototype.List = function(listTitle) {
 
     // save reference to this
     var site = this;
@@ -152,37 +232,76 @@ SPOC.SPSite.prototype.list = function(listTitle) {
      * @params  Object query filter paramators in obj format
      * @return  jQuery Deferred Object
      */
-    methods.query = function(settings) {
+    methods.query = function(settings, forceNoCache, verbose) {
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
-        listUrl += settings ? '?' + Utils.convertObjToQueryString(settings) : '';
 
+        // Get query from cache.
+        var cache = SPOC.Utils.Storage.get('SPOCC-listitems' + listTitle);
+
+        // Convert and append query params
+        listUrl += settings ? '?' + SPOC.Utils.convertObjToQueryString(settings) : '';
+
+        // Return cached version if available
+        if (cache && !forceNoCache) {
+            return cache;
+        }
+
+        // else get data and return promise.
         return $.ajax({
             type: "GET",
             url: listUrl,
             dataType: 'json',
+            headers: {
+                "Accept": "application/json;odata=verbose" + verbose ? "verbose" : "nometadata"
+            },
             complete: function(data) {
                 // On complete, cache results
-                SPOC.Utils.storage.set('SPOCC-listitems' + listTitle, data);
+                SPOC.Utils.Storage.set('SPOCC-listitems' + listTitle, data);
             }
         });
-
-    };
-
-    methods.getCached = function(listTitle) {
-        console.log(this);
-        return SPOC.Utils.storage.get('SPOCC-listitems' + listTitle);
     };
 
     /**
-     * Creates a new SharePoint List
+     * Creates a new list items
      * @params  Object Create list settings
      * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
      * @return  jQuery Deferred Object
      */
-    methods.create = function(settings) {
+    methods.create = function(items) {
+        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
+        var data = {
+            __metadata: {
+                'type': SPOC.Utils.SP.getListItemType(listTitle)
+            }
+        };
+
+        if (settings) {
+            $.extend(data, items);
+        }
+
+        return $.ajax({
+            type: "POST",
+            url: listUrl,
+            data: JSON.stringify(data),
+            headers: {
+                "Accept": "application/json;odata=verbose",
+                "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+                'Content-Type': "application/json;odata=verbose"
+            }
+        });
+    };
+
+    /**
+     * Creates a new list items
+     * @params  Object Create list settings
+     * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
+     * @return  jQuery Deferred Object
+     */
+    methods.update = function(id, data) {
+        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
         var defaults = {
             __metadata: {
-                'type': 'SP.List'
+                'type': SPOC.Utils.SP.getListItemType(listTitle)
             },
             BaseTemplate: 100,
             Description: '',
@@ -194,7 +313,7 @@ SPOC.SPSite.prototype.list = function(listTitle) {
 
         return $.ajax({
             type: "POST",
-            url: site.url + '/_api/web/lists',
+            url: listUrl,
             data: JSON.stringify(defaults),
             headers: {
                 "Accept": "application/json;odata=verbose",
@@ -207,10 +326,9 @@ SPOC.SPSite.prototype.list = function(listTitle) {
 
     return methods;
 };
-
 // SharePoint List Functionlity
 
-SPOC.SPSite.prototype.lists = function(listTitle) {
+SPOC.SPSite.prototype.Lists = function(listTitle) {
 
     // save reference to this
     var site = this;
@@ -223,17 +341,25 @@ SPOC.SPSite.prototype.lists = function(listTitle) {
      * @params  Object query filter paramators in obj format
      * @return  jQuery Deferred Object
      */
-    methods.query = function(settings) {
+    methods.query = function(settings, forceNoCache) {
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/';
-        listUrl += settings ? '?' + Utils.convertObjToQueryString(settings) : '';
+        var cache = SPOC.Utils.Storage.get('SPOCC-list' + listTitle);
 
+        listUrl += settings ? '?' + SPOC.Utils.Conversion.convertObjToQueryString(settings) : '';
+
+         // Return cached version if available
+        if (cache && !forceNoCache) {
+            return cache;
+        }
+        
+        // else get data and return promise.
         return $.ajax({
             type: "GET",
             url: listUrl,
             dataType: 'json',
-            complete: function (){
+            complete: function() {
                 // On complete, cache results
-                SPOC.Utils.storage.set('SPOCC-list' + listTitle, data);
+                SPOC.Utils.Storage.set('SPOCC-list' + listTitle, data);
             }
         });
     };
@@ -271,5 +397,101 @@ SPOC.SPSite.prototype.lists = function(listTitle) {
 
     return methods;
 };
+// Yammer Group Functionlity.
 
+SPOC.Yam.prototype.Group = function(feedId) {
+
+    // save reference to this
+    var _this = this;
+
+    // Create object to store public methods
+    var methods = {};
+
+    /**
+     * Queries a Yammer Group and returns feed items
+     * @return  jQuery Deferred Object
+     */
+    methods.query = function(forceNoCache) {
+        var promise = $.Deferred();
+
+        // Get query from cache.
+        var cache = SPOC.Utils.Storage.get('SPOCC-yamgroup' + feedId);
+
+        // Return cached version if available
+        if (cache && !forceNoCache) {
+            promise.resolve(cache);
+        } else {
+            // Check user has access token and then then return group feed.
+            _this.checkLogin().then(function() {
+                yam.platform.request({
+                    url: "messages/in_group/" + feedId + ".json",
+                    method: "GET",
+                    success: function(data) {
+                        // Format response to combine references with messages
+                        data = SPOC.Utils.Yammer.formatFeedResponse(data);
+                        SPOC.Utils.Storage.set('SPOCC-yamgroup' + feedId, data);
+                        promise.resolve(data);
+                    },
+                    error: function(data) {
+                        promise.reject(data);
+                    }
+                });
+            });
+        }
+
+        return promise;
+    };
+
+    return methods;
+
+};
+// Yammer User Functionlity.
+
+SPOC.Yam.prototype.User = function(userId) {
+
+    // save reference to this
+    var _this = this;
+
+    // Create object to store public methods
+    var methods = {};
+
+    // If not user id is passed in, set as current.
+    userId = userId ? userId : 'current';
+
+    /**
+     * Queries a Yammer User Profile and returns properties
+     * @return  jQuery Deferred Object
+     */
+    methods.query = function(forceNoCache) {
+        var promise = $.Deferred();
+
+        //Get query from cache.
+        var cache = SPOC.Utils.Storage.get('SPOCC-yamuser' + userId);
+
+        // Return cached version if available
+        if (cache && !forceNoCache) {
+            promise.resolve(cache);
+        } else {
+            // Check user has access token and then then return group feed.
+            _this.checkLogin().then(function() {
+                yam.platform.request({
+                    url: "users/" + userId + ".json",
+                    method: "GET",
+                    success: function(data) {
+                        SPOC.Utils.Storage.set('SPOCC-yamuser' + userId, data);
+                        promise.resolve(data);
+                    },
+                    error: function(data) {
+                        promise.reject(data);
+                    }
+                });
+            });
+        }
+
+        return promise;
+    };
+
+    return methods;
+
+};
 })(window, document, window.SPOC = window.SPOC || {}, jQuery);

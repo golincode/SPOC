@@ -1,6 +1,6 @@
-// SharePoint List Items Functionlity
+// SharePoint List Functionlity
 
-SPOC.SPSite.prototype.list = function(listTitle) {
+SPOC.SPSite.prototype.Lists = function(listTitle) {
 
     // save reference to this
     var site = this;
@@ -13,24 +13,27 @@ SPOC.SPSite.prototype.list = function(listTitle) {
      * @params  Object query filter paramators in obj format
      * @return  jQuery Deferred Object
      */
-    methods.query = function(settings) {
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
-        listUrl += settings ? '?' + SPOC.Utils.convertObjToQueryString(settings) : '';
+    methods.query = function(settings, forceNoCache) {
+        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/';
+        var cache = SPOC.Utils.Storage.get('SPOCC-list' + listTitle);
 
+        listUrl += settings ? '?' + SPOC.Utils.Conversion.convertObjToQueryString(settings) : '';
+
+         // Return cached version if available
+        if (cache && !forceNoCache) {
+            return cache;
+        }
+        
+        // else get data and return promise.
         return $.ajax({
             type: "GET",
             url: listUrl,
             dataType: 'json',
-            complete: function(data) {
+            complete: function() {
                 // On complete, cache results
-                SPOC.Utils.storage.set('SPOCC-listitems' + listTitle, data);
+                SPOC.Utils.Storage.set('SPOCC-list' + listTitle, data);
             }
         });
-
-    };
-
-    methods.getCached = function(listTitle) {
-        return SPOC.Utils.storage.get('SPOCC-listitems' + listTitle);
     };
 
     /**
@@ -63,7 +66,6 @@ SPOC.SPSite.prototype.list = function(listTitle) {
             }
         });
     };
-
 
     return methods;
 };
