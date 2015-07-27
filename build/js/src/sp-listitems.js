@@ -2,7 +2,7 @@
 
 
 
-SPOC.SPSite.prototype.List = function(listTitle) {
+SPOC.SPSite.prototype.ListItems = function(listTitle) {
 
     // save reference to this
     var site = this;
@@ -15,7 +15,7 @@ SPOC.SPSite.prototype.List = function(listTitle) {
      * @params  Object query filter paramators in obj format
      * @return  jQuery Deferred Object
      */
-    methods.query = function(settings, forceNoCache, verbose) {
+     methods.query = function(settings, forceNoCache, verbose) {
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
 
         // Get query from cache.
@@ -50,7 +50,7 @@ SPOC.SPSite.prototype.List = function(listTitle) {
      * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
      * @return  jQuery Deferred Object
      */
-    methods.create = function(items) {
+     methods.create = function(items) {
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
         var data = {
             __metadata: {
@@ -74,13 +74,14 @@ SPOC.SPSite.prototype.List = function(listTitle) {
         });
     };
 
+
     /**
      * Creates a new list items
      * @params  Object Create list settings
      * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
      * @return  jQuery Deferred Object
      */
-    methods.update = function(id, data) {
+     methods.update = function(id, data) {
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
         var defaults = {
             __metadata: {
@@ -101,6 +102,65 @@ SPOC.SPSite.prototype.List = function(listTitle) {
             headers: {
                 "Accept": "application/json;odata=verbose",
                 "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+                'Content-Type': "application/json;odata=verbose"
+            }
+        });
+    };
+
+    /**
+     * Deletes a list items
+     * @params  Object Delete list settings
+     * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
+     * @return  jQuery Deferred Object
+     */
+     methods.delete = function(item) {
+        var listUrl = item.__metadata.uri;
+
+        if (settings) {
+            $.extend(data, settings);
+        }
+
+        return $.ajax({
+            type: "POST",
+            url: listUrl,
+            data: JSON.stringify(data),
+            headers: {
+                "Accept": "application/json;odata=verbose",
+                "X-Http-Method": "DELETE",
+                "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+                "If-Match": "*",
+                'Content-Type': "application/json;odata=verbose"
+            }
+        });
+    };
+
+    /**
+     * Deletes a list items get by Id
+     * @params  Object Delete list settings
+     * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
+     * @return  jQuery Deferred Object
+     */
+     methods.deleteById = function(id) {
+        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
+        var data = {
+            __metadata: {
+                'type': SPOC.Utils.SP.getListItemType(listTitle)
+            }
+        };
+
+        if (settings) {
+            $.extend(data, settings);
+        }
+
+        return $.ajax({
+            type: "POST",
+            url: listUrl,
+            data: JSON.stringify(data),
+            headers: {
+                "Accept": "application/json;odata=verbose",
+                "X-Http-Method": "DELETE",
+                "X-RequestDigest": $("#__REQUESTDIGEST").val(),
+                "If-Match": "*",
                 'Content-Type': "application/json;odata=verbose"
             }
         });
