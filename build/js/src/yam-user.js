@@ -15,7 +15,7 @@ SPOC.Yam.prototype.User = function(userId) {
      * Queries a Yammer User Profile and returns properties
      * @return  jQuery Deferred Object
      */
-    methods.query = function(forceNoCache) {
+    methods.query = function(settings, forceNoCache) {
         var promise = $.Deferred();
 
         //Get query from cache.
@@ -26,10 +26,11 @@ SPOC.Yam.prototype.User = function(userId) {
             promise.resolve(cache);
         } else {
             // Check user has access token and then then return group feed.
-            _this.checkLogin().then(function() {
+            _this.Auth.checkLogin().then(function() {
                 yam.platform.request({
                     url: "users/" + userId + ".json",
                     method: "GET",
+                    data: settings ? settings : null,
                     success: function(data) {
                         SPOC.Utils.Storage.set('SPOCC-yamuser' + userId, data);
                         promise.resolve(data);

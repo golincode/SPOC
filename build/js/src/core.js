@@ -19,25 +19,9 @@ SPOC.SPSite = function(url) {
  */
 SPOC.Yam = function() {
 
-    /**
-     * Checks that user is logged into Yammer. If not, Logins user and fetches access token.
-     * @return  jQuery Deferred Object
-     */
-    this.checkLogin = function() {
-        var promise = $.Deferred();
+    if (!window.yam) {
+    	//@todo: Update error messages to SP notifications?
+        console.log('Please ensure that you have included Yammer SDK and added a valid Client Id');
+    }
 
-        yam.getLoginStatus(function(response) {
-            if (!response.authResponse) {
-                yam.platform.login(function(user) {
-                    if (user) {
-                        promise.resolve(user);
-                    }
-                });
-            } else {
-                promise.resolve(response);
-            }
-        });
-
-        return promise;
-    };
 };
