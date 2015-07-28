@@ -1,6 +1,6 @@
 // SharePoint List Functionlity
 
-SPOC.SPSite.prototype.SPUsers = function() {
+SPOC.SPSite.prototype.Users = function() {
 
     // save reference to this
     var site = this;
@@ -15,7 +15,7 @@ SPOC.SPSite.prototype.SPUsers = function() {
      */
     methods.query = function(account) {
         var listUrl = site.url;
-        var cache = SPOC.Utils.Storage.get('SPOCC-SpUsers' + listTitle);
+        var cache = SPOC.Utils.Storage.get('SPOCC-Users');
 
         listUrl += account ? "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + account + "%27" : "/_api/SP.UserProfiles.PeopleManager/GetMyProperties";
 
@@ -26,9 +26,19 @@ SPOC.SPSite.prototype.SPUsers = function() {
             dataType: 'json',
             complete: function() {
                 // On complete, cache results
-                SPOC.Utils.Storage.set('SPOCC-SpUsers' + listTitle, data);
+                SPOC.Utils.Storage.set('SPOCC-Users', data);
             }
         });
+    };
+
+    methods.getUserId = function(){
+        // Returns logged in users id
+        return _spPageContextInfo.userId;
+    };
+
+    methods.getUserLoginName = function(){
+        // Returns logged in users id
+        return _spPageContextInfo.userLoginName;
     };
 
     return methods;

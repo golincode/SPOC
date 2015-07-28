@@ -12,7 +12,6 @@
   // Define all top level namespaces.
   SPOC.Utils = {};
   SPOC.SPSite = null;
-  SPOC.SPUser = null;
   SPOC.Yam = null;
 
 

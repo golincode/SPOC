@@ -11,19 +11,6 @@ SPOC.SPSite = function(url) {
 };
 
 
-/**
- * Define Sp Site Object constructor
- * @params  url  url of Sharepoint site
- * @author  Martin Pomeroy <mpomeroy@wearearchitect.com>
- * @return  void
- */
-SPOC.SPUser = function(id) {
-
-    // Set URL to current site if no url passed in.
-    this.id = id ? id : "*";
-};
-
-
 
 
 /**

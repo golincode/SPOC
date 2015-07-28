@@ -1,4 +1,4 @@
-/*! SPOC 27-07-2015 */
+/*! SPOC 28-07-2015 */
 
 
 /**
@@ -15,7 +15,9 @@
   // Define all top level namespaces.
   SPOC.Utils = {};
   SPOC.SPSite = null;
+  //SPOC.SPUser = null;
   SPOC.Yam = null;
+
 
   
 // Create objects for Utils conversion
@@ -183,6 +185,7 @@ SPOC.SPSite = function(url) {
     // Set URL to current site if no url passed in.
     this.url = url ? url : _spPageContextInfo.webAbsoluteUrl;
 };
+
 
 
 
@@ -436,6 +439,41 @@ SPOC.SPSite.prototype.Lists = function(listTitle) {
                 "Accept": "application/json;odata=verbose",
                 "X-RequestDigest": $("#__REQUESTDIGEST").val(),
                 'Content-Type': "application/json;odata=verbose"
+            }
+        });
+    };
+
+    return methods;
+};
+// SharePoint List Functionlity
+
+SPOC.SPSite.prototype.SPUsers = function() {
+
+    // save reference to this
+    var site = this;
+
+    // Create object to store public methods
+    var methods = {};
+
+    /**
+     * Queries a SharePont User via REST API
+     * @params  Object query filter paramators in obj format
+     * @return  jQuery Deferred Object
+     */
+    methods.query = function(account) {
+        var listUrl = site.url;
+        var cache = SPOC.Utils.Storage.get('SPOCC-SPUsers');
+
+        listUrl += account ? "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + account + "%27" : "/_api/SP.UserProfiles.PeopleManager/GetMyProperties";
+
+        // else get data and return promise.
+        return $.ajax({
+            type: "GET",
+            url: listUrl,
+            dataType: 'json',
+            complete: function() {
+                // On complete, cache results
+                SPOC.Utils.Storage.set('SPOCC-SPUsers', data);
             }
         });
     };

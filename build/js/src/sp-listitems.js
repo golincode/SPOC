@@ -166,6 +166,27 @@ SPOC.SPSite.prototype.ListItems = function(listTitle) {
         });
     };
 
+    /**
+     * Upload document in a document library
+     * @params  Upload document: GUID document library, callBack function, setting object for the modal dialog
+     * setting: {'width': number, 'height': number, 'title': string}
+     * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
+     * @return  jQuery Deferred Object
+     */
+     methods.uploadDocument = function(GUID, settings, callback) {
+        var dialogOptions = {};
+
+            if(settings){
+                dialogOptions = settings;
+            }
+
+            dialogOptions.url = site.url + "/_layouts/Upload.aspx?List=" + GUID + "&IsDlg=1";
+            dialogOptions.dialogReturnValueCallback = Function.createDelegate(null, callback);
+            SP.UI.ModalDialog.showModalDialog(dialogOptions);
+            $('iframe').last().contents().find('#ctl00_PlaceHolderMain_UploadDocumentSection_ctl05_OpenWithExplorerLink').hide();
+        });
+    };
+
 
     return methods;
 };
