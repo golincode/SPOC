@@ -50,3 +50,41 @@ SPOC.Utils.Storage.remove = function(key, isLocal) {
         localStorage.removeItem(key);
     }
 };
+
+/**
+ * Get a cookie value by name
+ * @params  key String of key to remove
+ * @return  void
+ */
+SPOC.Utils.Storage.getCookies = function(name) {
+    name = name + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i].trim();
+        if (c.indexOf(name) === 0) return c.substring(name.length, c.length);
+    }
+    return false;
+};
+
+/**
+ * Set a cookie value by name, value and number of days before expired date
+ * @params  name String name of the cookie value
+ * @params  value Obj value to storage in the cookie
+ * @params  days Number number of days before expired
+ * @return  void
+ */
+SPOC.Utils.Storage.setCookies = function(name, value, days) {
+    var expires;
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toGMTString();
+    } else {
+        expires = "";
+    }
+    document.cookie = name + "=" + value + "; " + expires;
+};
+
+SPOC.Utils.Storage.removeCookies = function(name) {
+    SPOC.Utils.Storage.setCookies(name, "", -1);
+};
