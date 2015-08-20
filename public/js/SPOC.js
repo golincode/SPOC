@@ -1,4 +1,4 @@
-/*! SPOC 03-08-2015 */
+/*! SPOC 20-08-2015 */
 
 
 /**
@@ -6,19 +6,16 @@
  * Copyright (c) 2015-2015, Architect 365 (https://www.architect365.co.uk). All rights reserved.
  * License: Licensed under The MIT License. See license.txt and http://www.datejs.com/license/.
  * Website: https://www.architect365.co.uk
-*/
+ */
 
 
 (function(window, document, SPOC, $, undefined) {
-  'use strict';
+        'use strict';
 
-  // Define all top level namespaces.
-  SPOC.Utils = {};
-  SPOC.SP = {};
-  SPOC.Yam = {};
-
-
-  
+        // Define all top level namespaces.
+        SPOC.Utils = {};
+        SPOC.SP = {};
+        SPOC.Yam = {};
 // Create objects for Utils conversion
 SPOC.Utils.Arrays = {};
 
@@ -356,22 +353,23 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            return cache;
-        }
+            return $.Deferred().resolve(cache);
+        } else {
 
-        // else get data and return promise.
-        return $.ajax({
-            type: "GET",
-            url: listUrl,
-            dataType: 'json',
-            headers: {
-                "Accept": "application/json;odata=verbose" + verbose ? "verbose" : "nometadata"
-            },
-            complete: function(data) {
-                // On complete, cache results
-                SPOC.Utils.Storage.set('SPOCC-listitems' + listTitle, data);
-            }
-        });
+            // else get data and return promise.
+            return $.ajax({
+                type: "GET",
+                url: listUrl,
+                dataType: 'json',
+                headers: {
+                    "Accept": "application/json;odata=" + verbose ? "verbose" : "nometadata"
+                },
+                complete: function(data) {
+                    // On complete, cache results
+                    SPOC.Utils.Storage.set('SPOCC-listitems' + listTitle, data);
+                }
+            });
+        }
     };
 
     /**
@@ -437,7 +435,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
         });
     };
 
-    
+
     /**
      * Upload document in a document library
      * @params  Upload document: GUID document library, callBack function, setting object for the modal dialog
@@ -486,21 +484,22 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
 
         listUrl += settings ? '?' + SPOC.Utils.Conversion.convertObjToQueryString(settings) : '';
 
-         // Return cached version if available
+        // Return cached version if available
         if (cache && !forceNoCache) {
-            return cache;
+            return $.Deferred().resolve(cache);
+        } else {
+
+            // else get data and return promise.
+            return $.ajax({
+                type: "GET",
+                url: listUrl,
+                dataType: 'json',
+                complete: function(data) {
+                    // On complete, cache results
+                    SPOC.Utils.Storage.set('SPOCC-list' + listTitle, data);
+                }
+            });
         }
-        
-        // else get data and return promise.
-        return $.ajax({
-            type: "GET",
-            url: listUrl,
-            dataType: 'json',
-            complete: function(data) {
-                // On complete, cache results
-                SPOC.Utils.Storage.set('SPOCC-list' + listTitle, data);
-            }
-        });
     };
 
     /**
@@ -559,7 +558,7 @@ SPOC.SP.User.prototype.Profile = function() {
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            return cache;
+           return $.Deferred().resolve(cache);
         }
 
         listUrl += "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + loginNamePrefix + user.loginName + "%27";

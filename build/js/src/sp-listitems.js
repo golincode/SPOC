@@ -35,7 +35,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
                 url: listUrl,
                 dataType: 'json',
                 headers: {
-                    "Accept": "application/json;odata=verbose" + verbose ? "verbose" : "nometadata"
+                    "Accept": "application/json;odata=" + verbose ? "verbose" : "nometadata"
                 },
                 complete: function(data) {
                     // On complete, cache results
