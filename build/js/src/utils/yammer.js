@@ -15,3 +15,25 @@ SPOC.Utils.Yammer.formatFeedResponse = function(data) {
     }
     return data.messages;
 };
+
+/**
+ * Checks that user is logged into Yammer. If not, Logins user and fetches access token.
+ * @return  jQuery Deferred Object
+ */
+SPOC.Utils.Yammer.checkLogin = function() {
+    var promise = $.Deferred();
+
+    yam.getLoginStatus(function(response) {
+        if (!response.authResponse) {
+            yam.platform.login(function(user) {
+                if (user) {
+                    promise.resolve(user);
+                }
+            });
+        } else {
+            promise.resolve(response);
+        }
+    });
+
+    return promise;
+};

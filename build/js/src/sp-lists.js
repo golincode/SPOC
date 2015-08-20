@@ -1,6 +1,6 @@
 // SharePoint List Functionlity
 
-SPOC.SPSite.prototype.Lists = function(listTitle) {
+SPOC.SP.Site.prototype.Lists = function(listTitle) {
 
     // save reference to this
     var site = this;
@@ -29,7 +29,7 @@ SPOC.SPSite.prototype.Lists = function(listTitle) {
             type: "GET",
             url: listUrl,
             dataType: 'json',
-            complete: function() {
+            complete: function(data) {
                 // On complete, cache results
                 SPOC.Utils.Storage.set('SPOCC-list' + listTitle, data);
             }

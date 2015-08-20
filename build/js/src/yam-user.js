@@ -1,15 +1,12 @@
 // Yammer User Functionlity.
 
-SPOC.Yam.prototype.User = function(userId) {
+SPOC.Yam.User.prototype.Profile = function() {
 
     // save reference to this
     var _this = this;
 
     // Create object to store public methods
     var methods = {};
-
-    // If not user id is passed in, set as current.
-    userId = userId ? userId : 'current';
 
     /**
      * Queries a Yammer User Profile and returns properties
@@ -19,20 +16,20 @@ SPOC.Yam.prototype.User = function(userId) {
         var promise = $.Deferred();
 
         //Get query from cache.
-        var cache = SPOC.Utils.Storage.get('SPOCC-yamuser' + userId);
+        var cache = SPOC.Utils.Storage.get('SPOCC-yamuser' + _this.id);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
             promise.resolve(cache);
         } else {
             // Check user has access token and then then return group feed.
-            _this.Auth.checkLogin().then(function() {
+            SPOC.Utils.Yammer.checkLogin().then(function() {
                 yam.platform.request({
-                    url: "users/" + userId + ".json",
+                    url: "users/" +  _this.id + ".json",
                     method: "GET",
                     data: settings ? settings : null,
                     success: function(data) {
-                        SPOC.Utils.Storage.set('SPOCC-yamuser' + userId, data);
+                        SPOC.Utils.Storage.set('SPOCC-yamuser' +  _this.id, data);
                         promise.resolve(data);
                     },
                     error: function(data) {

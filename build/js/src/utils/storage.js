@@ -38,6 +38,7 @@ SPOC.Utils.Storage.get = function(key, isLocal) {
     }
 };
 
+
 /**
  * Checks if session and local storage is available
  * @params  key String of key to remove
@@ -50,6 +51,7 @@ SPOC.Utils.Storage.remove = function(key, isLocal) {
         localStorage.removeItem(key);
     }
 };
+
 
 /**
  * Get a cookie value by name
@@ -85,6 +87,12 @@ SPOC.Utils.Storage.setCookies = function(name, value, days) {
     document.cookie = name + "=" + value + "; " + expires;
 };
 
+
+/**
+ * Delete a cookie value by name
+ * @params  key String of key to remove
+ * @return  void
+ */
 SPOC.Utils.Storage.removeCookies = function(name) {
     SPOC.Utils.Storage.setCookies(name, "", -1);
 };

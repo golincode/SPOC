@@ -1,6 +1,6 @@
 // Yammer Group Functionlity.
 
-SPOC.Yam.prototype.Messages = function(feedId, feedType) {
+SPOC.Yam.Messages = function() {
 
     // save reference to this
     var _this = this;
@@ -13,7 +13,7 @@ SPOC.Yam.prototype.Messages = function(feedId, feedType) {
 
     // If an id is passed and feedtype, formuate new endpoint
     if (feedId && feedType) {
-        apiUrl = "messages/" + feedType === 'group' ? "in_group" : "from_user" + "/" + feedId + ".json";
+        apiUrl = "messages/" + _this.feedType === 'group' ? "in_group" : "from_user" + "/" + _this.feedId + ".json";
     }
 
     /**
@@ -24,14 +24,14 @@ SPOC.Yam.prototype.Messages = function(feedId, feedType) {
         var promise = $.Deferred();
 
         // Get query from cache.
-        var cache = SPOC.Utils.Storage.get('SPOCC-yammessage' + feedId + feedType);
+        var cache = SPOC.Utils.Storage.get('SPOCC-yammessage' + _this.feedId + _this/feedType);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
             promise.resolve(cache);
         } else {
             // Check user has access token and then then return group feed.
-            _this.Auth.checkLogin().then(function() {
+           SPOC.Utils.Yammer.checkLogin().then(function() {
                 yam.platform.request({
                     url: apiUrl,
                     method: "GET",

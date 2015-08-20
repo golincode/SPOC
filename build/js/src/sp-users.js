@@ -1,44 +1,41 @@
 // SharePoint List Functionlity
 
-SPOC.SPSite.prototype.Users = function() {
+SPOC.SP.User.prototype.Profile = function() {
 
     // save reference to this
-    var site = this;
+    var user = this;
 
     // Create object to store public methods
     var methods = {};
+
+    var loginNamePrefix = 'i:0%23.f|membership|';
 
     /**
      * Queries a SharePont User via REST API
      * @params  Object query filter paramators in obj format
      * @return  jQuery Deferred Object
      */
-    methods.query = function(account) {
-        var listUrl = site.url;
-        var cache = SPOC.Utils.Storage.get('SPOCC-Users');
+    methods.query = function(forceNoCache) {
+        var listUrl = _spPageContextInfo.webAbsoluteUrl;
+        var cache = SPOC.Utils.Storage.set('SPOCC-Users-' + user.id);
 
-        listUrl += account ? "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + account + "%27" : "/_api/SP.UserProfiles.PeopleManager/GetMyProperties";
+        // Return cached version if available
+        if (cache && !forceNoCache) {
+            return cache;
+        }
+
+        listUrl += "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + loginNamePrefix + user.loginName + "%27";
 
         // else get data and return promise.
         return $.ajax({
             type: "GET",
             url: listUrl,
             dataType: 'json',
-            complete: function() {
+            complete: function(data) {
                 // On complete, cache results
-                SPOC.Utils.Storage.set('SPOCC-Users', data);
+                SPOC.Utils.Storage.set('SPOCC-Users-' + user.id, data);
             }
         });
-    };
-
-    methods.getUserId = function(){
-        // Returns logged in users id
-        return _spPageContextInfo.userId;
-    };
-
-    methods.getUserLoginName = function(){
-        // Returns logged in users id
-        return _spPageContextInfo.userLoginName;
     };
 
     return methods;
