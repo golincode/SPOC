@@ -19,21 +19,22 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
 
         listUrl += settings ? '?' + SPOC.Utils.Conversion.convertObjToQueryString(settings) : '';
 
-         // Return cached version if available
+        // Return cached version if available
         if (cache && !forceNoCache) {
-            return cache;
+            return $.Deferred().resolve(cache);
+        } else {
+
+            // else get data and return promise.
+            return $.ajax({
+                type: "GET",
+                url: listUrl,
+                dataType: 'json',
+                complete: function(data) {
+                    // On complete, cache results
+                    SPOC.Utils.Storage.set('SPOCC-list' + listTitle, data);
+                }
+            });
         }
-        
-        // else get data and return promise.
-        return $.ajax({
-            type: "GET",
-            url: listUrl,
-            dataType: 'json',
-            complete: function(data) {
-                // On complete, cache results
-                SPOC.Utils.Storage.set('SPOCC-list' + listTitle, data);
-            }
-        });
     };
 
     /**

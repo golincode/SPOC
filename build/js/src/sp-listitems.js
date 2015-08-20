@@ -26,22 +26,23 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            return cache;
-        }
+            return $.Deferred().resolve(cache);
+        } else {
 
-        // else get data and return promise.
-        return $.ajax({
-            type: "GET",
-            url: listUrl,
-            dataType: 'json',
-            headers: {
-                "Accept": "application/json;odata=verbose" + verbose ? "verbose" : "nometadata"
-            },
-            complete: function(data) {
-                // On complete, cache results
-                SPOC.Utils.Storage.set('SPOCC-listitems' + listTitle, data);
-            }
-        });
+            // else get data and return promise.
+            return $.ajax({
+                type: "GET",
+                url: listUrl,
+                dataType: 'json',
+                headers: {
+                    "Accept": "application/json;odata=verbose" + verbose ? "verbose" : "nometadata"
+                },
+                complete: function(data) {
+                    // On complete, cache results
+                    SPOC.Utils.Storage.set('SPOCC-listitems' + listTitle, data);
+                }
+            });
+        }
     };
 
     /**
@@ -107,7 +108,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
         });
     };
 
-    
+
     /**
      * Upload document in a document library
      * @params  Upload document: GUID document library, callBack function, setting object for the modal dialog
