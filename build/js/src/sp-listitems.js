@@ -16,33 +16,43 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * @return  jQuery Deferred Object
      */
     methods.query = function(settings, forceNoCache, verbose) {
+        var deferred = $.Deferred();
+
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
 
         // Get query from cache.
         var cache = SPOC.Utils.Storage.get('SPOCC-listitems' + listTitle);
 
         // Convert and append query params
-        listUrl += settings ? '?' + SPOC.Utils.convertObjToQueryString(settings) : '';
+        listUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            return $.Deferred().resolve(cache);
+            return deferred.promise().resolve(cache);
         } else {
 
             // else get data and return promise.
-            return $.ajax({
+            $.ajax({
                 type: "GET",
                 url: listUrl,
                 dataType: 'json',
                 headers: {
-                    "Accept": "application/json;odata=" + verbose ? "verbose" : "nometadata"
+                    "Accept": "application/json;odata=verbose"
                 },
-                complete: function(data) {
+                success: function(data) {
                     // On complete, cache results
                     SPOC.Utils.Storage.set('SPOCC-listitems' + listTitle, data);
+                    deferred.resolve(data);
+                },
+                error: function(data) {
+                    deferred.reject(data);
                 }
             });
+
+            return deferred.promise();
         }
+
+
     };
 
     /**
@@ -52,6 +62,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * @return  jQuery Deferred Object
      */
     methods.create = function(items) {
+        var deferred = $.Deferred();
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
         var data = {
             __metadata: {
@@ -63,7 +74,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
             $.extend(data, items);
         }
 
-        return $.ajax({
+        $.ajax({
             type: "POST",
             url: listUrl,
             data: JSON.stringify(data),
@@ -71,8 +82,16 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
                 "Accept": "application/json;odata=verbose",
                 "X-RequestDigest": $("#__REQUESTDIGEST").val(),
                 'Content-Type': "application/json;odata=verbose"
+            },
+            success: function(data) {
+                deferred.resolve(data);
+            },
+            error: function(data) {
+                deferred.reject(data);
             }
         });
+
+        return deferred.promise();
     };
 
 
@@ -83,6 +102,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * @return  jQuery Deferred Object
      */
     methods.update = function(id, data) {
+        var deferred = $.Deferred();
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
         var defaults = {
             __metadata: {
@@ -96,7 +116,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
             $.extend(defaults, settings);
         }
 
-        return $.ajax({
+        $.ajax({
             type: "POST",
             url: listUrl,
             data: JSON.stringify(defaults),
@@ -104,8 +124,16 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
                 "Accept": "application/json;odata=verbose",
                 "X-RequestDigest": $("#__REQUESTDIGEST").val(),
                 'Content-Type': "application/json;odata=verbose"
+            },
+            success: function(data) {
+                deferred.resolve(data);
+            },
+            error: function(data) {
+                deferred.reject(data);
             }
         });
+
+        return deferred.promise();
     };
 
 
@@ -117,7 +145,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * @return  jQuery Deferred Object
      */
     methods.uploadDocument = function(GUID, settings) {
-        var promise = $.Deferred();
+        var defer = $.Deferred();
         var dialogOptions = {};
 
         if (settings) {
@@ -126,11 +154,11 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
 
         dialogOptions.url = site.url + "/_layouts/Upload.aspx?List=" + GUID + "&IsDlg=1";
         dialogOptions.dialogReturnValueCallback = Function.createDelegate(null, function(result) {
-            promise.resolve(result);
+            defer.resolve(result);
         });
 
         SP.UI.ModalDialog.showModalDialog(dialogOptions);
-        return promise;
+        return defer.promise();
     };
 
 

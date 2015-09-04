@@ -16,26 +16,31 @@ SPOC.SP.User.prototype.Profile = function() {
      * @return  jQuery Deferred Object
      */
     methods.query = function(forceNoCache) {
+        var deferred = $.Deferred();
         var listUrl = _spPageContextInfo.webAbsoluteUrl;
         var cache = SPOC.Utils.Storage.set('SPOCC-Users-' + user.id);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-           return $.Deferred().resolve(cache);
+            return deferred.promise().resolve(cache);
+        } else {
+
+            listUrl += "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + loginNamePrefix + user.loginName + "%27";
+
+            // else get data and return promise.
+            $.ajax({
+                type: "GET",
+                url: listUrl,
+                dataType: 'json',
+                success: function(data) {
+                    // On complete, cache results
+                    SPOC.Utils.Storage.set('SPOCC-Users-' + user.id, data);
+                    deferred.resolve(data);
+                }
+            });
+
+            return deferred.promise();
         }
-
-        listUrl += "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + loginNamePrefix + user.loginName + "%27";
-
-        // else get data and return promise.
-        return $.ajax({
-            type: "GET",
-            url: listUrl,
-            dataType: 'json',
-            complete: function(data) {
-                // On complete, cache results
-                SPOC.Utils.Storage.set('SPOCC-Users-' + user.id, data);
-            }
-        });
     };
 
     return methods;

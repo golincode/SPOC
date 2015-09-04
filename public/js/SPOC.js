@@ -1,4 +1,4 @@
-/*! SPOC 20-08-2015 */
+/*! SPOC 04-09-2015 */
 
 
 /**
@@ -343,33 +343,43 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * @return  jQuery Deferred Object
      */
     methods.query = function(settings, forceNoCache, verbose) {
+        var deferred = $.Deferred();
+
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
 
         // Get query from cache.
         var cache = SPOC.Utils.Storage.get('SPOCC-listitems' + listTitle);
 
         // Convert and append query params
-        listUrl += settings ? '?' + SPOC.Utils.convertObjToQueryString(settings) : '';
+        listUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            return $.Deferred().resolve(cache);
+            return deferred.promise().resolve(cache);
         } else {
 
             // else get data and return promise.
-            return $.ajax({
+            $.ajax({
                 type: "GET",
                 url: listUrl,
                 dataType: 'json',
                 headers: {
-                    "Accept": "application/json;odata=" + verbose ? "verbose" : "nometadata"
+                    "Accept": "application/json;odata=verbose"
                 },
-                complete: function(data) {
+                success: function(data) {
                     // On complete, cache results
                     SPOC.Utils.Storage.set('SPOCC-listitems' + listTitle, data);
+                    deferred.resolve(data);
+                },
+                error: function(data) {
+                    deferred.reject(data);
                 }
             });
+
+            return deferred.promise();
         }
+
+
     };
 
     /**
@@ -379,6 +389,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * @return  jQuery Deferred Object
      */
     methods.create = function(items) {
+        var deferred = $.Deferred();
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
         var data = {
             __metadata: {
@@ -390,7 +401,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
             $.extend(data, items);
         }
 
-        return $.ajax({
+        $.ajax({
             type: "POST",
             url: listUrl,
             data: JSON.stringify(data),
@@ -398,8 +409,16 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
                 "Accept": "application/json;odata=verbose",
                 "X-RequestDigest": $("#__REQUESTDIGEST").val(),
                 'Content-Type': "application/json;odata=verbose"
+            },
+            success: function(data) {
+                deferred.resolve(data);
+            },
+            error: function(data) {
+                deferred.reject(data);
             }
         });
+
+        return deferred.promise();
     };
 
 
@@ -410,6 +429,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * @return  jQuery Deferred Object
      */
     methods.update = function(id, data) {
+        var deferred = $.Deferred();
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
         var defaults = {
             __metadata: {
@@ -423,7 +443,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
             $.extend(defaults, settings);
         }
 
-        return $.ajax({
+        $.ajax({
             type: "POST",
             url: listUrl,
             data: JSON.stringify(defaults),
@@ -431,8 +451,16 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
                 "Accept": "application/json;odata=verbose",
                 "X-RequestDigest": $("#__REQUESTDIGEST").val(),
                 'Content-Type': "application/json;odata=verbose"
+            },
+            success: function(data) {
+                deferred.resolve(data);
+            },
+            error: function(data) {
+                deferred.reject(data);
             }
         });
+
+        return deferred.promise();
     };
 
 
@@ -444,7 +472,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * @return  jQuery Deferred Object
      */
     methods.uploadDocument = function(GUID, settings) {
-        var promise = $.Deferred();
+        var defer = $.Deferred();
         var dialogOptions = {};
 
         if (settings) {
@@ -453,11 +481,11 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
 
         dialogOptions.url = site.url + "/_layouts/Upload.aspx?List=" + GUID + "&IsDlg=1";
         dialogOptions.dialogReturnValueCallback = Function.createDelegate(null, function(result) {
-            promise.resolve(result);
+            defer.resolve(result);
         });
 
         SP.UI.ModalDialog.showModalDialog(dialogOptions);
-        return promise;
+        return defer.promise();
     };
 
 
@@ -479,6 +507,7 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
      * @return  jQuery Deferred Object
      */
     methods.query = function(settings, forceNoCache) {
+        var deferred = $.Deferred();
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/';
         var cache = SPOC.Utils.Storage.get('SPOCC-list' + listTitle);
 
@@ -486,20 +515,27 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            return $.Deferred().resolve(cache);
+            return deferred.promise().resolve(cache);
         } else {
 
             // else get data and return promise.
-            return $.ajax({
+            $.ajax({
                 type: "GET",
                 url: listUrl,
                 dataType: 'json',
-                complete: function(data) {
+                success: function(data) {
                     // On complete, cache results
                     SPOC.Utils.Storage.set('SPOCC-list' + listTitle, data);
+                    deferred.resolve(data);
+                },
+                error: function(data) {
+                    deferred.reject(data);
                 }
             });
+
+            return deferred.promise();
         }
+
     };
 
     /**
@@ -509,6 +545,7 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
      * @return  jQuery Deferred Object
      */
     methods.create = function(settings) {
+        var deferred = $.Deferred();
         var defaults = {
             __metadata: {
                 'type': 'SP.List'
@@ -521,7 +558,7 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
             $.extend(defaults, settings);
         }
 
-        return $.ajax({
+        $.ajax({
             type: "POST",
             url: site.url + '/_api/web/lists',
             data: JSON.stringify(defaults),
@@ -529,8 +566,16 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
                 "Accept": "application/json;odata=verbose",
                 "X-RequestDigest": $("#__REQUESTDIGEST").val(),
                 'Content-Type': "application/json;odata=verbose"
+            },
+            success: function(data) {
+                deferred.resolve(data);
+            },
+            error: function(data) {
+                deferred.reject(data);
             }
         });
+
+        return deferred.promise();
     };
 
     return methods;
@@ -553,26 +598,31 @@ SPOC.SP.User.prototype.Profile = function() {
      * @return  jQuery Deferred Object
      */
     methods.query = function(forceNoCache) {
+        var deferred = $.Deferred();
         var listUrl = _spPageContextInfo.webAbsoluteUrl;
         var cache = SPOC.Utils.Storage.set('SPOCC-Users-' + user.id);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-           return $.Deferred().resolve(cache);
+            return deferred.promise().resolve(cache);
+        } else {
+
+            listUrl += "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + loginNamePrefix + user.loginName + "%27";
+
+            // else get data and return promise.
+            $.ajax({
+                type: "GET",
+                url: listUrl,
+                dataType: 'json',
+                success: function(data) {
+                    // On complete, cache results
+                    SPOC.Utils.Storage.set('SPOCC-Users-' + user.id, data);
+                    deferred.resolve(data);
+                }
+            });
+
+            return deferred.promise();
         }
-
-        listUrl += "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + loginNamePrefix + user.loginName + "%27";
-
-        // else get data and return promise.
-        return $.ajax({
-            type: "GET",
-            url: listUrl,
-            dataType: 'json',
-            complete: function(data) {
-                // On complete, cache results
-                SPOC.Utils.Storage.set('SPOCC-Users-' + user.id, data);
-            }
-        });
     };
 
     return methods;
@@ -591,7 +641,7 @@ SPOC.Yam.Messages = function() {
     var apiUrl = "messages.json";
 
     // If an id is passed and feedtype, formuate new endpoint
-    if (feedId && feedType) {
+    if (_this.feedId && _this.feedType) {
         apiUrl = "messages/" + _this.feedType === 'group' ? "in_group" : "from_user" + "/" + _this.feedId + ".json";
     }
 
@@ -600,17 +650,17 @@ SPOC.Yam.Messages = function() {
      * @return  jQuery Deferred Object
      */
     methods.query = function(settings, forceNoCache) {
-        var promise = $.Deferred();
+        var deferred = $.Deferred();
 
         // Get query from cache.
-        var cache = SPOC.Utils.Storage.get('SPOCC-yammessage' + _this.feedId + _this/feedType);
+        var cache = SPOC.Utils.Storage.get('SPOCC-yammessage' + _this.feedId + _this.feedType);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            promise.resolve(cache);
+            return deferred.promise().resolve(cache);
         } else {
             // Check user has access token and then then return group feed.
-           SPOC.Utils.Yammer.checkLogin().then(function() {
+            SPOC.Utils.Yammer.checkLogin().then(function() {
                 yam.platform.request({
                     url: apiUrl,
                     method: "GET",
@@ -618,17 +668,18 @@ SPOC.Yam.Messages = function() {
                     success: function(data) {
                         // Format response to combine references with messages
                         data = SPOC.Utils.Yammer.formatFeedResponse(data);
-                        SPOC.Utils.Storage.set('SPOCC-yammessage' + feedId + feedType, data);
-                        promise.resolve(data);
+                        SPOC.Utils.Storage.set('SPOCC-yammessage' + _this.feedId + _this.feedType, data);
+                        deferred.resolve(data);
                     },
                     error: function(data) {
-                        promise.reject(data);
+                        deferred.reject(data);
                     }
                 });
             });
+
+            return deferred.promise();
         }
 
-        return promise;
     };
 
 
@@ -650,33 +701,34 @@ SPOC.Yam.User.prototype.Profile = function() {
      * @return  jQuery Deferred Object
      */
     methods.query = function(settings, forceNoCache) {
-        var promise = $.Deferred();
+        var defer = $.Deferred();
 
         //Get query from cache.
         var cache = SPOC.Utils.Storage.get('SPOCC-yamuser' + _this.id);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            promise.resolve(cache);
+            return defer.resolve(cache);
         } else {
             // Check user has access token and then then return group feed.
             SPOC.Utils.Yammer.checkLogin().then(function() {
                 yam.platform.request({
-                    url: "users/" +  _this.id + ".json",
+                    url: "users/" + _this.id + ".json",
                     method: "GET",
                     data: settings ? settings : null,
                     success: function(data) {
-                        SPOC.Utils.Storage.set('SPOCC-yamuser' +  _this.id, data);
-                        promise.resolve(data);
+                        SPOC.Utils.Storage.set('SPOCC-yamuser' + _this.id, data);
+                        defer.resolve(data);
                     },
                     error: function(data) {
-                        promise.reject(data);
+                        defer.reject(data);
                     }
                 });
             });
+
+            return defer.promise();
         }
 
-        return promise;
     };
 
     return methods;

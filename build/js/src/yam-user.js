@@ -13,33 +13,34 @@ SPOC.Yam.User.prototype.Profile = function() {
      * @return  jQuery Deferred Object
      */
     methods.query = function(settings, forceNoCache) {
-        var promise = $.Deferred();
+        var defer = $.Deferred();
 
         //Get query from cache.
         var cache = SPOC.Utils.Storage.get('SPOCC-yamuser' + _this.id);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            promise.resolve(cache);
+            return defer.resolve(cache);
         } else {
             // Check user has access token and then then return group feed.
             SPOC.Utils.Yammer.checkLogin().then(function() {
                 yam.platform.request({
-                    url: "users/" +  _this.id + ".json",
+                    url: "users/" + _this.id + ".json",
                     method: "GET",
                     data: settings ? settings : null,
                     success: function(data) {
-                        SPOC.Utils.Storage.set('SPOCC-yamuser' +  _this.id, data);
-                        promise.resolve(data);
+                        SPOC.Utils.Storage.set('SPOCC-yamuser' + _this.id, data);
+                        defer.resolve(data);
                     },
                     error: function(data) {
-                        promise.reject(data);
+                        defer.reject(data);
                     }
                 });
             });
+
+            return defer.promise();
         }
 
-        return promise;
     };
 
     return methods;
