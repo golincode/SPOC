@@ -1,6 +1,6 @@
-// Yammer Group Functionlity.
+// Yammer User Functionlity.
 
-SPOC.Yam.Search = function() {
+SPOC.Yam.User.prototype.Subscriptions = function() {
 
     // save reference to this
     var _this = this;
@@ -8,18 +8,15 @@ SPOC.Yam.Search = function() {
     // Create object to store public methods
     var methods = {};
 
-    // Default api endpoint to search
-    var apiUrl = "search.json";
-
     /**
-     * Queries a Yammer Group and returns feed items
+     * Queries a Yammer User Profile and returns properties
      * @return  jQuery Deferred Object
      */
     methods.query = function(settings, forceNoCache) {
-        var deferred = $.Deferred();
+        var defer = $.Deferred();
 
-        // Get query from cache.
-        var cache = SPOC.Utils.Storage.get('SPOCC-yamsearch-' + JSON.stringify(settings));
+        //Get query from cache.
+        var cache = SPOC.Utils.Storage.get('SPOCC-yamsubscriptions' + _this.id);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
@@ -28,26 +25,23 @@ SPOC.Yam.Search = function() {
             // Check user has access token and then then return group feed.
             SPOC.Utils.Yammer.checkLogin().then(function() {
                 yam.platform.request({
-                    url: apiUrl,
+                    url: "subscriptions/to_user/" + _this.id + ".json",
                     method: "GET",
                     data: settings ? settings : null,
                     success: function(data) {
-                        // Format response to combine references with messages
-                        data = SPOC.Utils.Yammer.formatSearchResponse(data);
-                        SPOC.Utils.Storage.set('SPOCC-yamsearch-' + JSON.stringify(settings), data);
-                        deferred.resolve(data);
+                        SPOC.Utils.Storage.set('SPOCC-yamsubscriptions' + _this.id, data);
+                        defer.resolve(data);
                     },
                     error: function(data) {
-                        deferred.reject(data);
+                        defer.reject(data);
                     }
                 });
             });
 
         }
-        return deferred.promise();
+        return defer.promise();
 
     };
-
 
     return methods;
 

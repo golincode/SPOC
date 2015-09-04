@@ -28,7 +28,7 @@ SPOC.Yam.Messages = function() {
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            return deferred.promise().resolve(cache);
+            deferred.resolve(cache);
         } else {
             // Check user has access token and then then return group feed.
             SPOC.Utils.Yammer.checkLogin().then(function() {
@@ -47,9 +47,9 @@ SPOC.Yam.Messages = function() {
                     }
                 });
             });
-
-            return deferred.promise();
         }
+
+        return deferred.promise();
 
     };
 

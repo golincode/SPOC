@@ -232,12 +232,34 @@ SPOC.Utils.Yammer = {};
  */
 SPOC.Utils.Yammer.formatFeedResponse = function(data) {
     var i;
+
     for (i = 0; i < data.messages.length; i++) {
         if (data.messages[i].sender_type && data.messages[i].sender_type === 'user') {
             data.messages[i].user = SPOC.Utils.Arrays.findByProperty(data.references, 'id', data.messages[i].sender_id);
         }
     }
     return data.messages;
+};
+
+
+/**
+ * Matches references with messages and returns tidier data object
+ * @params  array obj Yammer feed Object
+ * @return  array
+ */
+SPOC.Utils.Yammer.formatSearchResponse = function(data) {
+    var i;
+
+    if (data.messages && data.messages.messages) {
+        for (i = 0; i < data.messages.messages.length; i++) {
+            var message = data.messages.messages[i];
+            if (message.sender_type && message.sender_type === 'user') {
+                message.user = SPOC.Utils.Arrays.findByProperty(data.messages.references, 'id', message.sender_id);
+            }
+        }
+    }
+
+    return data;
 };
 
 /**
@@ -326,20 +348,6 @@ SPOC.Yam.Messages = function(feedId, feedType) {
 
 };
 
-/**
- * Define Yam Object constructor & ensure login
- * @params  url  url of Sharepoint site
- * @author  Martin Pomeroy <mpomeroy@wearearchitect.com>
- * @return  void
- */
-SPOC.Yam.Search = function() {
-
-    if (!window.yam) {
-        //@todo: Update error messages to SP notifications?
-        console.log('Please ensure that you have included Yammer SDK and added a valid Client Id');
-    }
-    
-};
 // SharePoint List Items Functionlity
 
 
@@ -672,7 +680,7 @@ SPOC.Yam.Messages = function() {
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            return deferred.promise().resolve(cache);
+            deferred.resolve(cache);
         } else {
             // Check user has access token and then then return group feed.
             SPOC.Utils.Yammer.checkLogin().then(function() {
@@ -691,9 +699,9 @@ SPOC.Yam.Messages = function() {
                     }
                 });
             });
-
-            return deferred.promise();
         }
+
+        return deferred.promise();
 
     };
 
@@ -722,11 +730,11 @@ SPOC.Yam.Search = function() {
         var deferred = $.Deferred();
 
         // Get query from cache.
-        var cache = SPOC.Utils.Storage.get('SPOCC-yamsearch' + _this.feedId + _this.feedType);
+        var cache = SPOC.Utils.Storage.get('SPOCC-yamsearch-' + JSON.stringify(settings));
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            return deferred.promise().resolve(cache);
+            deferred.resolve(cache);
         } else {
             // Check user has access token and then then return group feed.
             SPOC.Utils.Yammer.checkLogin().then(function() {
@@ -736,8 +744,8 @@ SPOC.Yam.Search = function() {
                     data: settings ? settings : null,
                     success: function(data) {
                         // Format response to combine references with messages
-                        data = SPOC.Utils.Yammer.formatFeedResponse(data);
-                        SPOC.Utils.Storage.set('SPOCC-yamsearch' + _this.feedId + _this.feedType, data);
+                        data = SPOC.Utils.Yammer.formatSearchResponse(data);
+                        SPOC.Utils.Storage.set('SPOCC-yamsearch-' + JSON.stringify(settings), data);
                         deferred.resolve(data);
                     },
                     error: function(data) {
@@ -746,11 +754,59 @@ SPOC.Yam.Search = function() {
                 });
             });
 
-            return deferred.promise();
         }
+        return deferred.promise();
 
     };
 
+
+    return methods;
+
+};
+// Yammer User Functionlity.
+
+SPOC.Yam.User.prototype.Subscriptions = function() {
+
+    // save reference to this
+    var _this = this;
+
+    // Create object to store public methods
+    var methods = {};
+
+    /**
+     * Queries a Yammer User Profile and returns properties
+     * @return  jQuery Deferred Object
+     */
+    methods.query = function(settings, forceNoCache) {
+        var defer = $.Deferred();
+
+        //Get query from cache.
+        var cache = SPOC.Utils.Storage.get('SPOCC-yamsubscriptions' + _this.id);
+
+        // Return cached version if available
+        if (cache && !forceNoCache) {
+            deferred.resolve(cache);
+        } else {
+            // Check user has access token and then then return group feed.
+            SPOC.Utils.Yammer.checkLogin().then(function() {
+                yam.platform.request({
+                    url: "subscriptions/to_user/" + _this.id + ".json",
+                    method: "GET",
+                    data: settings ? settings : null,
+                    success: function(data) {
+                        SPOC.Utils.Storage.set('SPOCC-yamsubscriptions' + _this.id, data);
+                        defer.resolve(data);
+                    },
+                    error: function(data) {
+                        defer.reject(data);
+                    }
+                });
+            });
+
+        }
+        return defer.promise();
+
+    };
 
     return methods;
 
@@ -777,7 +833,7 @@ SPOC.Yam.User.prototype.Profile = function() {
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            return defer.resolve(cache);
+            deferred.resolve(cache);
         } else {
             // Check user has access token and then then return group feed.
             SPOC.Utils.Yammer.checkLogin().then(function() {
@@ -795,8 +851,8 @@ SPOC.Yam.User.prototype.Profile = function() {
                 });
             });
 
-            return defer.promise();
         }
+        return defer.promise();
 
     };
 

@@ -20,7 +20,7 @@ SPOC.Yam.User.prototype.Profile = function() {
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            return defer.resolve(cache);
+            deferred.resolve(cache);
         } else {
             // Check user has access token and then then return group feed.
             SPOC.Utils.Yammer.checkLogin().then(function() {
@@ -38,8 +38,8 @@ SPOC.Yam.User.prototype.Profile = function() {
                 });
             });
 
-            return defer.promise();
         }
+        return defer.promise();
 
     };
 
