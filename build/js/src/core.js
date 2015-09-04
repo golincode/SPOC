@@ -62,3 +62,18 @@ SPOC.Yam.Messages = function(feedId, feedType) {
     this.feedType = feedType;
 
 };
+
+/**
+ * Define Yam Object constructor & ensure login
+ * @params  url  url of Sharepoint site
+ * @author  Martin Pomeroy <mpomeroy@wearearchitect.com>
+ * @return  void
+ */
+SPOC.Yam.Search = function() {
+
+    if (!window.yam) {
+        //@todo: Update error messages to SP notifications?
+        console.log('Please ensure that you have included Yammer SDK and added a valid Client Id');
+    }
+    
+};
