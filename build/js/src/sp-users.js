@@ -22,7 +22,7 @@ SPOC.SP.User.prototype.Profile = function() {
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            return deferred.promise().resolve(cache);
+            return deferred.resolve(cache);
         } else {
 
             listUrl += "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + loginNamePrefix + user.loginName + "%27";

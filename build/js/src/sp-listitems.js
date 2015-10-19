@@ -28,7 +28,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            return deferred.promise().resolve(cache);
+            return deferred.resolve(cache);
         } else {
 
             // else get data and return promise.
@@ -63,6 +63,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      */
     methods.create = function(items) {
         var deferred = $.Deferred();
+
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
         var data = {
             __metadata: {
@@ -70,7 +71,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
             }
         };
 
-        if (settings) {
+        if (items) {
             $.extend(data, items);
         }
 
@@ -103,17 +104,15 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      */
     methods.update = function(id, data) {
         var deferred = $.Deferred();
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
+        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items('+ id+ ')';
         var defaults = {
             __metadata: {
                 'type': SPOC.Utils.SP.getListItemType(listTitle)
-            },
-            BaseTemplate: 100,
-            Description: '',
+            }
         };
 
-        if (settings) {
-            $.extend(defaults, settings);
+        if (data) {
+            $.extend(defaults, data);
         }
 
         $.ajax({

@@ -28,24 +28,28 @@ SPOC.Yam.Messages = function() {
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            deferred.resolve(cache);
+            return deferred.resolve(cache);
         } else {
             // Check user has access token and then then return group feed.
-            SPOC.Utils.Yammer.checkLogin().then(function() {
-                yam.platform.request({
-                    url: apiUrl,
-                    method: "GET",
-                    data: settings ? settings : null,
-                    success: function(data) {
-                        // Format response to combine references with messages
-                        data = SPOC.Utils.Yammer.formatFeedResponse(data);
-                        SPOC.Utils.Storage.set('SPOCC-yammessage' + _this.feedId + _this.feedType, data);
-                        deferred.resolve(data);
-                    },
-                    error: function(data) {
-                        deferred.reject(data);
-                    }
-                });
+            SPOC.Utils.Yammer.checkLogin().then(function(result) {
+                if (result) {
+                    yam.platform.request({
+                        url: apiUrl,
+                        method: "GET",
+                        data: settings ? settings : null,
+                        success: function(data) {
+                            // Format response to combine references with messages
+                            data = SPOC.Utils.Yammer.formatFeedResponse(data);
+                            SPOC.Utils.Storage.set('SPOCC-yammessage' + _this.feedId + _this.feedType, data);
+                            deferred.resolve(data);
+                        },
+                        error: function(data) {
+                            deferred.reject(data);
+                        }
+                    });
+                } else {
+                     deferred.resolve(false);
+                }
             });
         }
 

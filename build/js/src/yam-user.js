@@ -13,33 +13,37 @@ SPOC.Yam.User.prototype.Profile = function() {
      * @return  jQuery Deferred Object
      */
     methods.query = function(settings, forceNoCache) {
-        var defer = $.Deferred();
+        var deferred = $.Deferred();
 
         //Get query from cache.
         var cache = SPOC.Utils.Storage.get('SPOCC-yamuser' + _this.id);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            deferred.resolve(cache);
+           return deferred.resolve(cache);
         } else {
             // Check user has access token and then then return group feed.
-            SPOC.Utils.Yammer.checkLogin().then(function() {
-                yam.platform.request({
-                    url: "users/" + _this.id + ".json",
-                    method: "GET",
-                    data: settings ? settings : null,
-                    success: function(data) {
-                        SPOC.Utils.Storage.set('SPOCC-yamuser' + _this.id, data);
-                        defer.resolve(data);
-                    },
-                    error: function(data) {
-                        defer.reject(data);
-                    }
-                });
+            SPOC.Utils.Yammer.checkLogin().then(function(result) {
+                if (result) {
+                    yam.platform.request({
+                        url: "users/" + _this.id + ".json",
+                        method: "GET",
+                        data: settings ? settings : null,
+                        success: function(data) {
+                            SPOC.Utils.Storage.set('SPOCC-yamuser' + _this.id, data);
+                            deferred.resolve(data);
+                        },
+                        error: function(data) {
+                            deferred.reject(data);
+                        }
+                    });
+                } else {
+                    deferred.resolve(false);
+                }
             });
 
         }
-        return defer.promise();
+        return deferred.promise();
 
     };
 

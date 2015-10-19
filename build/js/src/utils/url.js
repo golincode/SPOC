@@ -22,3 +22,24 @@ SPOC.Utils.Url.getQueryString = function(variable, query) {
         }
     }
 };
+
+SPOC.Utils.Url.getURL = function(givenUrl) {
+    var deferred = $.Deferred();
+
+    $.ajax({
+        type: "GET",
+        url: givenUrl,
+        dataType: 'json',
+        headers: {
+            "Accept": "application/json; odata=verbose"
+        },
+        success: function(data) {
+            deferred.resolve(data);
+        },
+        error: function(data) {
+            deferred.reject(data);
+        }
+    });
+
+    return deferred.promise();
+};

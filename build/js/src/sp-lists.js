@@ -22,7 +22,7 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            return deferred.promise().resolve(cache);
+            return deferred.resolve(cache);
         } else {
 
             // else get data and return promise.

@@ -1,4 +1,4 @@
-/*! SPOC 04-09-2015 */
+/*! SPOC 19-10-2015 */
 
 
 /**
@@ -222,6 +222,27 @@ SPOC.Utils.Url.getQueryString = function(variable, query) {
         }
     }
 };
+
+SPOC.Utils.Url.getURL = function(givenUrl) {
+    var deferred = $.Deferred();
+
+    $.ajax({
+        type: "GET",
+        url: givenUrl,
+        dataType: 'json',
+        headers: {
+            "Accept": "application/json; odata=verbose"
+        },
+        success: function(data) {
+            deferred.resolve(data);
+        },
+        error: function(data) {
+            deferred.reject(data);
+        }
+    });
+
+    return deferred.promise();
+};
 // Create objects for Utils conversion
 SPOC.Utils.Yammer = {};
 
@@ -232,13 +253,17 @@ SPOC.Utils.Yammer = {};
  */
 SPOC.Utils.Yammer.formatFeedResponse = function(data) {
     var i;
+    var cleanFeed = [];
 
     for (i = 0; i < data.messages.length; i++) {
-        if (data.messages[i].sender_type && data.messages[i].sender_type === 'user') {
-            data.messages[i].user = SPOC.Utils.Arrays.findByProperty(data.references, 'id', data.messages[i].sender_id);
+        if (!data.messages[i].replied_to_id) {
+            if (data.messages[i].sender_type && data.messages[i].sender_type === 'user') {
+                data.messages[i].user = SPOC.Utils.Arrays.findByProperty(data.references, 'id', data.messages[i].sender_id);
+                cleanFeed.push(data.messages[i]);
+            }
         }
     }
-    return data.messages;
+    return cleanFeed;
 };
 
 
@@ -262,26 +287,29 @@ SPOC.Utils.Yammer.formatSearchResponse = function(data) {
     return data;
 };
 
+
 /**
  * Checks that user is logged into Yammer. If not, Logins user and fetches access token.
  * @return  jQuery Deferred Object
  */
 SPOC.Utils.Yammer.checkLogin = function() {
-    var promise = $.Deferred();
+    var deferred = $.Deferred();
 
-    yam.getLoginStatus(function(response) {
-        if (!response.authResponse) {
-            yam.platform.login(function(user) {
-                if (user) {
-                    promise.resolve(user);
-                }
-            });
-        } else {
-            promise.resolve(response);
-        }
-    });
+        yam.getLoginStatus(function(response) {
+            if (response.authResponse) {
+                deferred.resolve(response);
+            } else {
+                yam.platform.login(function(user) {
+                    if (user) {
+                        deferred.resolve(user);
+                    } else {
+                        deferred.resolve(false);
+                    }
+                });
+            }
+        });
 
-    return promise;
+        return deferred.promise();
 };
 /**
  * Define Sp Site Object constructor
@@ -378,7 +406,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            return deferred.promise().resolve(cache);
+            return deferred.resolve(cache);
         } else {
 
             // else get data and return promise.
@@ -413,6 +441,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      */
     methods.create = function(items) {
         var deferred = $.Deferred();
+
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
         var data = {
             __metadata: {
@@ -420,7 +449,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
             }
         };
 
-        if (settings) {
+        if (items) {
             $.extend(data, items);
         }
 
@@ -453,17 +482,15 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      */
     methods.update = function(id, data) {
         var deferred = $.Deferred();
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
+        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items('+ id+ ')';
         var defaults = {
             __metadata: {
                 'type': SPOC.Utils.SP.getListItemType(listTitle)
-            },
-            BaseTemplate: 100,
-            Description: '',
+            }
         };
 
-        if (settings) {
-            $.extend(defaults, settings);
+        if (data) {
+            $.extend(defaults, data);
         }
 
         $.ajax({
@@ -538,7 +565,7 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            return deferred.promise().resolve(cache);
+            return deferred.resolve(cache);
         } else {
 
             // else get data and return promise.
@@ -627,7 +654,7 @@ SPOC.SP.User.prototype.Profile = function() {
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            return deferred.promise().resolve(cache);
+            return deferred.resolve(cache);
         } else {
 
             listUrl += "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + loginNamePrefix + user.loginName + "%27";
@@ -680,24 +707,28 @@ SPOC.Yam.Messages = function() {
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            deferred.resolve(cache);
+            return deferred.resolve(cache);
         } else {
             // Check user has access token and then then return group feed.
-            SPOC.Utils.Yammer.checkLogin().then(function() {
-                yam.platform.request({
-                    url: apiUrl,
-                    method: "GET",
-                    data: settings ? settings : null,
-                    success: function(data) {
-                        // Format response to combine references with messages
-                        data = SPOC.Utils.Yammer.formatFeedResponse(data);
-                        SPOC.Utils.Storage.set('SPOCC-yammessage' + _this.feedId + _this.feedType, data);
-                        deferred.resolve(data);
-                    },
-                    error: function(data) {
-                        deferred.reject(data);
-                    }
-                });
+            SPOC.Utils.Yammer.checkLogin().then(function(result) {
+                if (result) {
+                    yam.platform.request({
+                        url: apiUrl,
+                        method: "GET",
+                        data: settings ? settings : null,
+                        success: function(data) {
+                            // Format response to combine references with messages
+                            data = SPOC.Utils.Yammer.formatFeedResponse(data);
+                            SPOC.Utils.Storage.set('SPOCC-yammessage' + _this.feedId + _this.feedType, data);
+                            deferred.resolve(data);
+                        },
+                        error: function(data) {
+                            deferred.reject(data);
+                        }
+                    });
+                } else {
+                     deferred.resolve(false);
+                }
             });
         }
 
@@ -734,24 +765,28 @@ SPOC.Yam.Search = function() {
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            deferred.resolve(cache);
+            return deferred.resolve(cache);
         } else {
             // Check user has access token and then then return group feed.
-            SPOC.Utils.Yammer.checkLogin().then(function() {
-                yam.platform.request({
-                    url: apiUrl,
-                    method: "GET",
-                    data: settings ? settings : null,
-                    success: function(data) {
-                        // Format response to combine references with messages
-                        data = SPOC.Utils.Yammer.formatSearchResponse(data);
-                        SPOC.Utils.Storage.set('SPOCC-yamsearch-' + JSON.stringify(settings), data);
-                        deferred.resolve(data);
-                    },
-                    error: function(data) {
-                        deferred.reject(data);
-                    }
-                });
+            SPOC.Utils.Yammer.checkLogin().then(function(result) {
+                if (result) {
+                    yam.platform.request({
+                        url: apiUrl,
+                        method: "GET",
+                        data: settings ? settings : null,
+                        success: function(data) {
+                            // Format response to combine references with messages
+                            data = SPOC.Utils.Yammer.formatSearchResponse(data);
+                            SPOC.Utils.Storage.set('SPOCC-yamsearch-' + JSON.stringify(settings), data);
+                            deferred.resolve(data);
+                        },
+                        error: function(data) {
+                            deferred.reject(data);
+                        }
+                    });
+                } else {
+                    deferred.resolve(data);
+                }
             });
 
         }
@@ -778,33 +813,37 @@ SPOC.Yam.User.prototype.Subscriptions = function() {
      * @return  jQuery Deferred Object
      */
     methods.query = function(settings, forceNoCache) {
-        var defer = $.Deferred();
+        var deferred = $.Deferred();
 
         //Get query from cache.
         var cache = SPOC.Utils.Storage.get('SPOCC-yamsubscriptions' + _this.id);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            deferred.resolve(cache);
+            return deferred.resolve(cache);
         } else {
             // Check user has access token and then then return group feed.
-            SPOC.Utils.Yammer.checkLogin().then(function() {
-                yam.platform.request({
-                    url: "subscriptions/to_user/" + _this.id + ".json",
-                    method: "GET",
-                    data: settings ? settings : null,
-                    success: function(data) {
-                        SPOC.Utils.Storage.set('SPOCC-yamsubscriptions' + _this.id, data);
-                        defer.resolve(data);
-                    },
-                    error: function(data) {
-                        defer.reject(data);
-                    }
-                });
+            SPOC.Utils.Yammer.checkLogin().then(function(result) {
+                if (result) {
+                    yam.platform.request({
+                        url: "subscriptions/to_user/" + _this.id + ".json",
+                        method: "GET",
+                        data: settings ? settings : null,
+                        success: function(data) {
+                            SPOC.Utils.Storage.set('SPOCC-yamsubscriptions' + _this.id, data);
+                            deferred.resolve(data);
+                        },
+                        error: function(data) {
+                            deferred.reject(data);
+                        }
+                    });
+                } else {
+                    deferred.resolve(false);
+                }
             });
 
         }
-        return defer.promise();
+        return deferred.promise();
 
     };
 
@@ -826,33 +865,37 @@ SPOC.Yam.User.prototype.Profile = function() {
      * @return  jQuery Deferred Object
      */
     methods.query = function(settings, forceNoCache) {
-        var defer = $.Deferred();
+        var deferred = $.Deferred();
 
         //Get query from cache.
         var cache = SPOC.Utils.Storage.get('SPOCC-yamuser' + _this.id);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
-            deferred.resolve(cache);
+           return deferred.resolve(cache);
         } else {
             // Check user has access token and then then return group feed.
-            SPOC.Utils.Yammer.checkLogin().then(function() {
-                yam.platform.request({
-                    url: "users/" + _this.id + ".json",
-                    method: "GET",
-                    data: settings ? settings : null,
-                    success: function(data) {
-                        SPOC.Utils.Storage.set('SPOCC-yamuser' + _this.id, data);
-                        defer.resolve(data);
-                    },
-                    error: function(data) {
-                        defer.reject(data);
-                    }
-                });
+            SPOC.Utils.Yammer.checkLogin().then(function(result) {
+                if (result) {
+                    yam.platform.request({
+                        url: "users/" + _this.id + ".json",
+                        method: "GET",
+                        data: settings ? settings : null,
+                        success: function(data) {
+                            SPOC.Utils.Storage.set('SPOCC-yamuser' + _this.id, data);
+                            deferred.resolve(data);
+                        },
+                        error: function(data) {
+                            deferred.reject(data);
+                        }
+                    });
+                } else {
+                    deferred.resolve(false);
+                }
             });
 
         }
-        return defer.promise();
+        return deferred.promise();
 
     };
 

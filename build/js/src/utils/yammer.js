@@ -8,13 +8,17 @@ SPOC.Utils.Yammer = {};
  */
 SPOC.Utils.Yammer.formatFeedResponse = function(data) {
     var i;
+    var cleanFeed = [];
 
     for (i = 0; i < data.messages.length; i++) {
-        if (data.messages[i].sender_type && data.messages[i].sender_type === 'user') {
-            data.messages[i].user = SPOC.Utils.Arrays.findByProperty(data.references, 'id', data.messages[i].sender_id);
+        if (!data.messages[i].replied_to_id) {
+            if (data.messages[i].sender_type && data.messages[i].sender_type === 'user') {
+                data.messages[i].user = SPOC.Utils.Arrays.findByProperty(data.references, 'id', data.messages[i].sender_id);
+                cleanFeed.push(data.messages[i]);
+            }
         }
     }
-    return data.messages;
+    return cleanFeed;
 };
 
 
@@ -38,55 +42,27 @@ SPOC.Utils.Yammer.formatSearchResponse = function(data) {
     return data;
 };
 
+
 /**
  * Checks that user is logged into Yammer. If not, Logins user and fetches access token.
  * @return  jQuery Deferred Object
  */
 SPOC.Utils.Yammer.checkLogin = function() {
-    //var promise = $.Deferred();
-    var loginStatus = SPOC.Utils.Storage.get('loginRegister');
+    var deferred = $.Deferred();
 
-    if (!loginStatus) {
-        var ua = window.navigator.userAgent;
-        var msie = ua.indexOf("MSIE ");
-        var ieVersion = "";
+        yam.getLoginStatus(function(response) {
+            if (response.authResponse) {
+                deferred.resolve(response);
+            } else {
+                yam.platform.login(function(user) {
+                    if (user) {
+                        deferred.resolve(user);
+                    } else {
+                        deferred.resolve(false);
+                    }
+                });
+            }
+        });
 
-        if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) {
-            // If Internet Explorer, return version number
-            ieVersion = parseInt(ua.substring(msie + 5, ua.indexOf(".", msie)));
-        }
-
-        if (ieVersion == 9) {
-            var iframe = document.createElement("iframe");
-            iframe.src = "https://www.yammer.com/platform_embed/feed?network=architect365.co.uk&config%5Buse_sso%5D=true&config%5Bheader%5D=false&config%5Bfooter%5D=false&config%5BshowOpenGraphPreview%5D=false&config%5BdefaultToCanonical%5D=false&config%5BhideNetworkName%5D=false&container=%23embedded-feed&network_permalink=architect365.co.uk&bust=1442836822385";
-            iframe.onload = function() {
-                SPOC.Utils.Storage.set('loginRegister', true);
-                location.reload();
-            };
-
-            $('#hidZone').append(iframe);
-        } else {
-            yam.getLoginStatus(function(response) {
-                if (!response.authResponse) {
-                    var iframe = document.createElement("iframe");
-                    iframe.src = "https://www.yammer.com/platform_embed/feed?network=architect365.co.uk&config%5Buse_sso%5D=true&config%5Bheader%5D=false&config%5Bfooter%5D=false&config%5BshowOpenGraphPreview%5D=false&config%5BdefaultToCanonical%5D=false&config%5BhideNetworkName%5D=false&container=%23embedded-feed&network_permalink=architect365.co.uk&bust=1442836822385";
-                    iframe.onload = function() {
-                        $('.loginContainer iframe').remove();
-                        yam.platform.login(function(user) {
-                            if (user) {
-                                SPOC.Utils.Storage.set('loginRegister', true);
-                                promise.resolve(user);
-                            }
-                        });
-                    };
-                } else {
-                    promise.resolve(response);
-                }
-            });
-        }
-    }
-    
-    return promise;
-
-    //return deferred.promise().resolve(true);
+        return deferred.promise();
 };
