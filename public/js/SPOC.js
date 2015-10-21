@@ -1,4 +1,4 @@
-/*! SPOC 19-10-2015 */
+/*! SPOC 21-10-2015 */
 
 
 /**
@@ -292,13 +292,14 @@ SPOC.Utils.Yammer.formatSearchResponse = function(data) {
  * Checks that user is logged into Yammer. If not, Logins user and fetches access token.
  * @return  jQuery Deferred Object
  */
-SPOC.Utils.Yammer.checkLogin = function() {
+SPOC.Utils.Yammer.checkLogin = function(login) {
     var deferred = $.Deferred();
 
-        yam.getLoginStatus(function(response) {
-            if (response.authResponse) {
-                deferred.resolve(response);
-            } else {
+    yam.getLoginStatus(function(response) {
+        if (response.authResponse) {
+            deferred.resolve(response);
+        } else {
+            if (login) {
                 yam.platform.login(function(user) {
                     if (user) {
                         deferred.resolve(user);
@@ -306,10 +307,13 @@ SPOC.Utils.Yammer.checkLogin = function() {
                         deferred.resolve(false);
                     }
                 });
+            } else {
+                deferred.resolve(response);
             }
-        });
+        }
+    });
 
-        return deferred.promise();
+    return deferred.promise();
 };
 /**
  * Define Sp Site Object constructor
@@ -482,7 +486,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      */
     methods.update = function(id, data) {
         var deferred = $.Deferred();
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items('+ id+ ')';
+        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items(' + id + ')';
         var defaults = {
             __metadata: {
                 'type': SPOC.Utils.SP.getListItemType(listTitle)
@@ -500,7 +504,9 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
             headers: {
                 "Accept": "application/json;odata=verbose",
                 "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-                'Content-Type': "application/json;odata=verbose"
+                'Content-Type': "application/json;odata=verbose",
+                "X-HTTP-Method": "MERGE",
+                "If-Match": "*"
             },
             success: function(data) {
                 deferred.resolve(data);

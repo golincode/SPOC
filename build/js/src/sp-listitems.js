@@ -104,7 +104,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      */
     methods.update = function(id, data) {
         var deferred = $.Deferred();
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items('+ id+ ')';
+        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items(' + id + ')';
         var defaults = {
             __metadata: {
                 'type': SPOC.Utils.SP.getListItemType(listTitle)
@@ -122,7 +122,9 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
             headers: {
                 "Accept": "application/json;odata=verbose",
                 "X-RequestDigest": $("#__REQUESTDIGEST").val(),
-                'Content-Type': "application/json;odata=verbose"
+                'Content-Type': "application/json;odata=verbose",
+                "X-HTTP-Method": "MERGE",
+                "If-Match": "*"
             },
             success: function(data) {
                 deferred.resolve(data);
