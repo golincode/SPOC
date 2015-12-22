@@ -15,7 +15,7 @@ SPOC.SPSite.prototype.lists = function(listTitle) {
      */
     methods.query = function(settings) {
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/';
-        listUrl += settings ? '?' + Utils.convertObjToQueryString(settings) : '';
+        listUrl += settings ? '?' + SPOC.Utils.convertObjToQueryString(settings) : '';
 
         return $.ajax({
             type: "GET",
