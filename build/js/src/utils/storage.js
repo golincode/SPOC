@@ -13,12 +13,12 @@ SPOC.Utils.Storage.storageAvailable = function() {
  * Add data to local or session storage
  * @params  key String to use as item key
  * @params  data Object containing data to save
- * @params  isLocal bool to us local storage rather than session
+ * @params  useLocalStorage bool to us local storage rather than session
  * @return  void
  */
-SPOC.Utils.Storage.set = function(key, data, isLocal) {
+SPOC.Utils.Storage.set = function(key, data, useLocalStorage) {
     if (SPOC.Utils.Storage.storageAvailable()) {
-        var storageObj = isLocal ? localStorage : sessionStorage;
+        var storageObj = useLocalStorage ? localStorage : sessionStorage;
         storageObj.setItem(key, (data === Object(data)) ? JSON.stringify(data) : data);
     }
 };
@@ -26,12 +26,12 @@ SPOC.Utils.Storage.set = function(key, data, isLocal) {
 /**
  * Checks if session and local storage is available
  * @params  key String of key to retrieve
- * @params  isLocal bool to set local storage rather than session
+ * @params  useLocalStorage bool to set local storage rather than session
  * @return  string | object | null
  */
-SPOC.Utils.Storage.get = function(key, isLocal) {
+SPOC.Utils.Storage.get = function(key, useLocalStorage) {
     if (SPOC.Utils.Storage.storageAvailable()) {
-        var storageObj = isLocal ? localStorage : sessionStorage;
+        var storageObj = useLocalStorage ? localStorage : sessionStorage;
         return JSON.parse(storageObj.getItem(key));
     } else {
         return null;
@@ -42,12 +42,12 @@ SPOC.Utils.Storage.get = function(key, isLocal) {
 /**
  * Checks if session and local storage is available
  * @params  key String of key to remove
- * @params  isLocal bool to set local storage rather than session
+ * @params  useLocalStorage bool to set local storage rather than session
  * @return  void
  */
-SPOC.Utils.Storage.remove = function(key, isLocal) {
+SPOC.Utils.Storage.remove = function(key, useLocalStorage) {
     if (SPOC.Utils.Storage.storageAvailable()) {
-        var storageObj = isLocal ? localStorage : sessionStorage;
+        var storageObj = useLocalStorage ? localStorage : sessionStorage;
         localStorage.removeItem(key);
     }
 };
@@ -58,7 +58,7 @@ SPOC.Utils.Storage.remove = function(key, isLocal) {
  * @params  key String of key to remove
  * @return  void
  */
-SPOC.Utils.Storage.getCookies = function(name) {
+SPOC.Utils.Storage.getCookie = function(name) {
     name = name + "=";
     var ca = document.cookie.split(';');
     for (var i = 0; i < ca.length; i++) {

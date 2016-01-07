@@ -21,7 +21,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
 
         // Get query from cache.
-        var cache = SPOC.Utils.Storage.get('SPOCC-listitems' + listTitle);
+        var cache = SPOC.Utils.Storage.get('SPOC-list-items-' + listTitle);
 
         // Convert and append query params
         listUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
@@ -41,7 +41,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
                 },
                 success: function(data) {
                     // On complete, cache results
-                    SPOC.Utils.Storage.set('SPOCC-listitems' + listTitle, data);
+                    SPOC.Utils.Storage.set('SPOC-list-items-' + listTitle, data);
                     deferred.resolve(data);
                 },
                 error: function(data) {
@@ -136,32 +136,6 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
 
         return deferred.promise();
     };
-
-
-    /**
-     * Upload document in a document library
-     * @params  Upload document: GUID document library, callBack function, setting object for the modal dialog
-     * setting: {'width': number, 'height': number, 'title': string}
-     * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
-     * @return  jQuery Deferred Object
-     */
-    methods.uploadDocument = function(GUID, settings) {
-        var defer = $.Deferred();
-        var dialogOptions = {};
-
-        if (settings) {
-            $.extend(dialogOptions, settings);
-        }
-
-        dialogOptions.url = site.url + "/_layouts/Upload.aspx?List=" + GUID + "&IsDlg=1";
-        dialogOptions.dialogReturnValueCallback = Function.createDelegate(null, function(result) {
-            defer.resolve(result);
-        });
-
-        SP.UI.ModalDialog.showModalDialog(dialogOptions);
-        return defer.promise();
-    };
-
 
     return methods;
 };

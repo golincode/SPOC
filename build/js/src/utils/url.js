@@ -23,7 +23,7 @@ SPOC.Utils.Url.getQueryString = function(variable, query) {
     }
 };
 
-SPOC.Utils.Url.getURL = function(givenUrl) {
+SPOC.Utils.Url.get = function(givenUrl) {
     var deferred = $.Deferred();
 
     $.ajax({

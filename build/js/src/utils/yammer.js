@@ -47,14 +47,14 @@ SPOC.Utils.Yammer.formatSearchResponse = function(data) {
  * Checks that user is logged into Yammer. If not, Logins user and fetches access token.
  * @return  jQuery Deferred Object
  */
-SPOC.Utils.Yammer.checkLogin = function(login) {
+SPOC.Utils.Yammer.checkLogin = function(promptLogin) {
     var deferred = $.Deferred();
 
     yam.getLoginStatus(function(response) {
         if (response.authResponse) {
             deferred.resolve(response);
         } else {
-            if (login) {
+            if (promptLogin) {
                 yam.platform.login(function(user) {
                     if (user) {
                         deferred.resolve(user);

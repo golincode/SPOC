@@ -19,7 +19,7 @@ SPOC.Yam.Search = function() {
         var deferred = $.Deferred();
 
         // Get query from cache.
-        var cache = SPOC.Utils.Storage.get('SPOCC-yamsearch-' + JSON.stringify(settings));
+        var cache = SPOC.Utils.Storage.get('SPOC-yam-search-' + JSON.stringify(settings));
 
         // Return cached version if available
         if (cache && !forceNoCache) {
@@ -35,7 +35,7 @@ SPOC.Yam.Search = function() {
                         success: function(data) {
                             // Format response to combine references with messages
                             data = SPOC.Utils.Yammer.formatSearchResponse(data);
-                            SPOC.Utils.Storage.set('SPOCC-yamsearch-' + JSON.stringify(settings), data);
+                            SPOC.Utils.Storage.set('SPOC-yam-search-' + JSON.stringify(settings), data);
                             deferred.resolve(data);
                         },
                         error: function(data) {

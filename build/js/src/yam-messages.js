@@ -24,7 +24,7 @@ SPOC.Yam.Messages = function() {
         var deferred = $.Deferred();
 
         // Get query from cache.
-        var cache = SPOC.Utils.Storage.get('SPOCC-yammessage' + _this.feedId + _this.feedType);
+        var cache = SPOC.Utils.Storage.get('SPOC-yam-messages-' + _this.feedId + _this.feedType);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
@@ -40,7 +40,7 @@ SPOC.Yam.Messages = function() {
                         success: function(data) {
                             // Format response to combine references with messages
                             data = SPOC.Utils.Yammer.formatFeedResponse(data);
-                            SPOC.Utils.Storage.set('SPOCC-yammessage' + _this.feedId + _this.feedType, data);
+                            SPOC.Utils.Storage.set('SPOC-yam-messages-' + _this.feedId + _this.feedType, data);
                             deferred.resolve(data);
                         },
                         error: function(data) {

@@ -1,4 +1,4 @@
-/*! SPOC 21-10-2015 */
+/*! SPOC 07-01-2016 */
 
 
 /**
@@ -403,7 +403,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
 
         // Get query from cache.
-        var cache = SPOC.Utils.Storage.get('SPOCC-listitems' + listTitle);
+        var cache = SPOC.Utils.Storage.get('SPOC-list-items-' + listTitle);
 
         // Convert and append query params
         listUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
@@ -423,7 +423,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
                 },
                 success: function(data) {
                     // On complete, cache results
-                    SPOC.Utils.Storage.set('SPOCC-listitems' + listTitle, data);
+                    SPOC.Utils.Storage.set('SPOC-list-items-' + listTitle, data);
                     deferred.resolve(data);
                 },
                 error: function(data) {
@@ -536,8 +536,8 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
         }
 
         dialogOptions.url = site.url + "/_layouts/Upload.aspx?List=" + GUID + "&IsDlg=1";
-        dialogOptions.dialogReturnValueCallback = Function.createDelegate(null, function(result) {
-            defer.resolve(result);
+        dialogOptions.dialogReturnValueCallback = Function.createDelegate(null, function(result, value) {
+            defer.resolve(value);
         });
 
         SP.UI.ModalDialog.showModalDialog(dialogOptions);
@@ -565,7 +565,7 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
     methods.query = function(settings, forceNoCache) {
         var deferred = $.Deferred();
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/';
-        var cache = SPOC.Utils.Storage.get('SPOCC-list' + listTitle);
+        var cache = SPOC.Utils.Storage.get('SPOC-list-' + listTitle);
 
         listUrl += settings ? '?' + SPOC.Utils.Conversion.convertObjToQueryString(settings) : '';
 
@@ -581,7 +581,7 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
                 dataType: 'json',
                 success: function(data) {
                     // On complete, cache results
-                    SPOC.Utils.Storage.set('SPOCC-list' + listTitle, data);
+                    SPOC.Utils.Storage.set('SPOC-list-' + listTitle, data);
                     deferred.resolve(data);
                 },
                 error: function(data) {
@@ -656,7 +656,7 @@ SPOC.SP.User.prototype.Profile = function() {
     methods.query = function(forceNoCache) {
         var deferred = $.Deferred();
         var listUrl = _spPageContextInfo.webAbsoluteUrl;
-        var cache = SPOC.Utils.Storage.set('SPOCC-Users-' + user.id);
+        var cache = SPOC.Utils.Storage.set('SPOC-users-' + user.id);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
@@ -672,7 +672,7 @@ SPOC.SP.User.prototype.Profile = function() {
                 dataType: 'json',
                 success: function(data) {
                     // On complete, cache results
-                    SPOC.Utils.Storage.set('SPOCC-Users-' + user.id, data);
+                    SPOC.Utils.Storage.set('SPOC-users-' + user.id, data);
                     deferred.resolve(data);
                 }
             });
@@ -680,6 +680,40 @@ SPOC.SP.User.prototype.Profile = function() {
             return deferred.promise();
         }
     };
+
+
+    /**
+     * Returns if a SP user is a member of a security group
+     * @params  groupName to check
+     * @params  user Id to check (optional)
+     * @return  bool
+     */
+    methods.isMemberOfGroup = function(groupName, userId) {
+    var deferred = $.Deferred();
+
+    userId = userId ? userId : _spPageContextInfo.userId;
+
+    var listUrl = site.url +  "/_api/web/sitegroups/getByName('" + groupName + "')/Users?$filter=Id eq " + _spPageContextInfo.userId;
+
+        // else get data and return promise.
+        $.ajax({
+            type: "GET",
+            url: listUrl,
+            dataType: 'json',
+            headers: {
+                "Accept": "application/json;odata=verbose"
+            },
+            success: function(data) {
+                // On complete, cache results
+                deferred.resolve(data);
+            },
+            error: function(data) {
+                deferred.reject(data);
+            }
+        });
+
+        return deferred.promise();
+};
 
     return methods;
 };
@@ -709,7 +743,7 @@ SPOC.Yam.Messages = function() {
         var deferred = $.Deferred();
 
         // Get query from cache.
-        var cache = SPOC.Utils.Storage.get('SPOCC-yammessage' + _this.feedId + _this.feedType);
+        var cache = SPOC.Utils.Storage.get('SPOC-yam-messages-' + _this.feedId + _this.feedType);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
@@ -725,7 +759,7 @@ SPOC.Yam.Messages = function() {
                         success: function(data) {
                             // Format response to combine references with messages
                             data = SPOC.Utils.Yammer.formatFeedResponse(data);
-                            SPOC.Utils.Storage.set('SPOCC-yammessage' + _this.feedId + _this.feedType, data);
+                            SPOC.Utils.Storage.set('SPOC-yam-messages-' + _this.feedId + _this.feedType, data);
                             deferred.resolve(data);
                         },
                         error: function(data) {
@@ -767,7 +801,7 @@ SPOC.Yam.Search = function() {
         var deferred = $.Deferred();
 
         // Get query from cache.
-        var cache = SPOC.Utils.Storage.get('SPOCC-yamsearch-' + JSON.stringify(settings));
+        var cache = SPOC.Utils.Storage.get('SPOC-yam-search-' + JSON.stringify(settings));
 
         // Return cached version if available
         if (cache && !forceNoCache) {
@@ -783,7 +817,7 @@ SPOC.Yam.Search = function() {
                         success: function(data) {
                             // Format response to combine references with messages
                             data = SPOC.Utils.Yammer.formatSearchResponse(data);
-                            SPOC.Utils.Storage.set('SPOCC-yamsearch-' + JSON.stringify(settings), data);
+                            SPOC.Utils.Storage.set('SPOC-yam-search-' + JSON.stringify(settings), data);
                             deferred.resolve(data);
                         },
                         error: function(data) {
@@ -822,7 +856,7 @@ SPOC.Yam.User.prototype.Subscriptions = function() {
         var deferred = $.Deferred();
 
         //Get query from cache.
-        var cache = SPOC.Utils.Storage.get('SPOCC-yamsubscriptions' + _this.id);
+        var cache = SPOC.Utils.Storage.get('SPOC-yam-subs-' + _this.id);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
@@ -836,7 +870,7 @@ SPOC.Yam.User.prototype.Subscriptions = function() {
                         method: "GET",
                         data: settings ? settings : null,
                         success: function(data) {
-                            SPOC.Utils.Storage.set('SPOCC-yamsubscriptions' + _this.id, data);
+                            SPOC.Utils.Storage.set('SPOC-yam-subs-' + _this.id, data);
                             deferred.resolve(data);
                         },
                         error: function(data) {
@@ -874,7 +908,7 @@ SPOC.Yam.User.prototype.Profile = function() {
         var deferred = $.Deferred();
 
         //Get query from cache.
-        var cache = SPOC.Utils.Storage.get('SPOCC-yamuser' + _this.id);
+        var cache = SPOC.Utils.Storage.get('SPOCC-yam-users-' + _this.id);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
@@ -888,7 +922,7 @@ SPOC.Yam.User.prototype.Profile = function() {
                         method: "GET",
                         data: settings ? settings : null,
                         success: function(data) {
-                            SPOC.Utils.Storage.set('SPOCC-yamuser' + _this.id, data);
+                            SPOC.Utils.Storage.set('SPOCC-yam-users-' + _this.id, data);
                             deferred.resolve(data);
                         },
                         error: function(data) {

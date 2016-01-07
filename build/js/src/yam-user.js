@@ -16,7 +16,7 @@ SPOC.Yam.User.prototype.Profile = function() {
         var deferred = $.Deferred();
 
         //Get query from cache.
-        var cache = SPOC.Utils.Storage.get('SPOCC-yamuser' + _this.id);
+        var cache = SPOC.Utils.Storage.get('SPOCC-yam-users-' + _this.id);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
@@ -30,7 +30,7 @@ SPOC.Yam.User.prototype.Profile = function() {
                         method: "GET",
                         data: settings ? settings : null,
                         success: function(data) {
-                            SPOC.Utils.Storage.set('SPOCC-yamuser' + _this.id, data);
+                            SPOC.Utils.Storage.set('SPOCC-yam-users-' + _this.id, data);
                             deferred.resolve(data);
                         },
                         error: function(data) {

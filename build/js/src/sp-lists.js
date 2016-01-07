@@ -16,7 +16,7 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
     methods.query = function(settings, forceNoCache) {
         var deferred = $.Deferred();
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/';
-        var cache = SPOC.Utils.Storage.get('SPOCC-list' + listTitle);
+        var cache = SPOC.Utils.Storage.get('SPOC-list-' + listTitle);
 
         listUrl += settings ? '?' + SPOC.Utils.Conversion.convertObjToQueryString(settings) : '';
 
@@ -32,7 +32,7 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
                 dataType: 'json',
                 success: function(data) {
                     // On complete, cache results
-                    SPOC.Utils.Storage.set('SPOCC-list' + listTitle, data);
+                    SPOC.Utils.Storage.set('SPOC-list-' + listTitle, data);
                     deferred.resolve(data);
                 },
                 error: function(data) {

@@ -16,7 +16,7 @@ SPOC.Yam.User.prototype.Subscriptions = function() {
         var deferred = $.Deferred();
 
         //Get query from cache.
-        var cache = SPOC.Utils.Storage.get('SPOCC-yamsubscriptions' + _this.id);
+        var cache = SPOC.Utils.Storage.get('SPOC-yam-subs-' + _this.id);
 
         // Return cached version if available
         if (cache && !forceNoCache) {
@@ -30,7 +30,7 @@ SPOC.Yam.User.prototype.Subscriptions = function() {
                         method: "GET",
                         data: settings ? settings : null,
                         success: function(data) {
-                            SPOC.Utils.Storage.set('SPOCC-yamsubscriptions' + _this.id, data);
+                            SPOC.Utils.Storage.set('SPOC-yam-subs-' + _this.id, data);
                             deferred.resolve(data);
                         },
                         error: function(data) {

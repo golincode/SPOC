@@ -1,4 +1,5 @@
-// Create objects for Utils conversion
+// Super simple template engine that allows you to pass in a data array and html template.
+
 SPOC.Tpl = {};
 
 /**
