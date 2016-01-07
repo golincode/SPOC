@@ -66,10 +66,10 @@ var subSite = new SPOC.SP.Site('https://example.sharepoint.com/sites/mysite/mysu
 
 // Create an object with a property for each column.
     var item = {
-        Title: "My Item title,
+        Title: "My Item title",
         description: "text for the description column"
     };
-    
+
 // Pass in the name of the list that you want to query 
 var exampleList = subSite.listItems('List Name');
 
