@@ -105,19 +105,20 @@ user.query().then(function(results){
  - Check if the user is using a windows phone (.isWindowsPhone())
  - Get version of IE browser (.ieVersion())
 
- ##### Conversion (SPOC.Utils.Conversion)
+
+##### Conversion (SPOC.Utils.Conversion)
  - Convert JS object to SP format API querystrings (.objToQueryString(obj))
  - Get version of IE browser (.ieVersion())
 
- ##### Conversion (SPOC.Utils.Conversion)
+##### Conversion (SPOC.Utils.Conversion)
  - Convert JS object to SP format API querystrings (.objToQueryString(obj))
  - Get version of IE browser (.ieVersion())
 
- ##### SharePoint General (SPOC.Utils.SP)
+##### SharePoint General (SPOC.Utils.SP)
  - Generate SP data type by list name (.getListItemType(listName))
  - Upload document via SP modal and return item list data (.uploadDocument(ListGUID, settings))
 
- ##### Storage (SPOC.Utils.Conversion)
+##### Storage (SPOC.Utils.Conversion)
  - Check if browser storage is avaliable (.storageAvailable())
  - Save data in browser storage (.set(key, data, useLocalStorage))
  - Get data from browser storage by key (.get(key, isLocalStorage))
@@ -131,15 +132,12 @@ user.query().then(function(results){
 ##### URLs (SPOC.Utils.Url)
  - Get a query string value by key (.getQueryString(key))
  - Make a AJAX get request to a url (.get(url))
- 
+
 ##### Yammer (SPOC.Utils.Yammer)
  - Tidy up a Yammer feed response (.formatFeedResponse(data))
  - Tidy up a Yammer search response (.formatSearchResponse(data))
  - Check if a user is logged into Yammer (.checkLogin(promptLogin))
  
-## Versions
-0.0.1 - Bewared - still in early development stage
-
 ## Installation (Contributing)
 Want to contribute? Great! Note that SPOC uses Grunt & NPM, so these will need to be installed:
 
@@ -155,6 +153,8 @@ $ grunt
 ```
 If you are using Windows (shame on you), you can find more information on getting this working by reading the FAQs on the [Grunt Website](http://gruntjs.com/frequently-asked-questions)
 
+## Versions
+0.0.1 - Bewared - still in early development stage
 
 ### Todos
 
