@@ -34,6 +34,33 @@ SPOC.Utils.Arrays.findByProperty = function(data, prop, value) {
     return false;
 };
 // Create objects for Utils conversion
+SPOC.Utils.Browser = {};
+
+
+/**
+ * Check if user is using windows
+ * phone
+ * @return indexOf whether windows
+ * phone or not
+ */
+SPOC.Utils.Browser.isWindowsPhone = function(obj) {
+    var str = '';
+    for (var propertyName in obj) {
+        str += '&$' + propertyName + '=' + obj[propertyName];
+    }
+    return str;
+};
+
+
+/**
+ * Check and return what version IE
+ * is being used if any
+ */
+SPOC.Utils.Browser.ieVersion = function(obj) {
+	var myNav = navigator.userAgent.toLowerCase();
+    return (myNav.indexOf('msie') != -1) ? parseInt(myNav.split('msie')[1], 10) : false;
+};
+// Create objects for Utils conversion
 SPOC.Utils.Conversion = {};
 
 /**
@@ -57,7 +84,32 @@ SPOC.Utils.SP = {};
  * @return  bool
  */
 SPOC.Utils.SP.getListItemType = function(name) {
-  return "SP.Data." + name[0].toUpperCase() + name.substring(1) + "ListItem";
+	name = name[0].toUpperCase() + name.substring(1);
+    return "SP.Data." + name.replace(/ /g, '_x0020_') + "ListItem";
+};
+
+/**
+ * Upload document in a document library
+ * @params  Upload document: GUID document library, callBack function, setting object for the modal dialog
+ * setting: {'width': number, 'height': number, 'title': string}
+ * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
+ * @return  jQuery Deferred Object
+ */
+SPOC.Utils.SP.uploadDocument = function(GUID, settings) {
+    var defer = $.Deferred();
+    var dialogOptions = {};
+
+    if (settings) {
+        $.extend(dialogOptions, settings);
+    }
+
+    dialogOptions.url = site.url + "/_layouts/Upload.aspx?List=" + GUID + "&IsDlg=1";
+    dialogOptions.dialogReturnValueCallback = Function.createDelegate(null, function(result, value) {
+        defer.resolve(value);
+    });
+
+    SP.UI.ModalDialog.showModalDialog(dialogOptions);
+    return defer.promise();
 };
 
 
@@ -76,12 +128,12 @@ SPOC.Utils.Storage.storageAvailable = function() {
  * Add data to local or session storage
  * @params  key String to use as item key
  * @params  data Object containing data to save
- * @params  isLocal bool to us local storage rather than session
+ * @params  useLocalStorage bool to us local storage rather than session
  * @return  void
  */
-SPOC.Utils.Storage.set = function(key, data, isLocal) {
+SPOC.Utils.Storage.set = function(key, data, useLocalStorage) {
     if (SPOC.Utils.Storage.storageAvailable()) {
-        var storageObj = isLocal ? localStorage : sessionStorage;
+        var storageObj = useLocalStorage ? localStorage : sessionStorage;
         storageObj.setItem(key, (data === Object(data)) ? JSON.stringify(data) : data);
     }
 };
@@ -89,12 +141,12 @@ SPOC.Utils.Storage.set = function(key, data, isLocal) {
 /**
  * Checks if session and local storage is available
  * @params  key String of key to retrieve
- * @params  isLocal bool to set local storage rather than session
+ * @params  useLocalStorage bool to set local storage rather than session
  * @return  string | object | null
  */
-SPOC.Utils.Storage.get = function(key, isLocal) {
+SPOC.Utils.Storage.get = function(key, useLocalStorage) {
     if (SPOC.Utils.Storage.storageAvailable()) {
-        var storageObj = isLocal ? localStorage : sessionStorage;
+        var storageObj = useLocalStorage ? localStorage : sessionStorage;
         return JSON.parse(storageObj.getItem(key));
     } else {
         return null;
@@ -105,12 +157,12 @@ SPOC.Utils.Storage.get = function(key, isLocal) {
 /**
  * Checks if session and local storage is available
  * @params  key String of key to remove
- * @params  isLocal bool to set local storage rather than session
+ * @params  useLocalStorage bool to set local storage rather than session
  * @return  void
  */
-SPOC.Utils.Storage.remove = function(key, isLocal) {
+SPOC.Utils.Storage.remove = function(key, useLocalStorage) {
     if (SPOC.Utils.Storage.storageAvailable()) {
-        var storageObj = isLocal ? localStorage : sessionStorage;
+        var storageObj = useLocalStorage ? localStorage : sessionStorage;
         localStorage.removeItem(key);
     }
 };
@@ -121,7 +173,7 @@ SPOC.Utils.Storage.remove = function(key, isLocal) {
  * @params  key String of key to remove
  * @return  void
  */
-SPOC.Utils.Storage.getCookies = function(name) {
+SPOC.Utils.Storage.getCookie = function(name) {
     name = name + "=";
     var ca = document.cookie.split(';');
     for (var i = 0; i < ca.length; i++) {
@@ -160,6 +212,18 @@ SPOC.Utils.Storage.removeCookies = function(name) {
     SPOC.Utils.Storage.setCookies(name, "", -1);
 };
 // Create objects for Utils conversion
+SPOC.Utils.Strings = {};
+
+/**
+ * Cuts a string to a required length and adds ...
+ * @return  bool
+ */
+SPOC.Utils.String.cut = function(value, requiredLength) {
+    return value.length > requiredLength ? title.substr(0, requiredLength - 3) + "..." : value.length;
+};
+
+// Super simple template engine that allows you to pass in a data array and html template.
+
 SPOC.Tpl = {};
 
 /**
@@ -223,7 +287,7 @@ SPOC.Utils.Url.getQueryString = function(variable, query) {
     }
 };
 
-SPOC.Utils.Url.getURL = function(givenUrl) {
+SPOC.Utils.Url.get = function(givenUrl) {
     var deferred = $.Deferred();
 
     $.ajax({
@@ -292,14 +356,14 @@ SPOC.Utils.Yammer.formatSearchResponse = function(data) {
  * Checks that user is logged into Yammer. If not, Logins user and fetches access token.
  * @return  jQuery Deferred Object
  */
-SPOC.Utils.Yammer.checkLogin = function(login) {
+SPOC.Utils.Yammer.checkLogin = function(promptLogin) {
     var deferred = $.Deferred();
 
     yam.getLoginStatus(function(response) {
         if (response.authResponse) {
             deferred.resolve(response);
         } else {
-            if (login) {
+            if (promptLogin) {
                 yam.platform.login(function(user) {
                     if (user) {
                         deferred.resolve(user);
@@ -519,32 +583,6 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
         return deferred.promise();
     };
 
-
-    /**
-     * Upload document in a document library
-     * @params  Upload document: GUID document library, callBack function, setting object for the modal dialog
-     * setting: {'width': number, 'height': number, 'title': string}
-     * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
-     * @return  jQuery Deferred Object
-     */
-    methods.uploadDocument = function(GUID, settings) {
-        var defer = $.Deferred();
-        var dialogOptions = {};
-
-        if (settings) {
-            $.extend(dialogOptions, settings);
-        }
-
-        dialogOptions.url = site.url + "/_layouts/Upload.aspx?List=" + GUID + "&IsDlg=1";
-        dialogOptions.dialogReturnValueCallback = Function.createDelegate(null, function(result, value) {
-            defer.resolve(value);
-        });
-
-        SP.UI.ModalDialog.showModalDialog(dialogOptions);
-        return defer.promise();
-    };
-
-
     return methods;
 };
 // SharePoint List Functionlity
@@ -663,7 +701,11 @@ SPOC.SP.User.prototype.Profile = function() {
             return deferred.resolve(cache);
         } else {
 
-            listUrl += "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + loginNamePrefix + user.loginName + "%27";
+             if (user.loginName){
+                listUrl += "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + loginNamePrefix + user.loginName + "%27";
+            } else {
+                listUrl += "/_api/SP.UserProfiles.PeopleManager/GetMyProperties/UserProfileProperties";
+            }
 
             // else get data and return promise.
             $.ajax({
@@ -696,6 +738,7 @@ SPOC.SP.User.prototype.Profile = function() {
     var listUrl = site.url +  "/_api/web/sitegroups/getByName('" + groupName + "')/Users?$filter=Id eq " + _spPageContextInfo.userId;
 
         // else get data and return promise.
+
         $.ajax({
             type: "GET",
             url: listUrl,

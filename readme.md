@@ -56,7 +56,7 @@ exampleList.query().then(function(results){
 ```
 ##### 2. Create a new list item to a list in a subsite
 This example shows how to create a new list item to a list in a different site to that being viewed
-```javascrip
+```javascript
 // Create a new site instance. Pass in the url to the subsite that contains the list
 var subSite = new SPOC.SP.Site('https://example.sharepoint.com/sites/mysite/mysubsite');
 
@@ -79,7 +79,7 @@ exampleList.create(item).then(function(results){
 
 ##### 3. Get the current users profile details
 This examples shows how to get the current users profile properties
-```javascrip
+```javascript
 // Create a new user instance.
 var user = new SPOC.SP.User();
 

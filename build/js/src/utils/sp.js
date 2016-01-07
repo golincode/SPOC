@@ -7,7 +7,7 @@ SPOC.Utils.SP = {};
  */
 SPOC.Utils.SP.getListItemType = function(name) {
 	name = name[0].toUpperCase() + name.substring(1);
-  	return "SP.Data." + name.replace(/ /g, '_x0020_') + "ListItem";
+    return "SP.Data." + name.replace(/ /g, '_x0020_') + "ListItem";
 };
 
 /**
