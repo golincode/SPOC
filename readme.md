@@ -100,18 +100,23 @@ user.query().then(function(results){
 
 ##### Arrays (SPOC.Utils.Arrays)
  - Retrieve a object propirty by value (.findByProperty(data, prop, value))
+
 ##### Browser (SPOC.Utils.Browser)
  - Check if the user is using a windows phone (.isWindowsPhone())
  - Get version of IE browser (.ieVersion())
+
  ##### Conversion (SPOC.Utils.Conversion)
  - Convert JS object to SP format API querystrings (.objToQueryString(obj))
  - Get version of IE browser (.ieVersion())
+
  ##### Conversion (SPOC.Utils.Conversion)
  - Convert JS object to SP format API querystrings (.objToQueryString(obj))
  - Get version of IE browser (.ieVersion())
+
  ##### SharePoint General (SPOC.Utils.SP)
  - Generate SP data type by list name (.getListItemType(listName))
  - Upload document via SP modal and return item list data (.uploadDocument(ListGUID, settings))
+
  ##### Storage (SPOC.Utils.Conversion)
  - Check if browser storage is avaliable (.storageAvailable())
  - Save data in browser storage (.set(key, data, useLocalStorage))
@@ -119,11 +124,14 @@ user.query().then(function(results){
  - Get cookie (.getCookie(name))
  - Get cookie (.setCookie(name, value, days))
  - Delete cookie (.removeCookie(name))
+
 ##### Strings (SPOC.Utils.Strings)
  - Truncate string to length with '...' (.truncate(string, requiredLength))
+
 ##### URLs (SPOC.Utils.Url)
  - Get a query string value by key (.getQueryString(key))
- - Make a AJAX get request to a url (.get(url))s
+ - Make a AJAX get request to a url (.get(url))
+ 
 ##### Yammer (SPOC.Utils.Yammer)
  - Tidy up a Yammer feed response (.formatFeedResponse(data))
  - Tidy up a Yammer search response (.formatSearchResponse(data))
