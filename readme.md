@@ -34,7 +34,8 @@ exampleList.query().then(function(results){
 
 ```
 ##### 1. Get filtered items from a List
-The list item method allows you to pass in filters and query settings via a JS object. It supports all default OData query string operators (select, filter, orderBy, expand, top etc) More information can be found on [MSDN](https://msdn.microsoft.com/en-us/library/office/fp142385.aspx#sectionSection0)    
+The list item method allows you to pass in filters and query settings via a JS object. It supports all default OData query string operators (select, filter, orderBy, expand, top etc) More information can be found on [MSDN](https://msdn.microsoft.com/en-us/library/office/fp142385.aspx#sectionSection0)
+
 ```javascript
 // Create a new site instance. Passing no url with set it as the current site
 var site = new SPOC.SP.Site();
@@ -45,6 +46,7 @@ var site = new SPOC.SP.Site();
         filter: "Title eq 'My Item Title'",
         orderBy: 'Created'
     };
+
 // Pass in the name of the list that you want to query 
 var exampleList = site.listItems('List Name');
 
@@ -54,8 +56,10 @@ exampleList.query().then(function(results){
 });
 
 ```
+
 ##### 2. Create a new list item to a list in a subsite
 This example shows how to create a new list item to a list in a different site to that being viewed
+
 ```javascript
 // Create a new site instance. Pass in the url to the subsite that contains the list
 var subSite = new SPOC.SP.Site('https://example.sharepoint.com/sites/mysite/mysubsite');
@@ -65,6 +69,7 @@ var subSite = new SPOC.SP.Site('https://example.sharepoint.com/sites/mysite/mysu
         Title: "My Item title,
         description: "text for the description column"
     };
+    
 // Pass in the name of the list that you want to query 
 var exampleList = subSite.listItems('List Name');
 
@@ -79,6 +84,7 @@ exampleList.create(item).then(function(results){
 
 ##### 3. Get the current users profile details
 This examples shows how to get the current users profile properties
+
 ```javascript
 // Create a new user instance.
 var user = new SPOC.SP.User();
