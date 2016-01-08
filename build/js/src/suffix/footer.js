@@ -1,1 +1,1 @@
-})(window, document, window.SPOC = window.SPOC || {}, jQuery);
+})(window, document, window.SPOC = window.SPOC || {});

@@ -13,15 +13,7 @@ SPOC.Yam.User.prototype.Subscriptions = function() {
      * @return  jQuery Deferred Object
      */
     methods.query = function(settings, forceNoCache) {
-        var deferred = $.Deferred();
-
-        //Get query from cache.
-        var cache = SPOC.Utils.Storage.get('SPOC-yam-subs-' + _this.id);
-
-        // Return cached version if available
-        if (cache && !forceNoCache) {
-            return deferred.resolve(cache);
-        } else {
+       return new Promise(function(resolve, reject) {
             // Check user has access token and then then return group feed.
             SPOC.Utils.Yammer.checkLogin().then(function(result) {
                 if (result) {
@@ -38,13 +30,10 @@ SPOC.Yam.User.prototype.Subscriptions = function() {
                         }
                     });
                 } else {
-                    deferred.resolve(false);
+                     resolve(false);
                 }
             });
-
-        }
-        return deferred.promise();
-
+        });
     };
 
     return methods;

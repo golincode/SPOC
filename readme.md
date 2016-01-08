@@ -1,23 +1,31 @@
 # SPOC - SharePoint Online Connector.
 
-SPOC is a client-side Javascript library (with NO dependencies) that helps you interact with the **SharePoint Online & Yammer REST APIs**. It also contains handy helper and utility functions that are regularly used when working on Front-end SharePoint projects. The library currently lets you interact with:  
+SPOC is a client-side Javascript library that helps you interact with the **SharePoint Online & Yammer REST APIs**. It also contains handy helper and utility functions that are regularly used when working on Front-end SharePoint projects. The library currently lets you interact with:  
 
   - Sites
   - Lists
   - List Items
   - User Profiles
-  - Yammer Messages
-  - Yammer Profiles 
+  - Yammer Search (query only)
+  - Yammer Messages (query only)
+  - Yammer Profiles (query only)
   
 ## Getting Started
 First download  **SPOC.min.js** from this repo and include it in your project or add it to your masterpage or page layouts. Note that **If you want to interact with Yammer from within SharePoint Online, you must also include the Yammer JS SDK** by adding the following into your masterpage or page layouts (must be loaded before SPOC.min.js).
 
 ```html 
+
+<!-- Load SPOC library into your masterpage or pagelayout -->
+<script type="text/javascript" src="https://yoursite.sharepoint.com/document_library/SPOC.min.js"></script>
+
+<!-- Optional - only needed if you are using Yammer functions -->
 <script type="text/javascript" data-app-id="ADD YAMMER APP ID" src="https://c64.assets-yammer.com/assets/platform_js_sdk.js"></script>
+
 ```
 > To use the Yammer API, you must first register an app on your network and set the app-id shown above. You can find out how to do this by visting the [Yammer help pages](https://developer.yammer.com/docs/app-registration)
 
 ## Basic Examples
+
 ##### 1. Get all items from a List
 This example shows how to get list items from a list in the current site
 ```javascript
@@ -34,7 +42,7 @@ exampleList.query().then(function(results){
 
 ```
 ##### 1. Get filtered items from a List
-The list item method allows you to pass in filters and query settings via a JS object. It supports all default OData query string operators (select, filter, orderBy, expand, top etc) More information can be found on [MSDN](https://msdn.microsoft.com/en-us/library/office/fp142385.aspx#sectionSection0)
+The list item method allows you to pass in filters and query settings via a JS object. It supports all default OData query string operators (select, filter, orderBy, expand, top etc). More information can be found on [MSDN](https://msdn.microsoft.com/en-us/library/office/fp142385.aspx#sectionSection0)
 
 ```javascript
 // Create a new site instance. Passing no url with set it as the current site
@@ -95,24 +103,71 @@ user.query().then(function(results){
 });
 
 ```
+## Mock API calls (Developing outside of SP)
+To help improve efficiency when working on front-end based SharePoint projects, we often start development offline (i.e creating the styling, HTML templates etc), and then intergrate it to SharePoint once completed. This makes the development process much quicker. 
+The problem with this is that you do not have access to the SharePoint API's when working offline. In order to get around this, SPOC includes the ability to create fake lists using javascript or a JSON file. This allows you to switch between real and local (fake) lists in a switch of a property (As long as you have a Mock list for each real list that your solution needs to interact with.)
 
-## Utilities and Helpers
+```javascript
 
-##### Arrays (SPOC.Utils.Arrays)
- - Retrieve a object propirty by value (.findByProperty(data, prop, value))
+// Create items to add to the mock list 
+var myListItems = [{Title: "Item One",Title: "Item Two", Title: "Item Three"}];
 
-##### Browser (SPOC.Utils.Browser)
- - Check if the user is using a windows phone (.isWindowsPhone())
- - Get version of IE browser (.ieVersion())
+// Create a mock list called 'MyList' and list items
+SPOC.Mock.createList('MyList', myListItems);
 
+// Activate Mock API's. If active the API will return the mock lists, if deactivated it will query SP
+SPOC.Mock.active = true;
 
+// Query SharePoint list as normal
+
+var site = new SPOC.SP.Site();
+var exampleList = site.listItems('MyList');
+exampleList.query().then(function(results){
+    console.log(results);
+    // Returns [{Title: "Item One",Title: "Item Two", Title: "Item Three"}]
+});
+
+```
+
+## Utilities and Helpers 
+Most of the following functions are used internally by the library, but have been exposed as they can came in handy.
+
+##### Objects (SPOC.Utils.Objects)
+
+###### Find first object in array based on a property value (.findObjectByProperty(data, property, value))
+```javascript
+    var data = [{
+        Title: "My Title One",
+        Description: "My Description One"
+    },{
+        Title: "My Title Two",
+        Description: "My Description Two"
+    }];
+    
+    var wantedObj = SPOC.Utils.Objects.findObjectByProperty(data, 'Title', 'My Title Two");
+    
+    console.log(wantedObj);
+    // returns {Title: "My Title Two", Description: "My Description Two"}
+```    
+###### Merge two objects together (.merge(Object1, Object2))
+```javascript
+    var objectOne = {
+        Title: "My Title One",
+        Description: "My Description One"
+    };
+    var objectTwo = {
+        Status: "open"
+    };
+
+    var mergedObject = SPOC.Utils.Objects.merge(objectOne, objectTwo);
+
+    console.log(mergedObject);
+    // returns {Title: "My Title One", Description: "My Description One", Status: "open"}
+```    
 ##### Conversion (SPOC.Utils.Conversion)
  - Convert JS object to SP format API querystrings (.objToQueryString(obj))
- - Get version of IE browser (.ieVersion())
 
-##### Conversion (SPOC.Utils.Conversion)
- - Convert JS object to SP format API querystrings (.objToQueryString(obj))
- - Get version of IE browser (.ieVersion())
+##### Requests (SPOC.Utils.Request)
 
 ##### SharePoint General (SPOC.Utils.SP)
  - Generate SP data type by list name (.getListItemType(listName))
@@ -127,6 +182,9 @@ user.query().then(function(results){
  - Delete cookie (.removeCookie(name))
 
 ##### Strings (SPOC.Utils.Strings)
+ - Truncate string to length with '...' (.truncate(string, requiredLength))
+ 
+##### Templates (SPOC.Utils.tpl)
  - Truncate string to length with '...' (.truncate(string, requiredLength))
 
 ##### URLs (SPOC.Utils.Url)
@@ -158,11 +216,11 @@ If you are using Windows (shame on you), you can find more information on gettin
 
 ### Todos
 
- - write Tests
+ - Add create, delete and update on lists
+ - Write Tests
  - Add SharePoint search
- - Add delete methods for lists and list items
  - Add site creation
- - Add delve
+ - Add delve api
  - Add custom tool pane functions
  - write comprehensive documentation
 
