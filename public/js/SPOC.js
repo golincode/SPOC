@@ -1,4 +1,4 @@
-/*! SPOC 08-01-2016 */
+/*! SPOC 11-01-2016 */
 
 
 /**
@@ -102,6 +102,7 @@ SPOC.Utils.Request = {};
  * @return  javascript promise
  */
 SPOC.Utils.Request.get = function(url, forceNoCache) {
+
     return new Promise(function(resolve, reject) {
         // Check if item is cached is session storage
         var cache = SPOC.Utils.Storage.get('SPOC-' + url);
@@ -111,7 +112,7 @@ SPOC.Utils.Request.get = function(url, forceNoCache) {
         } else {
 
             // Check if a Mock db has been set
-            if(SPOC.Mock.active){
+            if(SPOC.Mock.active) {
                 url = SPOC.Utils.Url.getListNameFromUrl(url);
                 var mockData = SPOC.Mock.db[url];
                 if (mockData){
@@ -120,6 +121,10 @@ SPOC.Utils.Request.get = function(url, forceNoCache) {
                     resolve({"error": "no mock data found for the list - " + url});
                 }
             } else {
+
+            if(!SPOC.Utils.Url.isSameDomain(url) && url.toLowerCase().indexOf('_api/web') > -1){
+                url = SPOC.Utils.Url.convertToXDomain(url);
+            }
 
             var req = new XMLHttpRequest();
 
@@ -163,6 +168,10 @@ SPOC.Utils.Request.post = function(url, data) {
                 resolve(data);
             } else {
 
+            if(!SPOC.Utils.Url.isSameDomain(url) && url.toLowerCase().indexOf('_api/web') > -1){
+                url = SPOC.Utils.Url.convertToXDomain(url);
+            }
+
             var req = new XMLHttpRequest();
 
             req.open('POST', url, true);
@@ -202,6 +211,10 @@ SPOC.Utils.Request.put = function(url, data) {
             if(SPOC.Mock.active){
                 resolve(data);
             } else {
+
+            if(!SPOC.Utils.Url.isSameDomain(url) && url.toLowerCase().indexOf('_api/web') > -1){
+                url = SPOC.Utils.Url.convertToXDomain(url);
+            }
 
             var req = new XMLHttpRequest();
 
@@ -442,14 +455,45 @@ SPOC.Utils.Url.getQueryString = function(variable, query) {
 };
 
 /**
- * Converts a Javascript object to SP API query string format
- * @params  obj Object of props to convert
+ * Extracts and returns a list name from api url endpoint
+ * @params  url 
  * @return  string
  */
 SPOC.Utils.Url.getListNameFromUrl = function(url) {
    var regex = /\%27(.*)\%27/g;
    var match = regex.exec(url);
     return match ? match[1] : null;
+};
+
+
+/**
+ * Converts a Javascript object to SP API query string format
+ * @params  obj Object of props to convert
+ * @return  string
+ */
+SPOC.Utils.Url.isSameDomain = function(url) {
+    var current = window.location.origin.toLowerCase();
+    return url.toLowerCase().indexOf(current) > -1 ? true : false;
+};
+
+/**
+ * Converts a API call to x domain format
+ * @params  url string url of API call
+ * @return  string
+ */
+SPOC.Utils.Url.convertToXDomain = function(url) {
+    url = url.toLowerCase();
+    url = url.replace('/_api/', '/_api/SP.AppContextSite(@target)/');
+    var domain = url.split('/_api')[0];
+    url = url.split('/_api')[1];
+
+    if (url.indexOf('?') === -1){
+        url = url + '?';
+    }
+    
+    url = window.location.origin + '/_api' + url + '@target=%27' + domain + '%27';
+
+    return url;
 };
 
 SPOC.Utils.Yammer = {};
@@ -600,7 +644,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * @return promise
      */
     methods.query = function(settings, forceNoCache, headers) {
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
+        var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items';
         
         listUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
         
@@ -615,7 +659,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * @return  promise
      */
     methods.create = function(data) {
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
+        var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items';
         var defaults = {
             __metadata: {
                 'type': SPOC.Utils.SP.getListItemType(listTitle)
@@ -637,7 +681,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * @return  jQuery Deferred Object
      */
     methods.update = function(id, data) {
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items(' + id + ')';
+        var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items(' + id + ')';
         var defaults = {
             __metadata: {
                 'type': SPOC.Utils.SP.getListItemType(listTitle)
@@ -669,7 +713,7 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
      * @return  promise
      */
     methods.query = function(settings, forceNoCache) {
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/';
+        var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/';
 
         listUrl += settings ? '?' + SPOC.Utils.Conversion.convertObjToQueryString(settings) : '';
 

@@ -16,7 +16,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * @return promise
      */
     methods.query = function(settings, forceNoCache, headers) {
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
+        var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items';
         
         listUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
         
@@ -31,7 +31,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * @return  promise
      */
     methods.create = function(data) {
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
+        var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items';
         var defaults = {
             __metadata: {
                 'type': SPOC.Utils.SP.getListItemType(listTitle)
@@ -53,7 +53,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * @return  jQuery Deferred Object
      */
     methods.update = function(id, data) {
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items(' + id + ')';
+        var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items(' + id + ')';
         var defaults = {
             __metadata: {
                 'type': SPOC.Utils.SP.getListItemType(listTitle)

@@ -14,7 +14,7 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
      * @return  promise
      */
     methods.query = function(settings, forceNoCache) {
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/';
+        var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/';
 
         listUrl += settings ? '?' + SPOC.Utils.Conversion.convertObjToQueryString(settings) : '';
 

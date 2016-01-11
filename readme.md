@@ -9,7 +9,9 @@ SPOC is a client-side Javascript library that helps you interact with the **Shar
   - Yammer Search (query only)
   - Yammer Messages (query only)
   - Yammer Profiles (query only)
-  
+
+##### SharePoint Hosted App Model Compatiable!
+SPOC has built in logic that automatcally detects when you are trying to call a site within a different domain and handles the relevent calls. This makes it really simple to interact with both the Host and App web when using the library within a SharePoint Hosted App. See the getting started examples to how this works. 
 ## Getting Started
 First download  **SPOC.min.js** from this repo and include it in your project or add it to your masterpage or page layouts. Note that **If you want to interact with Yammer from within SharePoint Online, you must also include the Yammer JS SDK** by adding the following into your masterpage or page layouts (must be loaded before SPOC.min.js).
 
@@ -22,6 +24,7 @@ First download  **SPOC.min.js** from this repo and include it in your project or
 <script type="text/javascript" data-app-id="ADD YAMMER APP ID" src="https://c64.assets-yammer.com/assets/platform_js_sdk.js"></script>
 
 ```
+
 > To use the Yammer API, you must first register an app on your network and set the app-id shown above. You can find out how to do this by visting the [Yammer help pages](https://developer.yammer.com/docs/app-registration)
 
 ## Basic Examples
@@ -41,6 +44,7 @@ exampleList.query().then(function(results){
 });
 
 ```
+
 ##### 1. Get filtered items from a List
 The list item method allows you to pass in filters and query settings via a JS object. It supports all default OData query string operators (select, filter, orderBy, expand, top etc). More information can be found on [MSDN](https://msdn.microsoft.com/en-us/library/office/fp142385.aspx#sectionSection0)
 
@@ -90,7 +94,25 @@ exampleList.create(item).then(function(results){
 
 ```
 
-##### 3. Get the current users profile details
+##### 3. Retrieve items from both the Host and App web from within a SharePoint Hosted App
+This example shows how interacting with the host or app web when using SPOC in a SharePoint Hosted App is really simple.
+```javascript
+// Create a new site instance both the host and app web. To create the app web, leave the site param empty. To create the host web, pass your host web url into the site param.
+var hostWeb = new SPOC.SP.Site('https://example.sharepoint.com/sites/mysite');
+var appWeb = new SPOC.SP.Site();
+
+// Both the host and app web instances can be called as normal. The hostWeb call will automatically use the SP x domain logic.
+hostWeb.listItems('Host web List Name').query().then(function(data){
+    console.log(data)
+});
+
+appWeb.listItems('App Web List Name').query().then(function(data){
+    console.log(data)
+});
+
+```
+
+##### 4. Get the current users profile details
 This examples shows how to get the current users profile properties
 
 ```javascript
@@ -100,31 +122,6 @@ var user = new SPOC.SP.User();
 // Query the users profile and retrive results in a JS promise
 user.query().then(function(results){
     console.log(results);
-});
-
-```
-## Mock API calls (Developing outside of SP)
-To help improve efficiency when working on front-end based SharePoint projects, we often start development offline (i.e creating the styling, HTML templates etc), and then intergrate it to SharePoint once completed. This makes the development process much quicker. 
-The problem with this is that you do not have access to the SharePoint API's when working offline. In order to get around this, SPOC includes the ability to create fake lists using javascript or a JSON file. This allows you to switch between real and local (fake) lists in a switch of a property (As long as you have a Mock list for each real list that your solution needs to interact with.)
-
-```javascript
-
-// Create items to add to the mock list 
-var myListItems = [{Title: "Item One",Title: "Item Two", Title: "Item Three"}];
-
-// Create a mock list called 'MyList' and list items
-SPOC.Mock.createList('MyList', myListItems);
-
-// Activate Mock API's. If active the API will return the mock lists, if deactivated it will query SP
-SPOC.Mock.active = true;
-
-// Query SharePoint list as normal
-
-var site = new SPOC.SP.Site();
-var exampleList = site.listItems('MyList');
-exampleList.query().then(function(results){
-    console.log(results);
-    // Returns [{Title: "Item One",Title: "Item Two", Title: "Item Three"}]
 });
 
 ```
@@ -144,11 +141,12 @@ Most of the following functions are used internally by the library, but have bee
         Description: "My Description Two"
     }];
     
-    var wantedObj = SPOC.Utils.Objects.findObjectByProperty(data, 'Title', 'My Title Two");
+    var wantedObj = SPOC.Utils.Objects.findObjectByProperty(data, 'Title', 'My Title Two');
     
     console.log(wantedObj);
     // returns {Title: "My Title Two", Description: "My Description Two"}
-```    
+```  
+
 ###### Merge two objects together (.merge(Object1, Object2))
 ```javascript
     var objectOne = {
@@ -163,11 +161,14 @@ Most of the following functions are used internally by the library, but have bee
 
     console.log(mergedObject);
     // returns {Title: "My Title One", Description: "My Description One", Status: "open"}
-```    
+```
+
 ##### Conversion (SPOC.Utils.Conversion)
  - Convert JS object to SP format API querystrings (.objToQueryString(obj))
 
+
 ##### Requests (SPOC.Utils.Request)
+
 
 ##### SharePoint General (SPOC.Utils.SP)
  - Generate SP data type by list name (.getListItemType(listName))
@@ -190,12 +191,36 @@ Most of the following functions are used internally by the library, but have bee
 ##### URLs (SPOC.Utils.Url)
  - Get a query string value by key (.getQueryString(key))
  - Make a AJAX get request to a url (.get(url))
+ - Checks if passed in url has the same domain
 
 ##### Yammer (SPOC.Utils.Yammer)
  - Tidy up a Yammer feed response (.formatFeedResponse(data))
  - Tidy up a Yammer search response (.formatSearchResponse(data))
  - Check if a user is logged into Yammer (.checkLogin(promptLogin))
- 
+ - 
+## Mock API calls (Developing outside of SP)
+To help improve efficiency when working on front-end based SharePoint projects, we often start development offline (i.e creating the styling, HTML templates etc), and then intergrate it to SharePoint once completed. This makes the development process much quicker. 
+The problem with this is that you do not have access to the SharePoint API's when working offline. In order to get around this, SPOC includes the ability to create fake lists & users using javascript or a JSON file. The Library will then return the fake lists / list items / users when running outside of SharePoint! As soon as you run the file inside of SharePoint, it will return to using the real list apis. When using this feature, be sure to create a mock list for each real list within your solution.
+
+```javascript
+
+// Create items to add to the mock list 
+var myListItems = [{Title: "Item One",Title: "Item Two", Title: "Item Three"}];
+
+// Create a mock list called 'MyList' and list items
+SPOC.Mock.createList('MyList', myListItems);
+
+// Query SharePoint list as normal
+
+var site = new SPOC.SP.Site();
+var exampleList = site.listItems('MyList');
+exampleList.query().then(function(results){
+    console.log(results);
+    // Returns [{Title: "Item One",Title: "Item Two", Title: "Item Three"}]
+});
+
+```
+
 ## Installation (Contributing)
 Want to contribute? Great! Note that SPOC uses Grunt & NPM, so these will need to be installed:
 

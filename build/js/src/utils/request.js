@@ -8,6 +8,7 @@ SPOC.Utils.Request = {};
  * @return  javascript promise
  */
 SPOC.Utils.Request.get = function(url, forceNoCache) {
+
     return new Promise(function(resolve, reject) {
         // Check if item is cached is session storage
         var cache = SPOC.Utils.Storage.get('SPOC-' + url);
@@ -17,7 +18,7 @@ SPOC.Utils.Request.get = function(url, forceNoCache) {
         } else {
 
             // Check if a Mock db has been set
-            if(SPOC.Mock.active){
+            if(SPOC.Mock.active) {
                 url = SPOC.Utils.Url.getListNameFromUrl(url);
                 var mockData = SPOC.Mock.db[url];
                 if (mockData){
@@ -26,6 +27,10 @@ SPOC.Utils.Request.get = function(url, forceNoCache) {
                     resolve({"error": "no mock data found for the list - " + url});
                 }
             } else {
+
+            if(!SPOC.Utils.Url.isSameDomain(url) && url.toLowerCase().indexOf('_api/web') > -1){
+                url = SPOC.Utils.Url.convertToXDomain(url);
+            }
 
             var req = new XMLHttpRequest();
 
@@ -69,6 +74,10 @@ SPOC.Utils.Request.post = function(url, data) {
                 resolve(data);
             } else {
 
+            if(!SPOC.Utils.Url.isSameDomain(url) && url.toLowerCase().indexOf('_api/web') > -1){
+                url = SPOC.Utils.Url.convertToXDomain(url);
+            }
+
             var req = new XMLHttpRequest();
 
             req.open('POST', url, true);
@@ -108,6 +117,10 @@ SPOC.Utils.Request.put = function(url, data) {
             if(SPOC.Mock.active){
                 resolve(data);
             } else {
+
+            if(!SPOC.Utils.Url.isSameDomain(url) && url.toLowerCase().indexOf('_api/web') > -1){
+                url = SPOC.Utils.Url.convertToXDomain(url);
+            }
 
             var req = new XMLHttpRequest();
 
