@@ -1,6 +1,6 @@
 // SharePoint List Functionlity
 
-SPOC.SPSite.prototype.lists = function(listTitle) {
+SPOC.SP.Site.prototype.Lists = function(listTitle) {
 
     // save reference to this
     var site = this;
@@ -13,19 +13,36 @@ SPOC.SPSite.prototype.lists = function(listTitle) {
      * @params  Object query filter paramators in obj format
      * @return  jQuery Deferred Object
      */
-    methods.query = function(settings) {
+    methods.query = function(settings, forceNoCache) {
+        var deferred = $.Deferred();
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/';
-        listUrl += settings ? '?' + SPOC.Utils.conversion.ObjToQueryString(settings) : '';
+        var cache = SPOC.Utils.Storage.get('SPOC-list-' + listTitle);
 
-        return $.ajax({
-            type: "GET",
-            url: listUrl,
-            dataType: 'json',
-            complete: function (data){
-                // On complete, cache results
-                SPOC.Utils.storage.set('SPOCC-list' + listTitle, data);
-            }
-        });
+        listUrl += settings ? '?' + SPOC.Utils.Conversion.convertObjToQueryString(settings) : '';
+
+        // Return cached version if available
+        if (cache && !forceNoCache) {
+            return deferred.resolve(cache);
+        } else {
+
+            // else get data and return promise.
+            $.ajax({
+                type: "GET",
+                url: listUrl,
+                dataType: 'json',
+                success: function(data) {
+                    // On complete, cache results
+                    SPOC.Utils.Storage.set('SPOC-list-' + listTitle, data);
+                    deferred.resolve(data);
+                },
+                error: function(data) {
+                    deferred.reject(data);
+                }
+            });
+
+            return deferred.promise();
+        }
+
     };
 
     /**
@@ -35,6 +52,7 @@ SPOC.SPSite.prototype.lists = function(listTitle) {
      * @return  jQuery Deferred Object
      */
     methods.create = function(settings) {
+        var deferred = $.Deferred();
         var defaults = {
             __metadata: {
                 'type': 'SP.List'
@@ -47,7 +65,7 @@ SPOC.SPSite.prototype.lists = function(listTitle) {
             $.extend(defaults, settings);
         }
 
-        return $.ajax({
+        $.ajax({
             type: "POST",
             url: site.url + '/_api/web/lists',
             data: JSON.stringify(defaults),
@@ -55,8 +73,16 @@ SPOC.SPSite.prototype.lists = function(listTitle) {
                 "Accept": "application/json;odata=verbose",
                 "X-RequestDigest": $("#__REQUESTDIGEST").val(),
                 'Content-Type': "application/json;odata=verbose"
+            },
+            success: function(data) {
+                deferred.resolve(data);
+            },
+            error: function(data) {
+                deferred.reject(data);
             }
         });
+
+        return deferred.promise();
     };
 
     return methods;
