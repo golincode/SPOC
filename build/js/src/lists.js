@@ -15,13 +15,13 @@ SPOC.SPSite.prototype.lists = function(listTitle) {
      */
     methods.query = function(settings) {
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/';
-        listUrl += settings ? '?' + SPOC.Utils.convertObjToQueryString(settings) : '';
+        listUrl += settings ? '?' + SPOC.Utils.conversion.ObjToQueryString(settings) : '';
 
         return $.ajax({
             type: "GET",
             url: listUrl,
             dataType: 'json',
-            complete: function (){
+            complete: function (data){
                 // On complete, cache results
                 SPOC.Utils.storage.set('SPOCC-list' + listTitle, data);
             }
