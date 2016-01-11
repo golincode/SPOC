@@ -1,4 +1,4 @@
-// Create objects for Utils conversion
+
 SPOC.Utils.Yammer = {};
 
 /**
@@ -48,25 +48,23 @@ SPOC.Utils.Yammer.formatSearchResponse = function(data) {
  * @return  jQuery Deferred Object
  */
 SPOC.Utils.Yammer.checkLogin = function(promptLogin) {
-    var deferred = $.Deferred();
-
-    yam.getLoginStatus(function(response) {
-        if (response.authResponse) {
-            deferred.resolve(response);
-        } else {
-            if (promptLogin) {
-                yam.platform.login(function(user) {
-                    if (user) {
-                        deferred.resolve(user);
-                    } else {
-                        deferred.resolve(false);
-                    }
-                });
-            } else {
+     return new Promise(function(resolve, reject) {
+         yam.getLoginStatus(function(response) {
+            if (response.authResponse) {
                 deferred.resolve(response);
+            } else {
+                if (promptLogin) {
+                    yam.platform.login(function(user) {
+                        if (user) {
+                            resolve(user);
+                        } else {
+                            resolve(false);
+                        }
+                    });
+                } else {
+                    resolve(response);
+                }
             }
-        }
+        });
     });
-
-    return deferred.promise();
 };

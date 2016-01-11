@@ -1,7 +1,6 @@
 /**
  * Define Sp Site Object constructor
  * @params  url  url of Sharepoint site
- * @author  Martin Pomeroy <mpomeroy@wearearchitect.com>
  * @return  void
  */
 SPOC.SP.Site = function(url) {
@@ -14,7 +13,6 @@ SPOC.SP.Site = function(url) {
 /**
  * Define Sp User Object constructor
  * @params  url  url of Sharepoint site
- * @author  Martin Pomeroy <mpomeroy@wearearchitect.com>
  * @return  void
  */
 SPOC.SP.User = function(username) {
@@ -29,7 +27,6 @@ SPOC.SP.User = function(username) {
 /**
  * Define Yam Object constructor & ensure login
  * @params  url  url of Sharepoint site
- * @author  Martin Pomeroy <mpomeroy@wearearchitect.com>
  * @return  void
  */
 SPOC.Yam.User = function(userId) {
@@ -48,7 +45,6 @@ SPOC.Yam.User = function(userId) {
 /**
  * Define Yam Object constructor & ensure login
  * @params  url  url of Sharepoint site
- * @author  Martin Pomeroy <mpomeroy@wearearchitect.com>
  * @return  void
  */
 SPOC.Yam.Messages = function(feedId, feedType) {
