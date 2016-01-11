@@ -15,7 +15,7 @@ SPOC.SPSite.prototype.list = function(listTitle) {
      */
     methods.query = function(settings) {
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
-        listUrl += settings ? '?' + SPOC.Utils.conversion.ObjToQueryString(settings) : '';
+        listUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
 
         return $.ajax({
             type: "GET",
@@ -23,7 +23,7 @@ SPOC.SPSite.prototype.list = function(listTitle) {
             dataType: 'json',
             complete: function(data) {
                 // On complete, cache results
-                SPOC.Utils.storage.set('SPOCC-listitems' + listTitle, data);
+                SPOC.Utils.Storage.set('SPOCC-listitems' + listTitle, data);
             }
         });
 
@@ -31,7 +31,7 @@ SPOC.SPSite.prototype.list = function(listTitle) {
 
     methods.getCached = function(listTitle) {
         console.log(this);
-        return SPOC.Utils.storage.get('SPOCC-listitems' + listTitle);
+        return SPOC.Utils.Storage.get('SPOCC-listitems' + listTitle);
     };
 
     /**

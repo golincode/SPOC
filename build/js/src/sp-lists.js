@@ -18,7 +18,7 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
         var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/';
         var cache = SPOC.Utils.Storage.get('SPOC-list-' + listTitle);
 
-        listUrl += settings ? '?' + SPOC.Utils.Conversion.convertObjToQueryString(settings) : '';
+        listUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
 
         // Return cached version if available
         if (cache && !forceNoCache) {
