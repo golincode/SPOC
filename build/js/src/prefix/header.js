@@ -6,7 +6,7 @@
  */
 
 
-(function(window, document, SPOC, $, undefined) {
+(function(window, document, SPOC, undefined) {
         'use strict';
 
         // Define all top level namespaces.

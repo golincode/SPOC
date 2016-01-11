@@ -1,4 +1,4 @@
-// Create objects for Utils conversion
+
 SPOC.Utils.Url = {};
 
 /**
@@ -23,23 +23,13 @@ SPOC.Utils.Url.getQueryString = function(variable, query) {
     }
 };
 
-SPOC.Utils.Url.get = function(givenUrl) {
-    var deferred = $.Deferred();
-
-    $.ajax({
-        type: "GET",
-        url: givenUrl,
-        dataType: 'json',
-        headers: {
-            "Accept": "application/json; odata=verbose"
-        },
-        success: function(data) {
-            deferred.resolve(data);
-        },
-        error: function(data) {
-            deferred.reject(data);
-        }
-    });
-
-    return deferred.promise();
+/**
+ * Converts a Javascript object to SP API query string format
+ * @params  obj Object of props to convert
+ * @return  string
+ */
+SPOC.Utils.Url.getListNameFromUrl = function(url) {
+   var regex = /\%27(.*)\%27/g;
+   var match = regex.exec(url);
+    return match ? match[1] : null;
 };

@@ -1,4 +1,3 @@
-// Create objects for Utils conversion
 SPOC.Utils.SP = {};
 
 /**

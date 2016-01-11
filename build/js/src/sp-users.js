@@ -16,35 +16,15 @@ SPOC.SP.User.prototype.Profile = function() {
      * @return  jQuery Deferred Object
      */
     methods.query = function(forceNoCache) {
-        var deferred = $.Deferred();
         var listUrl = _spPageContextInfo.webAbsoluteUrl;
-        var cache = SPOC.Utils.Storage.set('SPOC-users-' + user.id);
 
-        // Return cached version if available
-        if (cache && !forceNoCache) {
-            return deferred.resolve(cache);
+        if (user.loginName){
+            listUrl += "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + loginNamePrefix + user.loginName + "%27";
         } else {
-
-             if (user.loginName){
-                listUrl += "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + loginNamePrefix + user.loginName + "%27";
-            } else {
-                listUrl += "/_api/SP.UserProfiles.PeopleManager/GetMyProperties/UserProfileProperties";
-            }
-
-            // else get data and return promise.
-            $.ajax({
-                type: "GET",
-                url: listUrl,
-                dataType: 'json',
-                success: function(data) {
-                    // On complete, cache results
-                    SPOC.Utils.Storage.set('SPOC-users-' + user.id, data);
-                    deferred.resolve(data);
-                }
-            });
-
-            return deferred.promise();
+            listUrl += "/_api/SP.UserProfiles.PeopleManager/GetMyProperties/UserProfileProperties";
         }
+        // return promise
+        return SPOC.Utils.Request.get(listUrl, forceNoCache);
     };
 
 
@@ -54,33 +34,13 @@ SPOC.SP.User.prototype.Profile = function() {
      * @params  user Id to check (optional)
      * @return  bool
      */
-    methods.isMemberOfGroup = function(groupName, userId) {
-    var deferred = $.Deferred();
+    methods.isMemberOfGroup = function(groupName, userId, forceNoCache) {
+        var user = userId ? userId : _spPageContextInfo.userId;
+        var listUrl = site.url +  "/_api/web/sitegroups/getByName('" + groupName + "')/Users?$filter=Id eq " + user;
 
-    userId = userId ? userId : _spPageContextInfo.userId;
-
-    var listUrl = site.url +  "/_api/web/sitegroups/getByName('" + groupName + "')/Users?$filter=Id eq " + _spPageContextInfo.userId;
-
-        // else get data and return promise.
-
-        $.ajax({
-            type: "GET",
-            url: listUrl,
-            dataType: 'json',
-            headers: {
-                "Accept": "application/json;odata=verbose"
-            },
-            success: function(data) {
-                // On complete, cache results
-                deferred.resolve(data);
-            },
-            error: function(data) {
-                deferred.reject(data);
-            }
-        });
-
-        return deferred.promise();
-};
+        // return promise
+        return SPOC.Utils.Request.get(listUrl, forceNoCache);
+    };
 
     return methods;
 };

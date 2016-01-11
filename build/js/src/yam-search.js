@@ -16,19 +16,11 @@ SPOC.Yam.Search = function() {
      * @return  jQuery Deferred Object
      */
     methods.query = function(settings, forceNoCache) {
-        var deferred = $.Deferred();
-
-        // Get query from cache.
-        var cache = SPOC.Utils.Storage.get('SPOC-yam-search-' + JSON.stringify(settings));
-
-        // Return cached version if available
-        if (cache && !forceNoCache) {
-            return deferred.resolve(cache);
-        } else {
+       return new Promise(function(resolve, reject) {
             // Check user has access token and then then return group feed.
             SPOC.Utils.Yammer.checkLogin().then(function(result) {
                 if (result) {
-                    yam.platform.request({
+                   yam.platform.request({
                         url: apiUrl,
                         method: "GET",
                         data: settings ? settings : null,
@@ -36,20 +28,17 @@ SPOC.Yam.Search = function() {
                             // Format response to combine references with messages
                             data = SPOC.Utils.Yammer.formatSearchResponse(data);
                             SPOC.Utils.Storage.set('SPOC-yam-search-' + JSON.stringify(settings), data);
-                            deferred.resolve(data);
+                            resolve(data);
                         },
                         error: function(data) {
-                            deferred.reject(data);
+                            reject(data);
                         }
                     });
                 } else {
-                    deferred.resolve(data);
+                     resolve(false);
                 }
             });
-
-        }
-        return deferred.promise();
-
+        });
     };
 
 
