@@ -10,7 +10,7 @@ SPOC.Yam.User.prototype.Profile = function() {
 
     /**
      * Queries a Yammer User Profile and returns properties
-     * @return  jQuery Deferred Object
+     * @return promise
      */
     methods.query = function(settings, forceNoCache) {
         return new Promise(function(resolve, reject) {

@@ -14,7 +14,7 @@ SPOC.Utils.SP.getListItemType = function(name) {
  * @params  Upload document: GUID document library, callBack function, setting object for the modal dialog
  * setting: {'width': number, 'height': number, 'title': string}
  * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
- * @return  jQuery Deferred Object
+ * @return Promise
  */
 SPOC.Utils.SP.uploadDocument = function(GUID, settings) {
     var defer = $.Deferred();

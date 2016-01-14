@@ -50,7 +50,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * Creates a new list items
      * @params  Object Create list settings
      * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
-     * @return  jQuery Deferred Object
+     * @return promise
      */
     methods.update = function(id, data) {
         var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items(' + id + ')';

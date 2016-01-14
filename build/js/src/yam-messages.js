@@ -9,7 +9,7 @@ SPOC.Yam.Feed.prototype.posts = function() {
     var methods = {};
 
     // Default api endpoint to all messages
-    var apiUrl = "messages.json";
+    var apiUrl = "messages/following.json";
 
     // If an id is passed and feedtype, formuate new endpoint
     if (_this.feedId) {

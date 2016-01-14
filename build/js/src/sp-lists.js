@@ -25,7 +25,7 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
      * Creates a new SharePoint List
      * @params  Object Create list settings
      * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
-     * @return  jQuery Deferred Object
+     * @return  promise
      */
     methods.create = function(settings) {
         var defaults = {

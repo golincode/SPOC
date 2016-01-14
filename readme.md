@@ -1,19 +1,22 @@
-# SPOC - SharePoint Online Connector.
+# SPOC - SharePoint Online Connector (Beta).
 
-SPOC is a client-side Javascript library that helps you interact with the **SharePoint Online & Yammer REST APIs**. It also contains handy helper and utility functions that are regularly used when working on Front-end SharePoint projects. The library currently lets you interact with:  
+SPOC is a client-side Javascript library that helps you interact with the **SharePoint Online & Yammer REST APIs**. It also contains handy helper and utility functions that are regularly used when working on Front-end SharePoint projects. 
 
-  - Sites
-  - Lists
-  - List Items
-  - User Profiles
-  - Yammer Search (query only)
-  - Yammer Messages (query only)
-  - Yammer Profiles (query only)
+The library currently lets you interact with:  
 
-##### SharePoint Hosted App Model Compatiable!
-SPOC has built in logic that automatcally detects when you are trying to call a site within a different domain and handles the relevent calls. This makes it really simple to interact with both the Host and App web when using the library within a SharePoint Hosted App. See the getting started examples to how this works. 
+  - SharePoint Sites (Both App and Host Webs)
+  - SharePoint Lists
+  - SharePoint List Items
+  - SharePoint User Profiles
+  - Yammer Search 
+  - Yammer Posts & Feeds
+  - Yammer Profiles
+
+##### SharePoint Hosted App Model
+SPOC has built in logic that automatically detects when you are trying to call a site within a different domain and handles the relevant calls. This makes it really simple to interact with both the Host and App web when using the library within a SharePoint Hosted App.
+
 ## Getting Started
-First download  **SPOC.min.js** from this repo and include it in your project or add it to your masterpage or page layouts. Note that **If you want to interact with Yammer from within SharePoint Online, you must also include the Yammer JS SDK** by adding the following into your masterpage or page layouts (must be loaded before SPOC.min.js).
+First download  **SPOC.min.js** and include it in your project or add it to your master-page or page layouts. Note that **If you want to interact with Yammer from within SharePoint Online, you must also include the Yammer JS SDK** by adding the following into your master-page or page layouts.
 
 ```html 
 
@@ -25,27 +28,28 @@ First download  **SPOC.min.js** from this repo and include it in your project or
 
 ```
 
-> To use the Yammer API, you must first register an app on your network and set the app-id shown above. You can find out how to do this by visting the [Yammer help pages](https://developer.yammer.com/docs/app-registration)
+> To use the Yammer API, you must first register an app on your network and set the app-id shown above. You can find out how to do this by visiting the [Yammer help pages](https://developer.yammer.com/docs/app-registration)
+
 
 ## Basic Examples
 
-##### 1. Get all items from a List
+##### 1. Get all items from a SharePoint List
 This example shows how to get list items from a list in the current site
 ```javascript
 // Create a new site instance. Passing no url with set it as the current site
 var site = new SPOC.SP.Site();
 
-// Pass in the name of the list that you want to query 
+// Pass in the name of the list that you would like to query 
 var exampleList = site.listItems('List Name');
 
-// Query list and retrive results in a JS promise
+// Query list
 exampleList.query().then(function(results){
     console.log(results);
 });
 
 ```
 
-##### 1. Get filtered items from a List
+##### 2. Get items from a list that match a filter
 The list item method allows you to pass in filters and query settings via a JS object. It supports all default OData query string operators (select, filter, orderBy, expand, top etc). More information can be found on [MSDN](https://msdn.microsoft.com/en-us/library/office/fp142385.aspx#sectionSection0)
 
 ```javascript
@@ -59,18 +63,18 @@ var site = new SPOC.SP.Site();
         orderBy: 'Created'
     };
 
-// Pass in the name of the list that you want to query 
+// Pass in the name of the list that you would like to query 
 var exampleList = site.listItems('List Name');
 
-// Query list and retrive results in a JS promise
+// Query list, passing in your settings
 exampleList.query(settings).then(function(results){
     console.log(results);
 });
 
 ```
-> Note that all GET requests automatically cache results in sessionStorage. If you would like to bypass the cache, pass true into the second paramater of the query function.
+> Note that all GET requests automatically cache results in the browser sessionStorage. If you would like to bypass the cache, pass true into the second parameter of the query function.
 
-##### 2. Create a new list item to a list in a subsite
+##### 3. Create a new list item in a list that is hosted in a subsite
 This example shows how to create a new list item to a list in a different site to that being viewed
 
 ```javascript
@@ -83,10 +87,10 @@ var item = {
     description: "text for the description column"
 };
 
-// Pass in the name of the list that you want to query 
+// Pass in the name of the list that you want to create the item in
 var exampleList = subSite.listItems('List Name');
 
-// Query list and retrive results in a JS promise. This examples includes handling errors via a error callback
+// Create Item, passing in the item object
 exampleList.create(item).then(function(results){
     console.log(results);
 }, function(err){
@@ -95,14 +99,14 @@ exampleList.create(item).then(function(results){
 
 ```
 
-##### 3. Retrieve items from both the Host and App web from within a SharePoint Hosted App
+##### 4. Retrieve items from both the Host and App web from within a SharePoint Hosted App
 This example shows how interacting with the host or app web when using SPOC in a SharePoint Hosted App is really simple.
 ```javascript
 // Create a new site instance both the host and app web. To create the app web, leave the site param empty. To create the host web, pass your host web url into the site param.
 var hostWeb = new SPOC.SP.Site('https://example.sharepoint.com/sites/mysite');
 var appWeb = new SPOC.SP.Site();
 
-// Both the host and app web instances can be called as normal. The hostWeb call will automatically use the SP x domain logic.
+// Both the host and app web instances can be called as normal. The hostWeb call will automatically use the SP xdomain logic.
 hostWeb.listItems('Host web List Name').query().then(function(data){
     console.log(data)
 });
@@ -113,21 +117,21 @@ appWeb.listItems('App Web List Name').query().then(function(data){
 
 ```
 
-##### 4. Get the current users profile details
+##### 5. Get the current users profile details
 This examples shows how to get the current users profile properties
 
 ```javascript
 // Create a new user instance.
 var user = new SPOC.SP.User();
 
-// Query the users profile and retrive results in a JS promise
+// Query the users profile
 user.Profile().query().then(function(results){
     console.log(results);
 });
 
 ```
 
-##### 5. Get personalised yammer posts for the logged in user (Posts from People, Groups and topics that they follow)
+##### 6. Get personalised yammer posts for the logged in user (Posts from People, Groups and topics that they follow)
 This examples shows how to get Yammer posts from People, Groups and Topics that hte current user is following 
 ```javascript
 // Create a new Yammer Messages instance.
@@ -140,14 +144,14 @@ posts.query().then(function(data){
     // outputs a object array of Yammer posts
 });
 
-// Query the users profile and retrive results in a JS promise
+// Query the users profile
 yamUser.Messages().query().then(function(results){
     console.log(results);
 });
 
 ```
 
-##### 6. Get all posts from a Yammer Group 
+##### 7. Get all posts from a Yammer Group 
 This examples shows how to get Yammer posts from group. This can anything that has a feed id (Group, user feed etc). For user feeds, the feed Id is the users Yammer id
 ```javascript
 // Create a new Yammer feed instance. Pass in true as a second arguement if you are querying a users feed instead of a group
@@ -159,10 +163,10 @@ posts.query().then(function(data){
     // outputs a object array of Yammer posts
 });
 ```
-##### 7. Search Yammer 
+##### 8. Search Yammer 
 This examples shows how to search groups, posts, documents and notes on Yammer. 
 ```javascript
-// Create a new Yammer Search istance.
+// Create a new Yammer Search instance.
 var yamSearch = new SPOC.Yam.Search('search term');
 
 yamSearch.query().then(function(data){
@@ -172,7 +176,8 @@ yamSearch.query().then(function(data){
 ```
 
 ## Mock API calls (Developing outside of SP)
-To help improve efficiency when working on front-end based SharePoint projects, we often start development offline (i.e creating the styling, HTML templates etc), and then intergrate it to SharePoint once completed. This makes the development process much quicker. 
+To help improve efficiency when working on front-end based SharePoint projects, we often start development offline (i.e creating the styling, HTML templates etc), and then integrate it to SharePoint once completed. This makes the development process much quicker. 
+
 The problem with this is that you do not have access to the SharePoint API's when working offline. In order to get around this, SPOC includes the ability to create fake lists & users using javascript or a JSON file. The Library will then return the fake lists / list items / users when running outside of SharePoint! As soon as you run the file inside of SharePoint, it will return to using the real list apis. When using this feature, be sure to create a mock list for each real list within your solution.
 
 ```javascript

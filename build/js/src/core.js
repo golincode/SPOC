@@ -1,7 +1,7 @@
 /**
  * Define Sp Site Object constructor
  * @params  url  url of Sharepoint site
- * @return  void
+ * @return  undefined
  */
 SPOC.SP.Site = function(url) {
 
@@ -13,7 +13,7 @@ SPOC.SP.Site = function(url) {
 /**
  * Define Sp User Object constructor
  * @params  url  url of Sharepoint site
- * @return  void
+ * @return  object
  */
 SPOC.SP.User = function(username) {
     this.id = username ? username : _spPageContextInfo.userId;
@@ -24,7 +24,7 @@ SPOC.SP.User = function(username) {
 /**
  * Define Yam Object constructor & ensure login
  * @params  url  url of Sharepoint site
- * @return  void
+ * @return object
  */
 SPOC.Yam.User = function(userId) {
 
@@ -42,7 +42,7 @@ SPOC.Yam.User = function(userId) {
 /**
  * Define Yam Object constructor & ensure login
  * @params  url  url of Sharepoint site
- * @return  void
+ * @return object
  */
 SPOC.Yam.Feed = function(feedId, feedType) {
 
