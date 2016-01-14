@@ -13,7 +13,7 @@ SPOC.SP.User.prototype.Profile = function() {
     /**
      * Queries a SharePont User via REST API
      * @params  Object query filter paramators in obj format
-     * @return  jQuery Deferred Object
+     * @return  promise
      */
     methods.query = function(forceNoCache) {
         var listUrl = _spPageContextInfo.webAbsoluteUrl;

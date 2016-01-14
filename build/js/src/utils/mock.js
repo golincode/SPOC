@@ -5,6 +5,12 @@ SPOC.Mock = {
     db: {}
 };
 
+
+// If not in SP, set page context as an empty object
+if(_spPageContextInfo){
+    _spPageContextInfo = {};
+}
+
 /**
  * Creates a Mock SharePoint List
  * @params  listName  name of list to create

@@ -1,6 +1,407 @@
-/*! SPOC 08-01-2016 */
+/**
+ * Define Sp Site Object constructor
+ * @params  url  url of Sharepoint site
+ * @return  undefined
+ */
+SPOC.SP.Site = function(url) {
+
+    // Set URL to current site if no url passed in.
+    this.url = url ? url : _spPageContextInfo.webAbsoluteUrl;
+};
 
 
+/**
+ * Define Sp User Object constructor
+ * @params  url  url of Sharepoint site
+ * @return  object
+ */
+SPOC.SP.User = function(username) {
+    this.id = username ? username : _spPageContextInfo.userId;
+    this.loginName = username ? username : _spPageContextInfo.userLoginName;  
+};
+
+
+/**
+ * Define Yam Object constructor & ensure login
+ * @params  url  url of Sharepoint site
+ * @return object
+ */
+SPOC.Yam.User = function(userId) {
+
+    if (!window.yam) {
+        //@todo: Update error messages to SP notifications?
+        console.log('Please ensure that you have included Yammer SDK and added a valid Client Id');
+    }
+
+    this.id = userId ? userId : 'current';
+};
+
+
+
+
+/**
+ * Define Yam Object constructor & ensure login
+ * @params  url  url of Sharepoint site
+ * @return object
+ */
+SPOC.Yam.Feed = function(feedId, feedType) {
+
+    if (!window.yam) {
+        //@todo: Update error messages to SP notifications?
+        console.log('Please ensure that you have included Yammer SDK and added a valid Client Id');
+    }
+
+    this.feedId = feedId;
+    this.feedType = feedType;
+
+};
+
+// SharePoint List Items Functionlity
+
+
+
+SPOC.SP.Site.prototype.ListItems = function(listTitle) {
+
+    // save reference to this
+    var site = this;
+
+    // Create object to store public methods
+    var methods = {};
+
+    /**
+     * Queries a SharePont list via REST API
+     * @params  Object query filter paramators in obj format
+     * @return promise
+     */
+    methods.query = function(settings, forceNoCache, headers) {
+        var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items';
+        
+        listUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
+        
+        return SPOC.Utils.Request.get(listUrl, forceNoCache);        
+    };
+
+
+    /**
+     * Creates a new list items
+     * @params  Object Create list settings
+     * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
+     * @return  promise
+     */
+    methods.create = function(data) {
+        var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items';
+        var defaults = {
+            __metadata: {
+                'type': SPOC.Utils.SP.getListItemType(listTitle)
+            }
+        };
+
+        if (data) {
+            defaults = SPOC.Utils.Objects.merge(defaults, data);
+        }
+
+        return SPOC.Utils.Request.post(listUrl, defaults);
+    };
+
+
+    /**
+     * Creates a new list items
+     * @params  Object Create list settings
+     * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
+     * @return promise
+     */
+    methods.update = function(id, data) {
+        var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items(' + id + ')';
+        var defaults = {
+            __metadata: {
+                'type': SPOC.Utils.SP.getListItemType(listTitle)
+            }
+        };
+
+        if (data) {
+            defaults = SPOC.Utils.Objects.merge(defaults, data);
+        }
+
+        return SPOC.Utils.Request.put(listUrl, defaults);
+    };
+
+    return methods;
+};
+// SharePoint List Functionlity
+
+SPOC.SP.Site.prototype.Lists = function(listTitle) {
+
+    // save reference to this
+    var site = this;
+
+    // Create object to store public methods
+    var methods = {};
+
+    /**
+     * Queries a SharePont list via REST API
+     * @params  Object query filter paramators in obj format
+     * @return  promise
+     */
+    methods.query = function(settings, forceNoCache) {
+        var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/';
+
+        listUrl += settings ? '?' + SPOC.Utils.Conversion.convertObjToQueryString(settings) : '';
+
+        return SPOC.Utils.Request.get(listUrl, forceNoCache);
+    };
+
+    /**
+     * Creates a new SharePoint List
+     * @params  Object Create list settings
+     * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
+     * @return  promise
+     */
+    methods.create = function(settings) {
+        var defaults = {
+            __metadata: {
+                'type': 'SP.List'
+            },
+            BaseTemplate: 100,
+            Description: '',
+        };
+
+        if (settings) {
+           defaults = SPOC.Utils.Objects.merge(defaults, settings);
+        }
+
+        var url = site.url + '/_api/web/lists';
+
+        return SPOC.Utils.Request.post(url, defaults);
+    };
+
+    return methods;
+};
+// SharePoint List Functionlity
+
+SPOC.SP.User.prototype.Profile = function() {
+
+    // save reference to this
+    var user = this;
+
+    // Create object to store public methods
+    var methods = {};
+
+    var loginNamePrefix = 'i:0%23.f|membership|';
+
+    /**
+     * Queries a SharePont User via REST API
+     * @params  Object query filter paramators in obj format
+     * @return  promise
+     */
+    methods.query = function(forceNoCache) {
+        var listUrl = _spPageContextInfo.webAbsoluteUrl;
+
+        if (user.loginName){
+            listUrl += "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + loginNamePrefix + user.loginName + "%27";
+        } else {
+            listUrl += "/_api/SP.UserProfiles.PeopleManager/GetMyProperties/UserProfileProperties";
+        }
+        // return promise
+        return SPOC.Utils.Request.get(listUrl, forceNoCache);
+    };
+
+
+    /**
+     * Returns if a SP user is a member of a security group
+     * @params  groupName to check
+     * @params  user Id to check (optional)
+     * @return  bool
+     */
+    methods.isMemberOfGroup = function(groupName, userId, forceNoCache) {
+        var user = userId ? userId : _spPageContextInfo.userId;
+        var listUrl = site.url +  "/_api/web/sitegroups/getByName('" + groupName + "')/Users?$filter=Id eq " + user;
+
+        // return promise
+        return SPOC.Utils.Request.get(listUrl, forceNoCache);
+    };
+
+    return methods;
+};
+// Yammer Group Functionlity.
+
+SPOC.Yam.Feed.prototype.posts = function() {
+
+    // save reference to this
+    var _this = this;
+
+    // Create object to store public methods
+    var methods = {};
+
+    // Default api endpoint to all messages
+    var apiUrl = "messages/following.json";
+
+    // If an id is passed and feedtype, formuate new endpoint
+    if (_this.feedId) {
+        apiUrl = "messages/" + _this.feedType ? "in_group" : "from_user" + "/" + _this.feedId + ".json";
+    }
+
+    /**
+     * Queries a Yammer Group and returns feed items
+     * @return promise
+     */
+    methods.query = function(settings) {
+         return new Promise(function(resolve, reject) {
+            // Check user has access token and then then return group feed.
+            SPOC.Utils.Yammer.checkLogin().then(function(result) {
+                if (result) {
+                    yam.platform.request({
+                        url: apiUrl,
+                        method: "GET",
+                        data: settings ? settings : null,
+                        success: function(data) {
+                            // Format response to combine references with messages
+                            data = SPOC.Utils.Yammer.formatFeedResponse(data);
+                            resolve(data);
+                        },
+                        error: function(data) {
+                            reject(data);
+                        }
+                    });
+                } else {
+                     resolve(false);
+                }
+            });
+        });
+    };
+
+
+    return methods;
+
+};
+// Yammer Group Functionlity.
+
+SPOC.Yam.Search = function() {
+
+    // save reference to this
+    var _this = this;
+
+    // Create object to store public methods
+    var methods = {};
+
+    // Default api endpoint to search
+    var apiUrl = "search.json";
+
+    /**
+     * Queries a Yammer Group and returns feed items
+     * @return  jQuery Deferred Object
+     */
+    methods.query = function(settings, forceNoCache) {
+       return new Promise(function(resolve, reject) {
+            // Check user has access token and then then return group feed.
+            SPOC.Utils.Yammer.checkLogin().then(function(result) {
+                if (result) {
+                   yam.platform.request({
+                        url: apiUrl,
+                        method: "GET",
+                        data: settings ? settings : null,
+                        success: function(data) {
+                            // Format response to combine references with messages
+                            data = SPOC.Utils.Yammer.formatSearchResponse(data);
+                            SPOC.Utils.Storage.set('SPOC-yam-search-' + JSON.stringify(settings), data);
+                            resolve(data);
+                        },
+                        error: function(data) {
+                            reject(data);
+                        }
+                    });
+                } else {
+                     resolve(false);
+                }
+            });
+        });
+    };
+
+
+    return methods;
+
+};
+// Yammer User Functionlity.
+
+SPOC.Yam.User.prototype.Subscriptions = function() {
+
+    // save reference to this
+    var _this = this;
+
+    // Create object to store public methods
+    var methods = {};
+
+    /**
+     * Queries a Yammer User Profile and returns properties
+     * @return  promise
+     */
+    methods.query = function(settings, forceNoCache) {
+       return new Promise(function(resolve, reject) {
+            // Check user has access token and then then return group feed.
+            SPOC.Utils.Yammer.checkLogin().then(function(result) {
+                if (result) {
+                    yam.platform.request({
+                        url: "subscriptions/to_user/" + _this.id + ".json",
+                        method: "GET",
+                        data: settings ? settings : null,
+                        success: function(data) {
+                            SPOC.Utils.Storage.set('SPOC-yam-subs-' + _this.id, data);
+                            deferred.resolve(data);
+                        },
+                        error: function(data) {
+                            deferred.reject(data);
+                        }
+                    });
+                } else {
+                     resolve(false);
+                }
+            });
+        });
+    };
+
+    return methods;
+
+};
+// Yammer User Functionlity.
+
+SPOC.Yam.User.prototype.Profile = function() {
+
+    // save reference to this
+    var _this = this;
+
+    // Create object to store public methods
+    var methods = {};
+
+    /**
+     * Queries a Yammer User Profile and returns properties
+     * @return promise
+     */
+    methods.query = function(settings, forceNoCache) {
+        return new Promise(function(resolve, reject) {
+            // Check user has access token and then then return group feed.
+            SPOC.Utils.Yammer.checkLogin().then(function(result) {
+                if (result) {
+                    yam.platform.request({
+                        url: "users/" + _this.id + ".json",
+                        method: "GET",
+                        data: settings ? settings : null,
+                        success: function(data) {
+                            SPOC.Utils.Storage.set('SPOCC-yam-users-' + _this.id, data);
+                            deferred.resolve(data);
+                        },
+                        error: function(data) {
+                            deferred.reject(data);
+                        }
+                    });
+                } else {
+                     resolve(false);
+                }
+            });
+        });
+    };
+
+    return methods;
+
+};
 /**
  * Version: 0.0.1
  * Copyright (c) 2015-2015, Architect 365 (https://www.architect365.co.uk). All rights reserved.
@@ -16,6 +417,7 @@
         SPOC.Utils = {};
         SPOC.SP = {};
         SPOC.Yam = {};
+})(window, document, window.SPOC = window.SPOC || {});
 SPOC.Utils.Conversion = {};
 
 /**
@@ -26,9 +428,9 @@ SPOC.Utils.Conversion = {};
 SPOC.Utils.Conversion.objToQueryString = function(obj) {
     var str = '';
     for (var propertyName in obj) {
-        str += '&$' + propertyName + '=' + obj[propertyName];
+        str += '&$' + propertyName + '=' + obj[propertyName].replace(/ /g, '_x0020_');
     }
-    return str;
+    return encodeURI(str);
 };
 
 
@@ -37,6 +439,12 @@ SPOC.Mock = {
     active: false,
     db: {}
 };
+
+
+// If not in SP, set page context as an empty object
+if(_spPageContextInfo){
+    _spPageContextInfo = {};
+}
 
 /**
  * Creates a Mock SharePoint List
@@ -102,6 +510,7 @@ SPOC.Utils.Request = {};
  * @return  javascript promise
  */
 SPOC.Utils.Request.get = function(url, forceNoCache) {
+
     return new Promise(function(resolve, reject) {
         // Check if item is cached is session storage
         var cache = SPOC.Utils.Storage.get('SPOC-' + url);
@@ -111,7 +520,7 @@ SPOC.Utils.Request.get = function(url, forceNoCache) {
         } else {
 
             // Check if a Mock db has been set
-            if(SPOC.Mock.active){
+            if(SPOC.Mock.active) {
                 url = SPOC.Utils.Url.getListNameFromUrl(url);
                 var mockData = SPOC.Mock.db[url];
                 if (mockData){
@@ -120,6 +529,10 @@ SPOC.Utils.Request.get = function(url, forceNoCache) {
                     resolve({"error": "no mock data found for the list - " + url});
                 }
             } else {
+
+            if(!SPOC.Utils.Url.isSameDomain(url) && url.toLowerCase().indexOf('_api/web') > -1){
+                url = SPOC.Utils.Url.convertToXDomain(url);
+            }
 
             var req = new XMLHttpRequest();
 
@@ -163,6 +576,10 @@ SPOC.Utils.Request.post = function(url, data) {
                 resolve(data);
             } else {
 
+            if(!SPOC.Utils.Url.isSameDomain(url) && url.toLowerCase().indexOf('_api/web') > -1){
+                url = SPOC.Utils.Url.convertToXDomain(url);
+            }
+
             var req = new XMLHttpRequest();
 
             req.open('POST', url, true);
@@ -202,6 +619,10 @@ SPOC.Utils.Request.put = function(url, data) {
             if(SPOC.Mock.active){
                 resolve(data);
             } else {
+
+            if(!SPOC.Utils.Url.isSameDomain(url) && url.toLowerCase().indexOf('_api/web') > -1){
+                url = SPOC.Utils.Url.convertToXDomain(url);
+            }
 
             var req = new XMLHttpRequest();
 
@@ -247,7 +668,7 @@ SPOC.Utils.SP.getListItemType = function(name) {
  * @params  Upload document: GUID document library, callBack function, setting object for the modal dialog
  * setting: {'width': number, 'height': number, 'title': string}
  * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
- * @return  jQuery Deferred Object
+ * @return Promise
  */
 SPOC.Utils.SP.uploadDocument = function(GUID, settings) {
     var defer = $.Deferred();
@@ -442,14 +863,45 @@ SPOC.Utils.Url.getQueryString = function(variable, query) {
 };
 
 /**
- * Converts a Javascript object to SP API query string format
- * @params  obj Object of props to convert
+ * Extracts and returns a list name from api url endpoint
+ * @params  url 
  * @return  string
  */
 SPOC.Utils.Url.getListNameFromUrl = function(url) {
    var regex = /\%27(.*)\%27/g;
    var match = regex.exec(url);
     return match ? match[1] : null;
+};
+
+
+/**
+ * Converts a Javascript object to SP API query string format
+ * @params  obj Object of props to convert
+ * @return  string
+ */
+SPOC.Utils.Url.isSameDomain = function(url) {
+    var current = window.location.origin.toLowerCase();
+    return url.toLowerCase().indexOf(current) > -1 ? true : false;
+};
+
+/**
+ * Converts a API call to x domain format
+ * @params  url string url of API call
+ * @return  string
+ */
+SPOC.Utils.Url.convertToXDomain = function(url) {
+    url = url.toLowerCase();
+    url = url.replace('/_api/', '/_api/SP.AppContextSite(@target)/');
+    var domain = url.split('/_api')[0];
+    url = url.split('/_api')[1];
+
+    if (url.indexOf('?') === -1){
+        url = url + '?';
+    }
+    
+    url = window.location.origin + '/_api' + url + '@target=%27' + domain + '%27';
+
+    return url;
 };
 
 SPOC.Utils.Yammer = {};
@@ -521,411 +973,3 @@ SPOC.Utils.Yammer.checkLogin = function(promptLogin) {
         });
     });
 };
-/**
- * Define Sp Site Object constructor
- * @params  url  url of Sharepoint site
- * @return  void
- */
-SPOC.SP.Site = function(url) {
-
-    // Set URL to current site if no url passed in.
-    this.url = url ? url : _spPageContextInfo.webAbsoluteUrl;
-};
-
-
-/**
- * Define Sp User Object constructor
- * @params  url  url of Sharepoint site
- * @return  void
- */
-SPOC.SP.User = function(username) {
-
-    // Set URL to current site if no url passed in.
-    this.id = username ? username : _spPageContextInfo.userId;
-    this.loginName = username ? username : _spPageContextInfo.userLoginName;
-    this.isAdmin = username ? false : _spPageContextInfo.isSiteAdmin;
-};
-
-
-/**
- * Define Yam Object constructor & ensure login
- * @params  url  url of Sharepoint site
- * @return  void
- */
-SPOC.Yam.User = function(userId) {
-
-    if (!window.yam) {
-        //@todo: Update error messages to SP notifications?
-        console.log('Please ensure that you have included Yammer SDK and added a valid Client Id');
-    }
-
-    this.id = userId ? userId : 'current';
-};
-
-
-
-
-/**
- * Define Yam Object constructor & ensure login
- * @params  url  url of Sharepoint site
- * @return  void
- */
-SPOC.Yam.Messages = function(feedId, feedType) {
-
-    if (!window.yam) {
-        //@todo: Update error messages to SP notifications?
-        console.log('Please ensure that you have included Yammer SDK and added a valid Client Id');
-    }
-
-    this.feedId = feedId;
-    this.feedType = feedType;
-
-};
-
-// SharePoint List Items Functionlity
-
-
-
-SPOC.SP.Site.prototype.ListItems = function(listTitle) {
-
-    // save reference to this
-    var site = this;
-
-    // Create object to store public methods
-    var methods = {};
-
-    /**
-     * Queries a SharePont list via REST API
-     * @params  Object query filter paramators in obj format
-     * @return promise
-     */
-    methods.query = function(settings, forceNoCache, headers) {
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
-        
-        listUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
-        
-        return SPOC.Utils.Request.get(listUrl, forceNoCache);        
-    };
-
-
-    /**
-     * Creates a new list items
-     * @params  Object Create list settings
-     * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
-     * @return  promise
-     */
-    methods.create = function(data) {
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items';
-        var defaults = {
-            __metadata: {
-                'type': SPOC.Utils.SP.getListItemType(listTitle)
-            }
-        };
-
-        if (data) {
-            defaults = SPOC.Utils.Objects.merge(defaults, data);
-        }
-
-        return SPOC.Utils.Request.post(listUrl, defaults);
-    };
-
-
-    /**
-     * Creates a new list items
-     * @params  Object Create list settings
-     * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
-     * @return  jQuery Deferred Object
-     */
-    methods.update = function(id, data) {
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/items(' + id + ')';
-        var defaults = {
-            __metadata: {
-                'type': SPOC.Utils.SP.getListItemType(listTitle)
-            }
-        };
-
-        if (data) {
-            defaults = SPOC.Utils.Objects.merge(defaults, data);
-        }
-
-        return SPOC.Utils.Request.put(listUrl, defaults);
-    };
-
-    return methods;
-};
-// SharePoint List Functionlity
-
-SPOC.SP.Site.prototype.Lists = function(listTitle) {
-
-    // save reference to this
-    var site = this;
-
-    // Create object to store public methods
-    var methods = {};
-
-    /**
-     * Queries a SharePont list via REST API
-     * @params  Object query filter paramators in obj format
-     * @return  promise
-     */
-    methods.query = function(settings, forceNoCache) {
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/';
-
-        listUrl += settings ? '?' + SPOC.Utils.Conversion.convertObjToQueryString(settings) : '';
-
-        return SPOC.Utils.Request.get(listUrl, forceNoCache);
-    };
-
-    /**
-     * Creates a new SharePoint List
-     * @params  Object Create list settings
-     * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
-     * @return  jQuery Deferred Object
-     */
-    methods.create = function(settings) {
-        var defaults = {
-            __metadata: {
-                'type': 'SP.List'
-            },
-            BaseTemplate: 100,
-            Description: '',
-        };
-
-        if (settings) {
-           defaults = SPOC.Utils.Objects.merge(defaults, settings);
-        }
-
-        var url = site.url + '/_api/web/lists';
-
-        return SPOC.Utils.Request.post(url, defaults);
-    };
-
-    return methods;
-};
-// SharePoint List Functionlity
-
-SPOC.SP.User.prototype.Profile = function() {
-
-    // save reference to this
-    var user = this;
-
-    // Create object to store public methods
-    var methods = {};
-
-    var loginNamePrefix = 'i:0%23.f|membership|';
-
-    /**
-     * Queries a SharePont User via REST API
-     * @params  Object query filter paramators in obj format
-     * @return  jQuery Deferred Object
-     */
-    methods.query = function(forceNoCache) {
-        var listUrl = _spPageContextInfo.webAbsoluteUrl;
-
-        if (user.loginName){
-            listUrl += "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + loginNamePrefix + user.loginName + "%27";
-        } else {
-            listUrl += "/_api/SP.UserProfiles.PeopleManager/GetMyProperties/UserProfileProperties";
-        }
-        // return promise
-        return SPOC.Utils.Request.get(listUrl, forceNoCache);
-    };
-
-
-    /**
-     * Returns if a SP user is a member of a security group
-     * @params  groupName to check
-     * @params  user Id to check (optional)
-     * @return  bool
-     */
-    methods.isMemberOfGroup = function(groupName, userId, forceNoCache) {
-        var user = userId ? userId : _spPageContextInfo.userId;
-        var listUrl = site.url +  "/_api/web/sitegroups/getByName('" + groupName + "')/Users?$filter=Id eq " + user;
-
-        // return promise
-        return SPOC.Utils.Request.get(listUrl, forceNoCache);
-    };
-
-    return methods;
-};
-// Yammer Group Functionlity.
-
-SPOC.Yam.Messages = function() {
-
-    // save reference to this
-    var _this = this;
-
-    // Create object to store public methods
-    var methods = {};
-
-    // Default api endpoint to all messages
-    var apiUrl = "messages.json";
-
-    // If an id is passed and feedtype, formuate new endpoint
-    if (_this.feedId && _this.feedType) {
-        apiUrl = "messages/" + _this.feedType === 'group' ? "in_group" : "from_user" + "/" + _this.feedId + ".json";
-    }
-
-    /**
-     * Queries a Yammer Group and returns feed items
-     * @return promise
-     */
-    methods.query = function(settings) {
-         return new Promise(function(resolve, reject) {
-            // Check user has access token and then then return group feed.
-            SPOC.Utils.Yammer.checkLogin().then(function(result) {
-                if (result) {
-                    yam.platform.request({
-                        url: apiUrl,
-                        method: "GET",
-                        data: settings ? settings : null,
-                        success: function(data) {
-                            // Format response to combine references with messages
-                            data = SPOC.Utils.Yammer.formatFeedResponse(data);
-                            resolve(data);
-                        },
-                        error: function(data) {
-                            reject(data);
-                        }
-                    });
-                } else {
-                     resolve(false);
-                }
-            });
-        });
-    };
-
-
-    return methods;
-
-};
-// Yammer Group Functionlity.
-
-SPOC.Yam.Search = function() {
-
-    // save reference to this
-    var _this = this;
-
-    // Create object to store public methods
-    var methods = {};
-
-    // Default api endpoint to search
-    var apiUrl = "search.json";
-
-    /**
-     * Queries a Yammer Group and returns feed items
-     * @return  jQuery Deferred Object
-     */
-    methods.query = function(settings, forceNoCache) {
-       return new Promise(function(resolve, reject) {
-            // Check user has access token and then then return group feed.
-            SPOC.Utils.Yammer.checkLogin().then(function(result) {
-                if (result) {
-                   yam.platform.request({
-                        url: apiUrl,
-                        method: "GET",
-                        data: settings ? settings : null,
-                        success: function(data) {
-                            // Format response to combine references with messages
-                            data = SPOC.Utils.Yammer.formatSearchResponse(data);
-                            SPOC.Utils.Storage.set('SPOC-yam-search-' + JSON.stringify(settings), data);
-                            resolve(data);
-                        },
-                        error: function(data) {
-                            reject(data);
-                        }
-                    });
-                } else {
-                     resolve(false);
-                }
-            });
-        });
-    };
-
-
-    return methods;
-
-};
-// Yammer User Functionlity.
-
-SPOC.Yam.User.prototype.Subscriptions = function() {
-
-    // save reference to this
-    var _this = this;
-
-    // Create object to store public methods
-    var methods = {};
-
-    /**
-     * Queries a Yammer User Profile and returns properties
-     * @return  jQuery Deferred Object
-     */
-    methods.query = function(settings, forceNoCache) {
-       return new Promise(function(resolve, reject) {
-            // Check user has access token and then then return group feed.
-            SPOC.Utils.Yammer.checkLogin().then(function(result) {
-                if (result) {
-                    yam.platform.request({
-                        url: "subscriptions/to_user/" + _this.id + ".json",
-                        method: "GET",
-                        data: settings ? settings : null,
-                        success: function(data) {
-                            SPOC.Utils.Storage.set('SPOC-yam-subs-' + _this.id, data);
-                            deferred.resolve(data);
-                        },
-                        error: function(data) {
-                            deferred.reject(data);
-                        }
-                    });
-                } else {
-                     resolve(false);
-                }
-            });
-        });
-    };
-
-    return methods;
-
-};
-// Yammer User Functionlity.
-
-SPOC.Yam.User.prototype.Profile = function() {
-
-    // save reference to this
-    var _this = this;
-
-    // Create object to store public methods
-    var methods = {};
-
-    /**
-     * Queries a Yammer User Profile and returns properties
-     * @return  jQuery Deferred Object
-     */
-    methods.query = function(settings, forceNoCache) {
-        return new Promise(function(resolve, reject) {
-            // Check user has access token and then then return group feed.
-            SPOC.Utils.Yammer.checkLogin().then(function(result) {
-                if (result) {
-                    yam.platform.request({
-                        url: "users/" + _this.id + ".json",
-                        method: "GET",
-                        data: settings ? settings : null,
-                        success: function(data) {
-                            SPOC.Utils.Storage.set('SPOCC-yam-users-' + _this.id, data);
-                            deferred.resolve(data);
-                        },
-                        error: function(data) {
-                            deferred.reject(data);
-                        }
-                    });
-                } else {
-                     resolve(false);
-                }
-            });
-        });
-    };
-
-    return methods;
-
-};
-})(window, document, window.SPOC = window.SPOC || {});

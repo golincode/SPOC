@@ -8,7 +8,7 @@ SPOC.Utils.Conversion = {};
 SPOC.Utils.Conversion.objToQueryString = function(obj) {
     var str = '';
     for (var propertyName in obj) {
-        str += '&$' + propertyName + '=' + obj[propertyName];
+        str += '&$' + propertyName + '=' + obj[propertyName].replace(/ /g, '_x0020_');
     }
-    return str;
+    return encodeURI(str);
 };

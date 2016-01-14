@@ -14,7 +14,7 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
      * @return  promise
      */
     methods.query = function(settings, forceNoCache) {
-        var listUrl = site.url + '/_api/lists/getByTitle%28%27' + listTitle + '%27%29/';
+        var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/';
 
         listUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
 
@@ -25,7 +25,7 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
      * Creates a new SharePoint List
      * @params  Object Create list settings
      * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
-     * @return  jQuery Deferred Object
+     * @return  promise
      */
     methods.create = function(settings) {
         var defaults = {

@@ -24,12 +24,43 @@ SPOC.Utils.Url.getQueryString = function(variable, query) {
 };
 
 /**
- * Converts a Javascript object to SP API query string format
- * @params  obj Object of props to convert
+ * Extracts and returns a list name from api url endpoint
+ * @params  url 
  * @return  string
  */
 SPOC.Utils.Url.getListNameFromUrl = function(url) {
    var regex = /\%27(.*)\%27/g;
    var match = regex.exec(url);
     return match ? match[1] : null;
+};
+
+
+/**
+ * Converts a Javascript object to SP API query string format
+ * @params  obj Object of props to convert
+ * @return  string
+ */
+SPOC.Utils.Url.isSameDomain = function(url) {
+    var current = window.location.origin.toLowerCase();
+    return url.toLowerCase().indexOf(current) > -1 ? true : false;
+};
+
+/**
+ * Converts a API call to x domain format
+ * @params  url string url of API call
+ * @return  string
+ */
+SPOC.Utils.Url.convertToXDomain = function(url) {
+    url = url.toLowerCase();
+    url = url.replace('/_api/', '/_api/SP.AppContextSite(@target)/');
+    var domain = url.split('/_api')[0];
+    url = url.split('/_api')[1];
+
+    if (url.indexOf('?') === -1){
+        url = url + '?';
+    }
+    
+    url = window.location.origin + '/_api' + url + '@target=%27' + domain + '%27';
+
+    return url;
 };

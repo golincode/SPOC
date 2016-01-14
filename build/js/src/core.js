@@ -1,7 +1,7 @@
 /**
  * Define Sp Site Object constructor
  * @params  url  url of Sharepoint site
- * @return  void
+ * @return  undefined
  */
 SPOC.SP.Site = function(url) {
 
@@ -13,21 +13,18 @@ SPOC.SP.Site = function(url) {
 /**
  * Define Sp User Object constructor
  * @params  url  url of Sharepoint site
- * @return  void
+ * @return  object
  */
 SPOC.SP.User = function(username) {
-
-    // Set URL to current site if no url passed in.
     this.id = username ? username : _spPageContextInfo.userId;
-    this.loginName = username ? username : _spPageContextInfo.userLoginName;
-    this.isAdmin = username ? false : _spPageContextInfo.isSiteAdmin;
+    this.loginName = username ? username : _spPageContextInfo.userLoginName;  
 };
 
 
 /**
  * Define Yam Object constructor & ensure login
  * @params  url  url of Sharepoint site
- * @return  void
+ * @return object
  */
 SPOC.Yam.User = function(userId) {
 
@@ -45,9 +42,9 @@ SPOC.Yam.User = function(userId) {
 /**
  * Define Yam Object constructor & ensure login
  * @params  url  url of Sharepoint site
- * @return  void
+ * @return object
  */
-SPOC.Yam.Messages = function(feedId, feedType) {
+SPOC.Yam.Feed = function(feedId, feedType) {
 
     if (!window.yam) {
         //@todo: Update error messages to SP notifications?

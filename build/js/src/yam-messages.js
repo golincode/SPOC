@@ -1,6 +1,6 @@
 // Yammer Group Functionlity.
 
-SPOC.Yam.Messages = function() {
+SPOC.Yam.Feed.prototype.posts = function() {
 
     // save reference to this
     var _this = this;
@@ -9,11 +9,11 @@ SPOC.Yam.Messages = function() {
     var methods = {};
 
     // Default api endpoint to all messages
-    var apiUrl = "messages.json";
+    var apiUrl = "messages/following.json";
 
     // If an id is passed and feedtype, formuate new endpoint
-    if (_this.feedId && _this.feedType) {
-        apiUrl = "messages/" + _this.feedType === 'group' ? "in_group" : "from_user" + "/" + _this.feedId + ".json";
+    if (_this.feedId) {
+        apiUrl = "messages/" + _this.feedType ? "in_group" : "from_user" + "/" + _this.feedId + ".json";
     }
 
     /**
