@@ -63,11 +63,12 @@ var site = new SPOC.SP.Site();
 var exampleList = site.listItems('List Name');
 
 // Query list and retrive results in a JS promise
-exampleList.query().then(function(results){
+exampleList.query(settings).then(function(results){
     console.log(results);
 });
 
 ```
+> Note that all GET requests automatically cache results in sessionStorage. If you would like to bypass the cache, pass true into the second paramater of the query function.
 
 ##### 2. Create a new list item to a list in a subsite
 This example shows how to create a new list item to a list in a different site to that being viewed
@@ -77,10 +78,10 @@ This example shows how to create a new list item to a list in a different site t
 var subSite = new SPOC.SP.Site('https://example.sharepoint.com/sites/mysite/mysubsite');
 
 // Create an object with a property for each column.
-    var item = {
-        Title: "My Item title",
-        description: "text for the description column"
-    };
+var item = {
+    Title: "My Item title",
+    description: "text for the description column"
+};
 
 // Pass in the name of the list that you want to query 
 var exampleList = subSite.listItems('List Name');
@@ -120,84 +121,56 @@ This examples shows how to get the current users profile properties
 var user = new SPOC.SP.User();
 
 // Query the users profile and retrive results in a JS promise
-user.query().then(function(results){
+user.Profile().query().then(function(results){
     console.log(results);
 });
 
 ```
 
-## Utilities and Helpers 
-Most of the following functions are used internally by the library, but have been exposed as they can came in handy.
-
-##### Objects (SPOC.Utils.Objects)
-
-###### Find first object in array based on a property value (.findObjectByProperty(data, property, value))
+##### 5. Get personalised yammer posts for the logged in user (Posts from People, Groups and topics that they follow)
+This examples shows how to get Yammer posts from People, Groups and Topics that hte current user is following 
 ```javascript
-    var data = [{
-        Title: "My Title One",
-        Description: "My Description One"
-    },{
-        Title: "My Title Two",
-        Description: "My Description Two"
-    }];
-    
-    var wantedObj = SPOC.Utils.Objects.findObjectByProperty(data, 'Title', 'My Title Two');
-    
-    console.log(wantedObj);
-    // returns {Title: "My Title Two", Description: "My Description Two"}
-```  
+// Create a new Yammer Messages instance.
+var feed = new SPOC.Yam.Feed();
 
-###### Merge two objects together (.merge(Object1, Object2))
-```javascript
-    var objectOne = {
-        Title: "My Title One",
-        Description: "My Description One"
-    };
-    var objectTwo = {
-        Status: "open"
-    };
+var posts = feed.posts();
 
-    var mergedObject = SPOC.Utils.Objects.merge(objectOne, objectTwo);
+posts.query().then(function(data){
+    console.log(data);
+    // outputs a object array of Yammer posts
+});
 
-    console.log(mergedObject);
-    // returns {Title: "My Title One", Description: "My Description One", Status: "open"}
+// Query the users profile and retrive results in a JS promise
+yamUser.Messages().query().then(function(results){
+    console.log(results);
+});
+
 ```
 
-##### Conversion (SPOC.Utils.Conversion)
- - Convert JS object to SP format API querystrings (.objToQueryString(obj))
+##### 6. Get all posts from a Yammer Group 
+This examples shows how to get Yammer posts from group. This can anything that has a feed id (Group, user feed etc). For user feeds, the feed Id is the users Yammer id
+```javascript
+// Create a new Yammer feed instance. Pass in true as a second arguement if you are querying a users feed instead of a group
+var feed = new SPOC.Yam.Feed('012345');
+var posts = feed.posts();
 
+posts.query().then(function(data){
+    console.log(data);
+    // outputs a object array of Yammer posts
+});
+```
+##### 7. Search Yammer 
+This examples shows how to search groups, posts, documents and notes on Yammer. 
+```javascript
+// Create a new Yammer Search istance.
+var yamSearch = new SPOC.Yam.Search('search term');
 
-##### Requests (SPOC.Utils.Request)
+yamSearch.query().then(function(data){
+    console.log(data);
+    // outputs a object array of Yammer search results
+});
+```
 
-
-##### SharePoint General (SPOC.Utils.SP)
- - Generate SP data type by list name (.getListItemType(listName))
- - Upload document via SP modal and return item list data (.uploadDocument(ListGUID, settings))
-
-##### Storage (SPOC.Utils.Conversion)
- - Check if browser storage is avaliable (.storageAvailable())
- - Save data in browser storage (.set(key, data, useLocalStorage))
- - Get data from browser storage by key (.get(key, isLocalStorage))
- - Get cookie (.getCookie(name))
- - Get cookie (.setCookie(name, value, days))
- - Delete cookie (.removeCookie(name))
-
-##### Strings (SPOC.Utils.Strings)
- - Truncate string to length with '...' (.truncate(string, requiredLength))
- 
-##### Templates (SPOC.Utils.tpl)
- - Truncate string to length with '...' (.truncate(string, requiredLength))
-
-##### URLs (SPOC.Utils.Url)
- - Get a query string value by key (.getQueryString(key))
- - Make a AJAX get request to a url (.get(url))
- - Checks if passed in url has the same domain
-
-##### Yammer (SPOC.Utils.Yammer)
- - Tidy up a Yammer feed response (.formatFeedResponse(data))
- - Tidy up a Yammer search response (.formatSearchResponse(data))
- - Check if a user is logged into Yammer (.checkLogin(promptLogin))
- - 
 ## Mock API calls (Developing outside of SP)
 To help improve efficiency when working on front-end based SharePoint projects, we often start development offline (i.e creating the styling, HTML templates etc), and then intergrate it to SharePoint once completed. This makes the development process much quicker. 
 The problem with this is that you do not have access to the SharePoint API's when working offline. In order to get around this, SPOC includes the ability to create fake lists & users using javascript or a JSON file. The Library will then return the fake lists / list items / users when running outside of SharePoint! As soon as you run the file inside of SharePoint, it will return to using the real list apis. When using this feature, be sure to create a mock list for each real list within your solution.
@@ -214,6 +187,7 @@ SPOC.Mock.createList('MyList', myListItems);
 
 var site = new SPOC.SP.Site();
 var exampleList = site.listItems('MyList');
+
 exampleList.query().then(function(results){
     console.log(results);
     // Returns [{Title: "Item One",Title: "Item Two", Title: "Item Three"}]
@@ -221,38 +195,19 @@ exampleList.query().then(function(results){
 
 ```
 
-## Installation (Contributing)
-Want to contribute? Great! Note that SPOC uses Grunt & NPM, so these will need to be installed:
+## Contributing
+Please read the [contributing.md](/docs/contributing.md) to find out how you can get involved in the project.
 
-```sh
-$ npm i -g grunt
-```
-
-```sh
-$ git clone [git-repo-url] SPOC
-$ cd SPOC
-$ npm install
-$ grunt
-```
-If you are using Windows (shame on you), you can find more information on getting this working by reading the FAQs on the [Grunt Website](http://gruntjs.com/frequently-asked-questions)
+To contribute, please fork the project and create a Pull Request. 
+The issue tracker is the preferred channel for bug reports, feature requests, and submitting pull requests.
 
 ## Versions
 0.0.1 - Bewared - still in early development stage
 
-### Todos
-
- - Add create, delete and update on lists
- - Write Tests
- - Add SharePoint search
- - Add site creation
- - Add delve api
- - Add custom tool pane functions
- - write comprehensive documentation
-
-License
+## License
 ----
 
-MIT
+The code and the documentation are released under the [MIT License](license.md)
 
 **Free Software, Hell Yeah!**
 
