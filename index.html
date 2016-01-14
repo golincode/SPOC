@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>SPOC - SharePoint Online Connector. by wearearchitect</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">SPOC - SharePoint Online Connector.</h1>
+      <h2 class="project-tagline">A Javascript library that simplifies working with the SharePoint and Yammer REST APIs from within Office 365</h2>
+      <a href="https://github.com/wearearchitect/SPOC" class="btn">View on GitHub</a>
+      <a href="https://github.com/wearearchitect/SPOC/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/wearearchitect/SPOC/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="spoc---sharepoint-online-connector" class="anchor" href="#spoc---sharepoint-online-connector" aria-hidden="true"><span class="octicon octicon-link"></span></a>SPOC - SharePoint Online Connector.</h1>
+
+<p>SPOC is a client-side Javascript library that helps you interact with the <strong>SharePoint Online &amp; Yammer REST APIs</strong>. It also contains handy helper and utility functions that are regularly used when working on Front-end SharePoint projects. The library currently lets you interact with:  </p>
+
+<ul>
+<li>Sites</li>
+<li>Lists</li>
+<li>List Items</li>
+<li>User Profiles</li>
+<li>Yammer Search (query only)</li>
+<li>Yammer Messages (query only)</li>
+<li>Yammer Profiles (query only)</li>
+</ul>
+
+<h5>
+<a id="sharepoint-hosted-app-model-compatiable" class="anchor" href="#sharepoint-hosted-app-model-compatiable" aria-hidden="true"><span class="octicon octicon-link"></span></a>SharePoint Hosted App Model Compatiable!</h5>
+
+<p>SPOC has built in logic that automatcally detects when you are trying to call a site within a different domain and handles the relevent calls. This makes it really simple to interact with both the Host and App web when using the library within a SharePoint Hosted App. See the getting started examples to how this works. </p>
+
+<h2>
+<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting Started</h2>
+
+<p>First download  <strong>SPOC.min.js</strong> from this repo and include it in your project or add it to your masterpage or page layouts. Note that <strong>If you want to interact with Yammer from within SharePoint Online, you must also include the Yammer JS SDK</strong> by adding the following into your masterpage or page layouts (must be loaded before SPOC.min.js).</p>
+
+<div class="highlight highlight-text-html-basic"><pre>
+<span class="pl-c">&lt;!-- Load SPOC library into your masterpage or pagelayout --&gt;</span>
+&lt;<span class="pl-ent">script</span> <span class="pl-e">type</span>=<span class="pl-s"><span class="pl-pds">"</span>text/javascript<span class="pl-pds">"</span></span> <span class="pl-e">src</span>=<span class="pl-s"><span class="pl-pds">"</span>https://yoursite.sharepoint.com/document_library/SPOC.min.js<span class="pl-pds">"</span></span>&gt;&lt;/<span class="pl-ent">script</span>&gt;
+
+<span class="pl-c">&lt;!-- Optional - only needed if you are using Yammer functions --&gt;</span>
+&lt;<span class="pl-ent">script</span> <span class="pl-e">type</span>=<span class="pl-s"><span class="pl-pds">"</span>text/javascript<span class="pl-pds">"</span></span> <span class="pl-e">data-app-id</span>=<span class="pl-s"><span class="pl-pds">"</span>ADD YAMMER APP ID<span class="pl-pds">"</span></span> <span class="pl-e">src</span>=<span class="pl-s"><span class="pl-pds">"</span>https://c64.assets-yammer.com/assets/platform_js_sdk.js<span class="pl-pds">"</span></span>&gt;&lt;/<span class="pl-ent">script</span>&gt;
+</pre></div>
+
+<blockquote>
+<p>To use the Yammer API, you must first register an app on your network and set the app-id shown above. You can find out how to do this by visting the <a href="https://developer.yammer.com/docs/app-registration">Yammer help pages</a></p>
+</blockquote>
+
+<h2>
+<a id="basic-examples" class="anchor" href="#basic-examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Basic Examples</h2>
+
+<h5>
+<a id="1-get-all-items-from-a-list" class="anchor" href="#1-get-all-items-from-a-list" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Get all items from a List</h5>
+
+<p>This example shows how to get list items from a list in the current site</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-c">// Create a new site instance. Passing no url with set it as the current site</span>
+<span class="pl-k">var</span> site <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">SPOC.SP</span>.<span class="pl-en">Site</span>();
+
+<span class="pl-c">// Pass in the name of the list that you want to query </span>
+<span class="pl-k">var</span> exampleList <span class="pl-k">=</span> <span class="pl-smi">site</span>.<span class="pl-en">listItems</span>(<span class="pl-s"><span class="pl-pds">'</span>List Name<span class="pl-pds">'</span></span>);
+
+<span class="pl-c">// Query list and retrive results in a JS promise</span>
+<span class="pl-smi">exampleList</span>.<span class="pl-en">query</span>().<span class="pl-en">then</span>(<span class="pl-k">function</span>(<span class="pl-smi">results</span>){
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(results);
+});
+</pre></div>
+
+<h5>
+<a id="2-get-filtered-items-from-a-list" class="anchor" href="#2-get-filtered-items-from-a-list" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Get filtered items from a List</h5>
+
+<p>The list item method allows you to pass in filters and query settings via a JS object. It supports all default OData query string operators (select, filter, orderBy, expand, top etc). More information can be found on <a href="https://msdn.microsoft.com/en-us/library/office/fp142385.aspx#sectionSection0">MSDN</a></p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-c">// Create a new site instance. Passing no url with set it as the current site</span>
+<span class="pl-k">var</span> site <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">SPOC.SP</span>.<span class="pl-en">Site</span>();
+
+<span class="pl-c">// Create an object with your required settings</span>
+    <span class="pl-k">var</span> settings <span class="pl-k">=</span> {
+        select<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Title,Created<span class="pl-pds">"</span></span>,
+        filter<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Title eq 'My Item Title'<span class="pl-pds">"</span></span>,
+        orderBy<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Created<span class="pl-pds">'</span></span>
+    };
+
+<span class="pl-c">// Pass in the name of the list that you want to query </span>
+<span class="pl-k">var</span> exampleList <span class="pl-k">=</span> <span class="pl-smi">site</span>.<span class="pl-en">listItems</span>(<span class="pl-s"><span class="pl-pds">'</span>List Name<span class="pl-pds">'</span></span>);
+
+<span class="pl-c">// Query list and retrive results in a JS promise</span>
+<span class="pl-smi">exampleList</span>.<span class="pl-en">query</span>(settings).<span class="pl-en">then</span>(<span class="pl-k">function</span>(<span class="pl-smi">results</span>){
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(results);
+});
+</pre></div>
+
+<blockquote>
+<p>Note that all GET requests automatically cache results in sessionStorage. If you would like to bypass the cache, pass true into the second paramater of the query function.</p>
+</blockquote>
+
+<h5>
+<a id="3-create-a-new-list-item-to-a-list-in-a-subsite" class="anchor" href="#3-create-a-new-list-item-to-a-list-in-a-subsite" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. Create a new list item to a list in a subsite</h5>
+
+<p>This example shows how to create a new list item to a list in a different site to that being viewed</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-c">// Create a new site instance. Pass in the url to the subsite that contains the list</span>
+<span class="pl-k">var</span> subSite <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">SPOC.SP</span>.<span class="pl-en">Site</span>(<span class="pl-s"><span class="pl-pds">'</span>https://example.sharepoint.com/sites/mysite/mysubsite<span class="pl-pds">'</span></span>);
+
+<span class="pl-c">// Create an object with a property for each column.</span>
+<span class="pl-k">var</span> item <span class="pl-k">=</span> {
+    Title<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>My Item title<span class="pl-pds">"</span></span>,
+    description<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>text for the description column<span class="pl-pds">"</span></span>
+};
+
+<span class="pl-c">// Pass in the name of the list that you want to query </span>
+<span class="pl-k">var</span> exampleList <span class="pl-k">=</span> <span class="pl-smi">subSite</span>.<span class="pl-en">listItems</span>(<span class="pl-s"><span class="pl-pds">'</span>List Name<span class="pl-pds">'</span></span>);
+
+<span class="pl-c">// Query list and retrive results in a JS promise. This examples includes handling errors via a error callback</span>
+<span class="pl-smi">exampleList</span>.<span class="pl-en">create</span>(item).<span class="pl-en">then</span>(<span class="pl-k">function</span>(<span class="pl-smi">results</span>){
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(results);
+}, <span class="pl-k">function</span>(<span class="pl-smi">err</span>){
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(err);
+});
+</pre></div>
+
+<h5>
+<a id="4-retrieve-items-from-both-the-host-and-app-web-from-within-a-sharepoint-hosted-app" class="anchor" href="#4-retrieve-items-from-both-the-host-and-app-web-from-within-a-sharepoint-hosted-app" aria-hidden="true"><span class="octicon octicon-link"></span></a>4. Retrieve items from both the Host and App web from within a SharePoint Hosted App</h5>
+
+<p>This example shows how interacting with the host or app web when using SPOC in a SharePoint Hosted App is really simple.</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-c">// Create a new site instance both the host and app web. To create the app web, leave the site param empty. To create the host web, pass your host web url into the site param.</span>
+<span class="pl-k">var</span> hostWeb <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">SPOC.SP</span>.<span class="pl-en">Site</span>(<span class="pl-s"><span class="pl-pds">'</span>https://example.sharepoint.com/sites/mysite<span class="pl-pds">'</span></span>);
+<span class="pl-k">var</span> appWeb <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">SPOC.SP</span>.<span class="pl-en">Site</span>();
+
+<span class="pl-c">// Both the host and app web instances can be called as normal. The hostWeb call will automatically use the SP x domain logic.</span>
+<span class="pl-smi">hostWeb</span>.<span class="pl-en">listItems</span>(<span class="pl-s"><span class="pl-pds">'</span>Host web List Name<span class="pl-pds">'</span></span>).<span class="pl-en">query</span>().<span class="pl-en">then</span>(<span class="pl-k">function</span>(<span class="pl-smi">data</span>){
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(data)
+});
+
+<span class="pl-smi">appWeb</span>.<span class="pl-en">listItems</span>(<span class="pl-s"><span class="pl-pds">'</span>App Web List Name<span class="pl-pds">'</span></span>).<span class="pl-en">query</span>().<span class="pl-en">then</span>(<span class="pl-k">function</span>(<span class="pl-smi">data</span>){
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(data)
+});
+</pre></div>
+
+<h5>
+<a id="5-get-the-current-users-profile-details" class="anchor" href="#5-get-the-current-users-profile-details" aria-hidden="true"><span class="octicon octicon-link"></span></a>5. Get the current users profile details</h5>
+
+<p>This examples shows how to get the current users profile properties</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-c">// Create a new user instance.</span>
+<span class="pl-k">var</span> user <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">SPOC.SP</span>.<span class="pl-en">User</span>();
+
+<span class="pl-c">// Query the users profile and retrive results in a JS promise</span>
+<span class="pl-smi">user</span>.<span class="pl-en">Profile</span>().<span class="pl-en">query</span>().<span class="pl-en">then</span>(<span class="pl-k">function</span>(<span class="pl-smi">results</span>){
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(results);
+});
+</pre></div>
+
+<h5>
+<a id="6-get-personalised-yammer-posts-for-the-logged-in-user-posts-from-people-groups-and-topics-that-they-follow" class="anchor" href="#6-get-personalised-yammer-posts-for-the-logged-in-user-posts-from-people-groups-and-topics-that-they-follow" aria-hidden="true"><span class="octicon octicon-link"></span></a>6. Get personalised yammer posts for the logged in user (Posts from People, Groups and topics that they follow)</h5>
+
+<p>This examples shows how to get Yammer posts from People, Groups and Topics that hte current user is following </p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-c">// Create a new Yammer Messages instance.</span>
+<span class="pl-k">var</span> feed <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">SPOC.Yam</span>.<span class="pl-en">Feed</span>();
+
+<span class="pl-k">var</span> posts <span class="pl-k">=</span> <span class="pl-smi">feed</span>.<span class="pl-en">posts</span>();
+
+<span class="pl-smi">posts</span>.<span class="pl-en">query</span>().<span class="pl-en">then</span>(<span class="pl-k">function</span>(<span class="pl-smi">data</span>){
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(data);
+    <span class="pl-c">// outputs a object array of Yammer posts</span>
+});
+
+<span class="pl-c">// Query the users profile and retrive results in a JS promise</span>
+<span class="pl-smi">yamUser</span>.<span class="pl-en">Messages</span>().<span class="pl-en">query</span>().<span class="pl-en">then</span>(<span class="pl-k">function</span>(<span class="pl-smi">results</span>){
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(results);
+});
+</pre></div>
+
+<h5>
+<a id="7-get-all-posts-from-a-yammer-group" class="anchor" href="#7-get-all-posts-from-a-yammer-group" aria-hidden="true"><span class="octicon octicon-link"></span></a>7. Get all posts from a Yammer Group</h5>
+
+<p>This examples shows how to get Yammer posts from group. This can anything that has a feed id (Group, user feed etc). For user feeds, the feed Id is the users Yammer id</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-c">// Create a new Yammer feed instance. Pass in true as a second arguement if you are querying a users feed instead of a group</span>
+<span class="pl-k">var</span> feed <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">SPOC.Yam</span>.<span class="pl-en">Feed</span>(<span class="pl-s"><span class="pl-pds">'</span>012345<span class="pl-pds">'</span></span>);
+<span class="pl-k">var</span> posts <span class="pl-k">=</span> <span class="pl-smi">feed</span>.<span class="pl-en">posts</span>();
+
+<span class="pl-smi">posts</span>.<span class="pl-en">query</span>().<span class="pl-en">then</span>(<span class="pl-k">function</span>(<span class="pl-smi">data</span>){
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(data);
+    <span class="pl-c">// outputs a object array of Yammer posts</span>
+});</pre></div>
+
+<h5>
+<a id="8-search-yammer" class="anchor" href="#8-search-yammer" aria-hidden="true"><span class="octicon octicon-link"></span></a>8. Search Yammer</h5>
+
+<p>This examples shows how to search groups, posts, documents and notes on Yammer. </p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-c">// Create a new Yammer Search istance.</span>
+<span class="pl-k">var</span> yamSearch <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">SPOC.Yam</span>.<span class="pl-en">Search</span>(<span class="pl-s"><span class="pl-pds">'</span>search term<span class="pl-pds">'</span></span>);
+
+<span class="pl-smi">yamSearch</span>.<span class="pl-en">query</span>().<span class="pl-en">then</span>(<span class="pl-k">function</span>(<span class="pl-smi">data</span>){
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(data);
+    <span class="pl-c">// outputs a object array of Yammer search results</span>
+});</pre></div>
+
+<h2>
+<a id="mock-api-calls-developing-outside-of-sp" class="anchor" href="#mock-api-calls-developing-outside-of-sp" aria-hidden="true"><span class="octicon octicon-link"></span></a>Mock API calls (Developing outside of SP)</h2>
+
+<p>To help improve efficiency when working on front-end based SharePoint projects, we often start development offline (i.e creating the styling, HTML templates etc), and then intergrate it to SharePoint once completed. This makes the development process much quicker. </p>
+
+<p>The problem with this is that you do not have access to the SharePoint API's when working offline. In order to get around this, SPOC includes the ability to create fake lists &amp; users using javascript or a JSON file. The Library will then return the fake lists / list items / users when running outside of SharePoint! As soon as you run the file inside of SharePoint, it will return to using the real list apis. When using this feature, be sure to create a mock list for each real list within your solution.</p>
+
+<div class="highlight highlight-source-js"><pre>
+<span class="pl-c">// Create items to add to the mock list </span>
+<span class="pl-k">var</span> myListItems <span class="pl-k">=</span> [{Title<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Item One<span class="pl-pds">"</span></span>,Title<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Item Two<span class="pl-pds">"</span></span>, Title<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Item Three<span class="pl-pds">"</span></span>}];
+
+<span class="pl-c">// Create a mock list called 'MyList' and list items</span>
+<span class="pl-smi">SPOC</span>.<span class="pl-smi">Mock</span>.<span class="pl-en">createList</span>(<span class="pl-s"><span class="pl-pds">'</span>MyList<span class="pl-pds">'</span></span>, myListItems);
+
+<span class="pl-c">// Query SharePoint list as normal</span>
+
+<span class="pl-k">var</span> site <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">SPOC.SP</span>.<span class="pl-en">Site</span>();
+<span class="pl-k">var</span> exampleList <span class="pl-k">=</span> <span class="pl-smi">site</span>.<span class="pl-en">listItems</span>(<span class="pl-s"><span class="pl-pds">'</span>MyList<span class="pl-pds">'</span></span>);
+
+<span class="pl-smi">exampleList</span>.<span class="pl-en">query</span>().<span class="pl-en">then</span>(<span class="pl-k">function</span>(<span class="pl-smi">results</span>){
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(results);
+    <span class="pl-c">// Returns [{Title: "Item One",Title: "Item Two", Title: "Item Three"}]</span>
+});
+</pre></div>
+
+<h2>
+<a id="versions" class="anchor" href="#versions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Versions</h2>
+
+<p>0.0.1 - Bewared - still in early development stage</p>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
+
+<hr>
+
+<p>The code and the documentation are released under the <a href="license.md">MIT License</a></p>
+
+<p><strong>Free Software, Hell Yeah!</strong></p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/wearearchitect/SPOC">SPOC - SharePoint Online Connector.</a> is maintained by <a href="https://github.com/wearearchitect">wearearchitect</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+            <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-72429814-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
