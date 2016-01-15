@@ -15,7 +15,7 @@ The library currently lets you interact with:
   - Yammer Posts & Feeds
   - Yammer Profiles
 
-#### SharePoint Hosted App Model
+### SharePoint Hosted App Model
 SPOC has built in logic that automatically detects when you are trying to call a site within a different domain and handles the relevant calls. This makes it really simple to interact with both the Host and App web when using the library within a SharePoint Hosted App.
 
 ## Getting Started
@@ -111,12 +111,12 @@ posts.query().then(function(data){
     console.log(data);
     // outputs a object array of Yammer posts
 });
-
-## More Examples
-View the [more examples page](https://github.com/wearearchitect/SPOC/blob/master/docs/examples.md) to see a full list of functionilty avaialable within SPOC.
+```
+## Further Examples
+View the [more examples page](https://github.com/wearearchitect/SPOC/blob/master/docs/examples.md) to see the full list of functionilty available within the SPOC library.
 
 ## Utility functions and Helpers
-SPOC includes utility functions functions that are useful when developing within SharePoint. You can view a [list of utility functions here] (https://github.com/wearearchitect/SPOC/blob/master/docs/utils.md).
+SPOC includes utility functions functions that are useful when developing within SharePoint. You can view a [list of utility functions here](https://github.com/wearearchitect/SPOC/blob/master/docs/utils.md).
 
 ## Mock API calls (Developing outside of SP)
 To help improve efficiency when working on front-end based SharePoint projects, we often start development offline (i.e creating the styling, HTML templates etc), and then integrate it to SharePoint once completed. This makes the development process much quicker. 
