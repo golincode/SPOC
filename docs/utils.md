@@ -1,3 +1,5 @@
+## Utilities and Helpers
+
 ### Conversion (SPOC.Utils.Conversion)
 ###### Convert JS object to SP format API querystrings
 ```javascript
