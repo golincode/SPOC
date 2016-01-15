@@ -325,6 +325,32 @@ SPOC.Utils.SP.convertToWebApp = function(url) {
     }
 };
 
+/**
+ * Converts search results objects to a more workable format
+ * @params  array obj search results Object
+ * @return  array
+ */
+SPOC.Utils.SP.formatSearchResponse = function(data) {
+  var result = data.query.PrimaryQueryResult.RelevantResults.Table.Rows;
+  var finalarray = [], item, obj, i, a;
+
+      if(result.results){
+        result = result.results;
+      } else {
+        result = [result];
+      }
+
+    for (i = 0; i < result.length; i++) { 
+        item = result[i].Cells.results;
+        obj = {};
+        for (a = 0; a < item.length; a++) { 
+            obj[item[a].Key] = item[a].Value;
+        }
+        finalarray.push(obj);
+    }
+
+    return finalarray;
+};
 
 
 
@@ -680,6 +706,77 @@ SPOC.Yam.Feed = function(feedId, feedType) {
 
 // SharePoint List Functionlity
 
+SPOC.SP.Site.prototype.Delve = function(userEmail) {
+
+    // save reference to this
+    var site = this;
+
+    // Create object to store public methods
+    var methods = {};
+
+    /**
+     * Queries a SharePont list via REST API
+     * @params  Object query filter paramators in obj format
+     * @return  promise
+     */
+    methods.board = function(searchTerm, actions, forceNoCache) {
+        return new Promise(function(resolve, reject) {
+            var searchUrl, actor;
+
+            if(!searchTerm){
+                searchTerm = '*';
+            }
+
+            if (userEmail) {
+                 searchUrl = site.url + "/_api/search/query?Querytext=%27WorkEmail:" + userEmail + "%27&SelectProperties=%27UserName,DocId%27";
+                 
+                 SPOC.Utils.Request.get(searchUrl, forceNoCache).then(function(result) {
+                    result = SPOC.Utils.SP.formatSearchResponse(result);
+
+                    if (result.length){
+                        
+                        if(result.length > 1){
+                            result = result[0];
+                        }
+
+                        actor = result.DocId;
+                        searchUrl = site.url + "/_api/search/query?Querytext='"+ searchTerm + "'&amp;Properties='GraphQuery:ACTOR("+ actor + actions ? (", " + actions) : "" + ")";
+
+                        SPOC.Utils.Request.get(searchUrl, forceNoCache).then(function(board) {
+                            board = SPOC.Utils.SP.formatSearchResponse(board);
+                            resolve(board);
+                        }, function(err){
+                             reject(err);
+                        });
+
+                    } else {
+                        resolve(null);
+                    }
+                    
+                }, function (err){
+                    reject(err);
+                });
+            } else {
+                searchUrl = site.url + "/_api/search/query?Querytext='"+ searchTerm + "'&amp;Properties='GraphQuery:ACTOR(ME" + actions ? (", " + actions) : "" + ")";
+                SPOC.Utils.Request.get(searchUrl, forceNoCache).then(function(board) {
+                    board = SPOC.Utils.SP.formatSearchResponse(board);
+                    resolve(board);
+                }, function(err){
+                     reject(err);
+                });
+            }
+
+        });
+          
+    };
+
+    return methods;
+};
+//var test = SPOC.Utils.Request.get('https://architect365.sharepoint.com//_api/search/query?querytext=%27sharepoint%27');
+
+//https://architect365.sharepoint.com/_api/search/query?Querytext=%27WorkEmail:mpomeroy@architect365.co.uk%27&SelectProperties=%27UserName,DocId%27
+// SharePoint List Functionlity
+
 SPOC.SP.Site.prototype.Files = function(filePath) {
 
     // save reference to this
@@ -907,6 +1004,38 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
     return methods;
 };
 
+// SharePoint List Functionlity
+
+SPOC.SP.Site.prototype.Search = function(searchTerm) {
+
+    // save reference to this
+    var site = this;
+
+    // Create object to store public methods
+    var methods = {};
+
+    /**
+     * Queries a SharePont list via REST API
+     * @params  Object query filter paramators in obj format
+     * @return  promise
+     */
+    methods.query = function(settings, forceNoCache) {
+        return new Promise(function(resolve, reject) {
+            var searchUrl = site.url + '/_api/search/query?querytext=%27' + searchTerm + ' +path:' + site.url + '%27';
+            searchUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
+
+            SPOC.Utils.Request.get(searchUrl, forceNoCache).then(function(result){
+                result = SPOC.Utils.SP.formatSearchResponse(result);
+                resolve(result);
+            }, function (err){
+                reject(err);
+            });
+        });
+          
+    };
+
+    return methods;
+};
 // SharePoint List Functionlity
 
 SPOC.SP.User.prototype.Profile = function() {

@@ -8,6 +8,8 @@ The library currently lets you interact with:
   - SharePoint Lists
   - SharePoint List Items
   - SharePoint User Profiles
+  - SharePoint Search
+  - Delve Boards
   - Files (Upload, Download, Open, Generate timed guest links)
   - Yammer Search 
   - Yammer Posts & Feeds

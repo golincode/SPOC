@@ -36,4 +36,30 @@ SPOC.Utils.SP.convertToWebApp = function(url) {
     }
 };
 
+/**
+ * Converts search results objects to a more workable format
+ * @params  array obj search results Object
+ * @return  array
+ */
+SPOC.Utils.SP.formatSearchResponse = function(data) {
+  var result = data.query.PrimaryQueryResult.RelevantResults.Table.Rows;
+  var finalarray = [], item, obj, i, a;
+
+      if(result.results){
+        result = result.results;
+      } else {
+        result = [result];
+      }
+
+    for (i = 0; i < result.length; i++) { 
+        item = result[i].Cells.results;
+        obj = {};
+        for (a = 0; a < item.length; a++) { 
+            obj[item[a].Key] = item[a].Value;
+        }
+        finalarray.push(obj);
+    }
+
+    return finalarray;
+};
 
