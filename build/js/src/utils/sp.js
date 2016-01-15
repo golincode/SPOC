@@ -1,3 +1,4 @@
+
 SPOC.Utils.SP = {};
 
 /**
@@ -10,26 +11,29 @@ SPOC.Utils.SP.getListItemType = function(name) {
 };
 
 /**
- * Upload document in a document library
- * @params  Upload document: GUID document library, callBack function, setting object for the modal dialog
- * setting: {'width': number, 'height': number, 'title': string}
- * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
- * @return Promise
+ * Returns if current site is a app web.
+ * @return  bool
  */
-SPOC.Utils.SP.uploadDocument = function(GUID, settings) {
-    var defer = $.Deferred();
-    var dialogOptions = {};
-
-    if (settings) {
-        $.extend(dialogOptions, settings);
-    }
-
-    dialogOptions.url = site.url + "/_layouts/Upload.aspx?List=" + GUID + "&IsDlg=1";
-    dialogOptions.dialogReturnValueCallback = Function.createDelegate(null, function(result, value) {
-        defer.resolve(value);
-    });
-
-    SP.UI.ModalDialog.showModalDialog(dialogOptions);
-    return defer.promise();
+SPOC.Utils.SP.isAppWeb = function() {
+    return window.location.href.toLowerCase().indexOf('sphosturl') > -1 ? true : false;
 };
+
+/**
+ * Returns a web app url for a filepaths
+ * @PARAMS string url
+ * @return string
+ */
+SPOC.Utils.SP.convertToWebApp = function(url) {
+    if (url.toLowerCase().indexOf('WopiFrame.aspx') > -1) {
+        return url;
+    } else {
+        var ext = SPOC.Utils.Strings.getFileExtension(url);
+        if (ext === 'docx' || ext === 'pptx' || ext === 'xlsx'){
+            return site.url + '/_layouts/15/WopiFrame.aspx?sourcedoc=' + url;
+        } else {
+            return url;
+        }
+    }
+};
+
 

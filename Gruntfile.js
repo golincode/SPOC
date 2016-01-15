@@ -45,7 +45,7 @@ module.exports = function(grunt) {
 		// Watch command
 		watch: {
 			files: ['<%= jshint.files %>'],
-			tasks: ['dev']
+			tasks: ['default']
 		}
 	});
 

@@ -67,7 +67,7 @@ SPOC.Utils.Request.get = function(url, forceNoCache) {
  * @params  data bool data to post
  * @return  javascript promise
  */
-SPOC.Utils.Request.post = function(url, data) {
+SPOC.Utils.Request.post = function(url, data, isFile) {
     return new Promise(function(resolve, reject) {
             // Check if a Mock db has been set
             if(SPOC.Mock.active){
@@ -85,6 +85,10 @@ SPOC.Utils.Request.post = function(url, data) {
             req.setRequestHeader("X-RequestDigest", document.getElementById('__REQUESTDIGEST').value);
             req.setRequestHeader("Content-Type", "application/json;odata=verbose");
 
+            if(isFile){
+                 req.setRequestHeader("content-length", data.byteLength);
+            }
+
             req.onreadystatechange = function() {
                 if (req.readyState == 4){
                       if (req.status == 200) {
@@ -99,7 +103,7 @@ SPOC.Utils.Request.post = function(url, data) {
             req.onerror = function(err) {
               reject(Error('Network Error'));
             };
-                req.send(JSON.stringify(data));
+                req.send(isFile ? data : JSON.stringify(data));
             } 
         
     });
@@ -148,5 +152,29 @@ SPOC.Utils.Request.put = function(url, data) {
                 req.send(JSON.stringify(data));
             } 
         
+    });
+};
+
+/**
+ * Makes a put ajax requestio to a sharepoint url
+ * @params  url url to retrieve
+ * @params  data bool data to post
+ * @return  javascript promise
+ */
+SPOC.Utils.Request.loadScript = function(url, success, failure) {
+    var scriptPromise = new Promise(function(resolve, reject) {
+        var script = document.createElement('script');
+        script.src = url;
+
+        script.addEventListener('load', function() {
+            resolve(url);
+        }, false);
+
+        script.addEventListener('error', function() {
+            reject(url);
+        }, false);
+
+        // Add it to the body
+        document.body.appendChild(script);
     });
 };

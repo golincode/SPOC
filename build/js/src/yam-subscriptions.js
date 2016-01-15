@@ -23,10 +23,10 @@ SPOC.Yam.User.prototype.Subscriptions = function() {
                         data: settings ? settings : null,
                         success: function(data) {
                             SPOC.Utils.Storage.set('SPOC-yam-subs-' + _this.id, data);
-                            deferred.resolve(data);
+                            resolve(data);
                         },
                         error: function(data) {
-                            deferred.reject(data);
+                            reject(data);
                         }
                     });
                 } else {

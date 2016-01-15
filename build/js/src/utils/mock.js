@@ -6,10 +6,17 @@ SPOC.Mock = {
 };
 
 
-// If not in SP, set page context as an empty object
-if(_spPageContextInfo){
-    _spPageContextInfo = {};
-}
+document.addEventListener("DOMContentLoaded", function(event) { 
+    
+    if(_spPageContextInfo){
+        _spPageContextInfo = {};
+    }
+
+    if (!SP){
+        SPOC.Mock.active = true;
+    } 
+});
+
 
 /**
  * Creates a Mock SharePoint List

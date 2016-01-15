@@ -8,6 +8,7 @@ The library currently lets you interact with:
   - SharePoint Lists
   - SharePoint List Items
   - SharePoint User Profiles
+  - Files (Upload, Download, Open, Generate timed guest links)
   - Yammer Search 
   - Yammer Posts & Feeds
   - Yammer Profiles
@@ -117,6 +118,15 @@ appWeb.listItems('App Web List Name').query().then(function(data){
 
 ```
 
+Note that when using SPOC, or calling the SharePoint API, from a App web, you should ensure the following scripts are added to your page.
+
+```html
+    <script type="text/javascript" src="/_layouts/15/MicrosoftAjax.js"></script>
+    <script type="text/javascript" src="/_layouts/15/sp.runtime.js"></script>
+    <script type="text/javascript" src="/_layouts/15/sp.js"></script>
+```
+
+
 ##### 5. Get the current users profile details
 This examples shows how to get the current users profile properties
 
@@ -144,10 +154,6 @@ posts.query().then(function(data){
     // outputs a object array of Yammer posts
 });
 
-// Query the users profile
-yamUser.Messages().query().then(function(results){
-    console.log(results);
-});
 
 ```
 
