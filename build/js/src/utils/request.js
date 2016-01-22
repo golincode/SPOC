@@ -18,13 +18,13 @@ SPOC.Utils.Request.get = function(url, forceNoCache) {
         } else {
 
             // Check if a Mock db has been set
-            if(SPOC.Mock.active) {
+            if(SPOC.Mock && SPOC.Mock.active) {
                 url = SPOC.Utils.Url.getListNameFromUrl(url);
                 var mockData = SPOC.Mock.db[url];
                 if (mockData){
                     resolve(mockData);
                 } else {
-                    resolve({"error": "no mock data found for the list - " + url});
+                    reject({"error": "no mock data found for the list - " + url});
                 }
             } else {
 
@@ -70,7 +70,9 @@ SPOC.Utils.Request.get = function(url, forceNoCache) {
 SPOC.Utils.Request.post = function(url, data, isFile) {
     return new Promise(function(resolve, reject) {
             // Check if a Mock db has been set
-            if(SPOC.Mock.active){
+            if(SPOC.Mock && SPOC.Mock.active){
+                url = SPOC.Utils.Url.getListNameFromUrl(url);
+                SPOC.Mock.db[url] = data;
                 resolve(data);
             } else {
 
@@ -118,8 +120,15 @@ SPOC.Utils.Request.post = function(url, data, isFile) {
 SPOC.Utils.Request.put = function(url, data) {
     return new Promise(function(resolve, reject) {
             // Check if a Mock db has been set
-            if(SPOC.Mock.active){
-                resolve(data);
+           if(SPOC.Mock && SPOC.Mock.active){
+                url = SPOC.Utils.Url.getListNameFromUrl(url);
+                var mockData = SPOC.Mock.db[url];
+                if (mockData){
+                    SPOC.Mock.db[url] = data;
+                    resolve(data);
+                } else {
+                    reject({"error": "no mock data found for the list - " + url});
+                }
             } else {
 
             if(!SPOC.Utils.Url.isSameDomain(url) && url.toLowerCase().indexOf('_api/web') > -1){
@@ -163,16 +172,16 @@ SPOC.Utils.Request.put = function(url, data) {
  */
 SPOC.Utils.Request.loadScript = function(url, success, failure) {
     var scriptPromise = new Promise(function(resolve, reject) {
-        var script = document.createElement('script');
-        script.src = url;
+            var script = document.createElement('script');
+            script.src = url;
 
-        script.addEventListener('load', function() {
-            resolve(url);
-        }, false);
+            script.addEventListener('load', function() {
+                resolve(url);
+            }, false);
 
-        script.addEventListener('error', function() {
-            reject(url);
-        }, false);
+            script.addEventListener('error', function() {
+                reject(url);
+            }, false);
 
         // Add it to the body
         document.body.appendChild(script);

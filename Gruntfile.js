@@ -27,7 +27,7 @@ module.exports = function(grunt) {
 				banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n\n\n',
 			},
 			dist: {
-				src: ['build/js/src/prefix/*.js', 'build/js/src/utils/*.js', 'build/js/src/*.js', 'build/js/src/suffix/*.js'],
+				src: ['build/js/vendor/*.js','build/js/src/prefix/*.js', 'build/js/src/utils/*.js', 'build/js/src/*.js', 'build/js/src/suffix/*.js'],
 				dest: 'public/js/<%= pkg.name %>.js'
 			}
 		},

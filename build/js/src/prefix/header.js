@@ -9,6 +9,9 @@
 (function(window, document, SPOC, undefined) {
         'use strict';
 
+        // Promoise polyfill
+ 		window.Promise = Promise ? Promise : RSVP.Promise;
+
         // Define all top level namespaces.
         SPOC.Utils = {};
         SPOC.SP = {};
