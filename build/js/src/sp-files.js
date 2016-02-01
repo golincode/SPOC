@@ -9,7 +9,7 @@ SPOC.SP.Site.prototype.Files = function(filePath) {
     var methods = {};
 
     // Add leading slash if not present.
-    if(filePath.charAt(0) !== '/'){
+    if (filePath.charAt(0) !== '/') {
         filePath = '/' + filePath;
     }
 
@@ -20,7 +20,7 @@ SPOC.SP.Site.prototype.Files = function(filePath) {
      */
     methods.generateExternalLink = function(hours) {
         hours = hours ? hours : 24;
-        var listUrl = site.url + "/_api/Web/GetFileByServerRelativeUrl('" + filePath + "')/GetPreAuthorizedAccessUrl("+ hours +")";
+        var listUrl = site.url + "/_api/Web/GetFileByServerRelativeUrl('" + filePath + "')/GetPreAuthorizedAccessUrl(" + hours + ")";
         return SPOC.Utils.Request.get(listUrl, true);
     };
 
@@ -53,17 +53,17 @@ SPOC.SP.Site.prototype.Files = function(filePath) {
         return new Promise(function(resolve, reject) {
             var reader = new FileReader();
 
-            reader.onloadend = function (e) {
+            reader.onloadend = function(e) {
                 var parts = fileInput.value.split('\\');
                 var fileName = parts[parts.length - 1];
-                var url = site.url + "/_api/Web/GetFolderByServerRelativeUrl('" + filePath + "')/files/add(overwrite=true, url='"+ fileName +"')";
-                SPOC.Utils.Request.post(url, e.target.result, true).then(function(result){
+                var url = site.url + "/_api/Web/GetFolderByServerRelativeUrl('" + filePath + "')/files/add(overwrite=true, url='" + fileName + "')";
+                SPOC.Utils.Request.post(url, e.target.result, true).then(function(result) {
                     resolve(result);
-                }, function(result){
-                     reject(result);
+                }, function(result) {
+                    reject(result);
                 });
             };
-            reader.onerror = function (e) {
+            reader.onerror = function(e) {
                 reject(e.target.error);
             };
 
@@ -77,8 +77,8 @@ SPOC.SP.Site.prototype.Files = function(filePath) {
      * @return Promise
      */
     methods.query = function(forceNoCache) {
-       var url = site.url + "/_api/web/getfilebyserverrelativeurl('" + filePath + "')/ListItemAllFields";
-       return SPOC.Utils.Request.get(url, forceNoCache);
+        var url = site.url + "/_api/web/getfilebyserverrelativeurl('" + filePath + "')/ListItemAllFields";
+        return SPOC.Utils.Request.get(url, forceNoCache);
     };
 
     /**
@@ -86,7 +86,7 @@ SPOC.SP.Site.prototype.Files = function(filePath) {
      * @return Promise
      */
     methods.download = function() {
-      window.open('/_layouts/download.aspx?SourceUrl=' + site.url + filePath);
+        window.open('/_layouts/download.aspx?SourceUrl=' + site.url + filePath);
     };
 
     /**
@@ -95,12 +95,14 @@ SPOC.SP.Site.prototype.Files = function(filePath) {
      * @return Promise
      */
     methods.openInWebApps = function(newTab) {
-       var url = site.url + filePath;
-       if (newTab){
+        var url = site.url + filePath;
+
+        if (newTab) {
             window.open(SPOC.Utils.SP.convertToWebApp(url));
-       } else {
-         window.location.href = SPOC.Utils.SP.convertToWebApp(url);
-       }
+        } else {
+            window.location.href = SPOC.Utils.SP.convertToWebApp(url);
+        }
+
     };
 
     return methods;

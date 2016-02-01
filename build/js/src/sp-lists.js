@@ -37,7 +37,7 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
         };
 
         if (settings) {
-           defaults = SPOC.Utils.Objects.merge(defaults, settings);
+            defaults = SPOC.Utils.Objects.merge(defaults, settings);
         }
 
         var url = site.url + '/_api/web/lists';

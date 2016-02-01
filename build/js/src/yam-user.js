@@ -30,7 +30,7 @@ SPOC.Yam.User.prototype.Profile = function() {
                         }
                     });
                 } else {
-                     resolve(false);
+                    resolve(false);
                 }
             });
         });

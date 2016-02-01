@@ -21,7 +21,7 @@ SPOC.Yam.Feed.prototype.posts = function() {
      * @return promise
      */
     methods.query = function(settings) {
-         return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             // Check user has access token and then then return group feed.
             SPOC.Utils.Yammer.checkLogin().then(function(result) {
                 if (result) {
@@ -39,7 +39,7 @@ SPOC.Yam.Feed.prototype.posts = function() {
                         }
                     });
                 } else {
-                     resolve(false);
+                    resolve(false);
                 }
             });
         });

@@ -18,14 +18,14 @@ SPOC.SP.Site.prototype.Search = function(searchTerm) {
             var searchUrl = site.url + '/_api/search/query?querytext=%27' + searchTerm + ' +path:' + site.url + '%27';
             searchUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
 
-            SPOC.Utils.Request.get(searchUrl, forceNoCache).then(function(result){
+            SPOC.Utils.Request.get(searchUrl, forceNoCache).then(function(result) {
                 result = SPOC.Utils.SP.formatSearchResponse(result);
                 resolve(result);
-            }, function (err){
+            }, function(err) {
                 reject(err);
             });
         });
-          
+
     };
 
     return methods;

@@ -16,11 +16,11 @@ SPOC.Yam.Search = function() {
      * @return  jQuery Deferred Object
      */
     methods.query = function(settings, forceNoCache) {
-       return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             // Check user has access token and then then return group feed.
             SPOC.Utils.Yammer.checkLogin().then(function(result) {
                 if (result) {
-                   yam.platform.request({
+                    yam.platform.request({
                         url: apiUrl,
                         method: "GET",
                         data: settings ? settings : null,
@@ -35,7 +35,7 @@ SPOC.Yam.Search = function() {
                         }
                     });
                 } else {
-                     resolve(false);
+                    resolve(false);
                 }
             });
         });
