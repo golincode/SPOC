@@ -59,10 +59,10 @@ SPOC.Mock.dummyText = function(count, isDocument, seperator) {
  * @params string  height of image. Defaults to 400
  * @return string
  */
-SPOC.Mock.dummyImage = function(width, height) {
+SPOC.Mock.dummyImage = function(width, height, cat) {
     width = width ? width : 600;
     height = height ? height : 400;
-    return 'http://lorempixel.com/' + width + '/' + height + '/';
+    return 'http://lorempixel.com/' + width + '/' + height + '/' + (cat ? cat : '');
 };
 
 
