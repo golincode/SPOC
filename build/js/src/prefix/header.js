@@ -10,7 +10,7 @@
         'use strict';
 
         // Promoise polyfill
- 		window.Promise = Promise ? Promise : RSVP.Promise;
+ 		window.Promise = window.Promise ? window.Promise : RSVP.Promise;
 
         // Define all top level namespaces.
         SPOC.Utils = {};

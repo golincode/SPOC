@@ -45,7 +45,7 @@ SPOC.Utils.Conversion.objToQueryString = function(obj) {
 };
 
 SPOC.Mock = {
-    active: false,
+    active: document.getElementById('s4-workspace') ? false : true,
     db: {}
 };
 
@@ -58,12 +58,6 @@ if (!window._spPageContextInfo) {
         webAbsoluteUrl: 'local'
     };
 }
-
-document.addEventListener("DOMContentLoaded", function(event) {
-    if (!window.SP) {
-        SPOC.Mock.active = true;
-    }
-});
 
 
 /**
