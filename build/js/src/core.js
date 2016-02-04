@@ -7,7 +7,7 @@
 SPOC.SP.Site = function(url) {
 
     // Set URL to current site if no url passed in.
-    this.url = url ? url : _spPageContextInfo.webAbsoluteUrl;
+    this.url = url ? url : window._spPageContextInfo.webAbsoluteUrl;
 };
 
 
@@ -17,8 +17,8 @@ SPOC.SP.Site = function(url) {
  * @return  object
  */
 SPOC.SP.User = function(username) {
-    this.id = username ? username : _spPageContextInfo.userId;
-    this.loginName = username ? username : _spPageContextInfo.userLoginName;  
+    this.id = username ? username : window._spPageContextInfo.userId;
+    this.loginName = username ? username : window._spPageContextInfo.userLoginName;
 };
 
 

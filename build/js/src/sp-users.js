@@ -16,7 +16,7 @@ SPOC.SP.User.prototype.Profile = function() {
      * @return  promise
      */
     methods.query = function(forceNoCache) {
-        var listUrl = _spPageContextInfo.webAbsoluteUrl;
+        var listUrl = window._spPageContextInfo.webAbsoluteUrl;
 
         if (user.loginName){
             listUrl += "/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v=%27" + loginNamePrefix + user.loginName + "%27";
@@ -35,7 +35,7 @@ SPOC.SP.User.prototype.Profile = function() {
      * @return  bool
      */
     methods.isMemberOfGroup = function(groupName, userId, forceNoCache) {
-        var user = userId ? userId : _spPageContextInfo.userId;
+        var user = userId ? userId : window._spPageContextInfo.userId;
         var listUrl = site.url +  "/_api/web/sitegroups/getByName('" + groupName + "')/Users?$filter=Id eq " + user;
 
         // return promise
