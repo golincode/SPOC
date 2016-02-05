@@ -1,4 +1,4 @@
-/*! SPOC 04-02-2016 */
+/*! SPOC 05-02-2016 */
 
 
 /*!
@@ -22,12 +22,13 @@
         'use strict';
 
         // Promoise polyfill
- 		window.Promise = Promise ? Promise : RSVP.Promise;
+ 		window.Promise = window.Promise ? window.Promise : RSVP.Promise;
 
         // Define all top level namespaces.
         SPOC.Utils = {};
         SPOC.SP = {};
         SPOC.Yam = {};
+
 
 SPOC.Utils.Conversion = {};
 
@@ -523,7 +524,7 @@ SPOC.Utils.Strings = {};
  * @return  bool
  */
 SPOC.Utils.Strings.cut = function(value, requiredLength) {
-    return value.length > requiredLength ? title.substr(0, requiredLength - 3) + "..." : value.length;
+    return value.length > requiredLength ? value.substr(0, requiredLength - 3) + "..." : value;
 };
 
 

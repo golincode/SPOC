@@ -6,7 +6,7 @@ SPOC.Utils.Strings = {};
  * @return  bool
  */
 SPOC.Utils.Strings.cut = function(value, requiredLength) {
-    return value.length > requiredLength ? title.substr(0, requiredLength - 3) + "..." : value.length;
+    return value.length > requiredLength ? value.substr(0, requiredLength - 3) + "..." : value;
 };
 
 
