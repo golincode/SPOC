@@ -1,3 +1,4 @@
+
 SPOC.Mock = {
     active: document.getElementById('s4-workspace') ? false : true,
     db: {}

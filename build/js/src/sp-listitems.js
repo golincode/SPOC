@@ -1,7 +1,5 @@
 // SharePoint List Items Functionlity
 
-
-
 SPOC.SP.Site.prototype.ListItems = function(listTitle) {
 
     // save reference to this
@@ -17,10 +15,10 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      */
     methods.query = function(settings, forceNoCache, headers) {
         var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items';
-        
+
         listUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
-        
-        return SPOC.Utils.Request.get(listUrl, forceNoCache);        
+
+        return SPOC.Utils.Request.get(listUrl, forceNoCache);
     };
 
 
