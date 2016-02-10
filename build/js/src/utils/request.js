@@ -184,7 +184,6 @@ SPOC.Utils.Request.delete = function(url, data) {
             var req = new XMLHttpRequest();
 
             req.open('POST', url, true);
-            req.setRequestHeader("Accept", "application/json;odata=verbose");
             req.setRequestHeader("X-RequestDigest", document.getElementById('__REQUESTDIGEST').value);
             req.setRequestHeader("X-HTTP-Method", "DELETE");
             req.setRequestHeader("If-Match", "*");
