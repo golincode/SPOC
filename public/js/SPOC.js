@@ -226,7 +226,7 @@ SPOC.Utils.Request.get = function(url, forceNoCache) {
                         var data = JSON.parse(req.responseText);
                             data = data.d.results ? data.d.results : data.d;
                             SPOC.Utils.Storage.set('SPOC-' + url, data);
-                        
+
                         resolve(data);
                       }
                       else {
@@ -239,7 +239,7 @@ SPOC.Utils.Request.get = function(url, forceNoCache) {
               reject(Error('Network Error'));
             };
                 req.send();
-            } 
+            }
         }
     });
 };
@@ -289,8 +289,8 @@ SPOC.Utils.Request.post = function(url, data, isFile) {
               reject(Error('Network Error'));
             };
                 req.send(isFile ? data : JSON.stringify(data));
-            } 
-        
+            }
+
     });
 };
 
@@ -342,8 +342,52 @@ SPOC.Utils.Request.put = function(url, data) {
               reject(Error('Network Error'));
             };
                 req.send(JSON.stringify(data));
-            } 
-        
+            }
+
+    });
+};
+
+/**
+ * Makes a delete ajax requestio to a sharepoint url
+ * @params  url url to retrieve
+ * @params  data bool data to post
+ * @return  javascript promise
+ */
+SPOC.Utils.Request.delete = function(url, data) {
+    return new Promise(function(resolve, reject) {
+            // Check if a Mock db has been set
+            if(SPOC.Mock.active){
+                resolve(data);
+            } else {
+
+            if(!SPOC.Utils.Url.isSameDomain(url) && url.toLowerCase().indexOf('_api/web') > -1){
+                url = SPOC.Utils.Url.convertToXDomain(url);
+            }
+
+            var req = new XMLHttpRequest();
+
+            req.open('POST', url, true);
+            req.setRequestHeader("X-RequestDigest", document.getElementById('__REQUESTDIGEST').value);
+            req.setRequestHeader("X-HTTP-Method", "DELETE");
+            req.setRequestHeader("If-Match", "*");
+
+            req.onreadystatechange = function() {
+                if (req.readyState == 4){
+                      if (req.status == 200) {
+                        resolve(data);
+                      }
+                      else {
+                        reject(Error(req.statusText));
+                      }
+                  }
+                };
+
+            req.onerror = function(err) {
+              reject(Error('Network Error'));
+            };
+                req.send(JSON.stringify(data));
+            }
+
     });
 };
 
@@ -1030,8 +1074,8 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
 
 
     /**
-     * Creates a new list items
-     * @params  Object Create list settings
+     * Updates a list item
+     * @params  Object ID, Update list settings
      * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
      * @return promise
      */
@@ -1048,6 +1092,23 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
         }
 
         return SPOC.Utils.Request.put(listUrl, defaults);
+    };
+
+    /**
+     * Deletes a list item
+     * @params  Object ID
+     * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
+     * @return promise
+     */
+    methods.delete = function(id) {
+        var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items(' + id + ')';
+        var defaults = {
+            __metadata: {
+                'type': SPOC.Utils.SP.getListItemType(listTitle)
+            }
+        };
+
+        return SPOC.Utils.Request.delete(listUrl, defaults);
     };
 
     return methods;
