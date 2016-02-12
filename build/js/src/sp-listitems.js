@@ -45,8 +45,8 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
 
 
     /**
-     * Creates a new list items
-     * @params  Object Create list settings
+     * Updates a list item
+     * @params  Object ID, Update list settings
      * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
      * @return promise
      */
@@ -63,6 +63,23 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
         }
 
         return SPOC.Utils.Request.put(listUrl, defaults);
+    };
+
+    /**
+     * Deletes a list item
+     * @params  Object ID
+     * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
+     * @return promise
+     */
+    methods.delete = function(id) {
+        var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items(' + id + ')';
+        var defaults = {
+            __metadata: {
+                'type': SPOC.Utils.SP.getListItemType(listTitle)
+            }
+        };
+
+        return SPOC.Utils.Request.delete(listUrl, defaults);
     };
 
     return methods;
