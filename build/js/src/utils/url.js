@@ -25,13 +25,23 @@ SPOC.Utils.Url.getQueryString = function(variable, query) {
 
 /**
  * Extracts and returns a list name from api url endpoint
- * @params  url 
+ * @params  url
  * @return  string
  */
 SPOC.Utils.Url.getListNameFromUrl = function(url) {
    var regex = /\%27(.*)\%27/g;
    var match = regex.exec(url);
     return match ? match[1] : null;
+};
+
+
+/**
+ * Extracts and returns a list name from api url endpoint
+ * @params  url
+ * @return  string
+ */
+SPOC.Utils.Url.AppWebUrl = function(url) {
+   return SPOC.Utils.Url.getQueryString('SPAppWebUrl');
 };
 
 
@@ -59,7 +69,7 @@ SPOC.Utils.Url.convertToXDomain = function(url) {
     if (url.indexOf('?') === -1){
         url = url + '?';
     }
-    
+
     url = window.location.origin + '/_api' + url + '@target=%27' + domain + '%27';
 
     return url;

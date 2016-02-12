@@ -1,4 +1,4 @@
-/*! SPOC 09-02-2016 */
+/*! SPOC 12-02-2016 */
 
 
 /*!
@@ -42,8 +42,9 @@ SPOC.Utils.Conversion.objToQueryString = function(obj) {
     var str = '';
 
     for (var propertyName in obj) {
-        str += '&$' + propertyName + '=' + obj[propertyName].replace(/ /g, '_x0020_');
+        str += '&$' + propertyName + '=' + obj[propertyName];
     }
+
     return str;
 };
 
@@ -56,20 +57,26 @@ SPOC.Utils.Conversion.spInternalName = function(string) {
     return str.replace(/ /g, '_x0020_');
 };
 
-
 SPOC.Mock = {
-    active: document.getElementById('s4-workspace') ? false : true,
+    active: false,
     db: {}
 };
 
 
 // If offline, set spPageContextInfo
 if (!window._spPageContextInfo) {
+
+    var AppWebUrl = SPOC.Utils.Url.AppWebUrl();
+
     window._spPageContextInfo = {
         userId: 1,
         userLoginName: 'test',
-        webAbsoluteUrl: 'local'
+        webAbsoluteUrl: (AppWebUrl ? AppWebUrl : 'local')
     };
+
+    if (!AppWebUrl) {
+        SPOC.Mock.active = true;
+    }
 }
 
 
@@ -87,7 +94,7 @@ SPOC.Mock.dummyText = function(count, isDocument, seperator) {
         ret = "",
         newTxt = "";
 
-        seperator = seperator ? seperator : ' ';
+    seperator = seperator ? seperator : ' ';
 
     for (var i = 0; i < count; i++) {
         newTxt = loremIpsumWordBank[Math.floor(Math.random() * (loremIpsumWordBank.length - 1))];
@@ -97,8 +104,8 @@ SPOC.Mock.dummyText = function(count, isDocument, seperator) {
         ret += seperator + newTxt;
     }
 
-    if(isDocument){
-       ret = ret.replace(/,/g, '');
+    if (isDocument) {
+        ret = ret.replace(/,/g, '');
     }
 
     finalString = ret.substring(1, ret.length - 1) + "." + ext;
@@ -615,13 +622,23 @@ SPOC.Utils.Url.getQueryString = function(variable, query) {
 
 /**
  * Extracts and returns a list name from api url endpoint
- * @params  url 
+ * @params  url
  * @return  string
  */
 SPOC.Utils.Url.getListNameFromUrl = function(url) {
    var regex = /\%27(.*)\%27/g;
    var match = regex.exec(url);
     return match ? match[1] : null;
+};
+
+
+/**
+ * Extracts and returns a list name from api url endpoint
+ * @params  url
+ * @return  string
+ */
+SPOC.Utils.Url.AppWebUrl = function(url) {
+   return SPOC.Utils.Url.getQueryString('SPAppWebUrl');
 };
 
 
@@ -649,11 +666,12 @@ SPOC.Utils.Url.convertToXDomain = function(url) {
     if (url.indexOf('?') === -1){
         url = url + '?';
     }
-    
+
     url = window.location.origin + '/_api' + url + '@target=%27' + domain + '%27';
 
     return url;
 };
+
 
 SPOC.Utils.Yammer = {};
 

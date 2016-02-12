@@ -1,17 +1,23 @@
-
 SPOC.Mock = {
-    active: document.getElementById('s4-workspace') ? false : true,
+    active: false,
     db: {}
 };
 
 
 // If offline, set spPageContextInfo
 if (!window._spPageContextInfo) {
+
+    var AppWebUrl = SPOC.Utils.Url.AppWebUrl();
+
     window._spPageContextInfo = {
         userId: 1,
         userLoginName: 'test',
-        webAbsoluteUrl: 'local'
+        webAbsoluteUrl: (AppWebUrl ? AppWebUrl : 'local')
     };
+
+    if (!AppWebUrl) {
+        SPOC.Mock.active = true;
+    }
 }
 
 
@@ -29,7 +35,7 @@ SPOC.Mock.dummyText = function(count, isDocument, seperator) {
         ret = "",
         newTxt = "";
 
-        seperator = seperator ? seperator : ' ';
+    seperator = seperator ? seperator : ' ';
 
     for (var i = 0; i < count; i++) {
         newTxt = loremIpsumWordBank[Math.floor(Math.random() * (loremIpsumWordBank.length - 1))];
@@ -39,8 +45,8 @@ SPOC.Mock.dummyText = function(count, isDocument, seperator) {
         ret += seperator + newTxt;
     }
 
-    if(isDocument){
-       ret = ret.replace(/,/g, '');
+    if (isDocument) {
+        ret = ret.replace(/,/g, '');
     }
 
     finalString = ret.substring(1, ret.length - 1) + "." + ext;
