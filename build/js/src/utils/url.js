@@ -40,7 +40,7 @@ SPOC.Utils.Url.getListNameFromUrl = function(url) {
  * @return  string
  */
 SPOC.Utils.Url.AppWebUrl = function(url) {
-    return SPOC.Utils.Url.getQueryString('SPAppWebUrl');
+    return decodeURIComponent(SPOC.Utils.Url.getQueryString('SPAppWebUrl'));
 };
 
 
@@ -50,7 +50,7 @@ SPOC.Utils.Url.AppWebUrl = function(url) {
  * @return  string
  */
 SPOC.Utils.Url.HostWebUrl = function(url) {
-    return SPOC.Utils.Url.getQueryString('SPAppWebUrl');
+    return decodeURIComponent(SPOC.Utils.Url.getQueryString('SPHostUrl'));
 };
 
 
