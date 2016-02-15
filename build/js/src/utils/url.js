@@ -45,6 +45,16 @@ SPOC.Utils.Url.AppWebUrl = function(url) {
 
 
 /**
+ * Extracts and returns a list name from api url endpoint
+ * @params  url
+ * @return  string
+ */
+SPOC.Utils.Url.HostWebUrl = function(url) {
+    return SPOC.Utils.Url.getQueryString('SPAppWebUrl');
+};
+
+
+/**
  * Converts a Javascript object to SP API query string format
  * @params  obj Object of props to convert
  * @return  string
