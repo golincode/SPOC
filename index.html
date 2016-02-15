@@ -20,7 +20,7 @@
 
     <section class="main-content">
       <h1>
-<a id="spoc---sharepoint-online-connector" class="anchor" href="#spoc---sharepoint-online-connector" aria-hidden="true"><span class="octicon octicon-link"></span></a>SPOC - SharePoint Online Connector.</h1>
+<a id="spoc---sharepoint-online-connector" class="anchor" href="#spoc---sharepoint-online-connector" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>SPOC - SharePoint Online Connector.</h1>
 
 <p>SPOC is a client-side Javascript library that helps you interact with the <strong>SharePoint Online &amp; Yammer REST APIs</strong>. It also contains handy helper and utility functions that are regularly used when working on Front-end SharePoint projects. </p>
 
@@ -40,12 +40,12 @@
 </ul>
 
 <h3>
-<a id="sharepoint-hosted-app-model" class="anchor" href="#sharepoint-hosted-app-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>SharePoint Hosted App Model</h3>
+<a id="sharepoint-hosted-app-model" class="anchor" href="#sharepoint-hosted-app-model" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>SharePoint Hosted App Model</h3>
 
 <p>SPOC has built in logic that automatically detects when you are trying to call a site within a different domain and handles the relevant calls. This makes it really simple to interact with both the Host and App web when using the library within a SharePoint Hosted App.</p>
 
 <h2>
-<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting Started</h2>
+<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Getting Started</h2>
 
 <p>First download  <strong>SPOC.min.js</strong> and include it in your project or add it to your master-page or page layouts. Note that <strong>If you want to interact with Yammer from within SharePoint Online, you must also include the Yammer JS SDK</strong> by adding the following into your master-page or page layouts.</p>
 
@@ -61,10 +61,10 @@
 </blockquote>
 
 <h2>
-<a id="basic-examples" class="anchor" href="#basic-examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Basic Examples</h2>
+<a id="basic-examples" class="anchor" href="#basic-examples" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Basic Examples</h2>
 
 <h5>
-<a id="1-get-items-from-a-sharepoint-list" class="anchor" href="#1-get-items-from-a-sharepoint-list" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Get items from a SharePoint list</h5>
+<a id="1-get-items-from-a-sharepoint-list" class="anchor" href="#1-get-items-from-a-sharepoint-list" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>1. Get items from a SharePoint list</h5>
 
 <p>This examples show you how to retrieve items from a SharePoint list. The list item method allows you to pass in filters and query settings via a JS object. It supports all default OData query string operators (select, filter, orderBy, expand, top etc). More information can be found on <a href="https://msdn.microsoft.com/en-us/library/office/fp142385.aspx#sectionSection0">MSDN</a>.</p>
 
@@ -88,11 +88,11 @@
 </pre></div>
 
 <blockquote>
-<p>Note that all GET requests automatically cache results in the browser sessionStorage. If you would like to bypass the cache, pass true into the second parameter of the query function.</p>
+<p>Note that you can pass in true as a second parameter on all GET requests to automatically cache results in the browser sessionStorage.</p>
 </blockquote>
 
 <h5>
-<a id="2-retrieve-items-from-both-the-host-and-app-web-from-within-a-sharepoint-hosted-app" class="anchor" href="#2-retrieve-items-from-both-the-host-and-app-web-from-within-a-sharepoint-hosted-app" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Retrieve items from both the Host and App web from within a SharePoint Hosted App</h5>
+<a id="2-retrieve-items-from-both-the-host-and-app-web-from-within-a-sharepoint-hosted-app" class="anchor" href="#2-retrieve-items-from-both-the-host-and-app-web-from-within-a-sharepoint-hosted-app" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2. Retrieve items from both the Host and App web from within a SharePoint Hosted App</h5>
 
 <p>This example shows how interacting with the host or app web when using SPOC in a SharePoint Hosted App is really simple.</p>
 
@@ -117,7 +117,7 @@
 <span class="pl-s1">    &lt;<span class="pl-ent">script</span> <span class="pl-e">type</span>=<span class="pl-s"><span class="pl-pds">"</span>text/javascript<span class="pl-pds">"</span></span> <span class="pl-e">src</span>=<span class="pl-s"><span class="pl-pds">"</span>/_layouts/15/sp.js<span class="pl-pds">"</span></span>&gt;&lt;/<span class="pl-ent">script</span>&gt;</span></pre></div>
 
 <h5>
-<a id="3-get-the-current-users-profile-details" class="anchor" href="#3-get-the-current-users-profile-details" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. Get the current users profile details</h5>
+<a id="3-get-the-current-users-profile-details" class="anchor" href="#3-get-the-current-users-profile-details" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>3. Get the current users profile details</h5>
 
 <p>This examples shows how to get the current users profile properties</p>
 
@@ -131,7 +131,7 @@
 </pre></div>
 
 <h5>
-<a id="4-get-personalised-yammer-posts-for-the-logged-in-user-posts-from-people-groups-and-topics-that-they-follow" class="anchor" href="#4-get-personalised-yammer-posts-for-the-logged-in-user-posts-from-people-groups-and-topics-that-they-follow" aria-hidden="true"><span class="octicon octicon-link"></span></a>4. Get personalised yammer posts for the logged in user (Posts from People, Groups and topics that they follow)</h5>
+<a id="4-get-personalised-yammer-posts-for-the-logged-in-user-posts-from-people-groups-and-topics-that-they-follow" class="anchor" href="#4-get-personalised-yammer-posts-for-the-logged-in-user-posts-from-people-groups-and-topics-that-they-follow" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>4. Get personalised yammer posts for the logged in user (Posts from People, Groups and topics that they follow)</h5>
 
 <p>This examples shows how to get Yammer posts from People, Groups and Topics that hte current user is following </p>
 
@@ -146,17 +146,17 @@
 });</pre></div>
 
 <h2>
-<a id="further-examples" class="anchor" href="#further-examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Further Examples</h2>
+<a id="further-examples" class="anchor" href="#further-examples" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Further Examples</h2>
 
 <p>View the <a href="https://github.com/wearearchitect/SPOC/blob/master/docs/examples.md">more examples page</a> to see the full list of functionilty available within the SPOC library.</p>
 
 <h2>
-<a id="utility-functions-and-helpers" class="anchor" href="#utility-functions-and-helpers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Utility functions and Helpers</h2>
+<a id="utility-functions-and-helpers" class="anchor" href="#utility-functions-and-helpers" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Utility functions and Helpers</h2>
 
 <p>SPOC includes utility functions functions that are useful when developing within SharePoint. You can view a <a href="https://github.com/wearearchitect/SPOC/blob/master/docs/utils.md">list of utility functions here</a>.</p>
 
 <h2>
-<a id="mock-api-calls-developing-outside-of-sp" class="anchor" href="#mock-api-calls-developing-outside-of-sp" aria-hidden="true"><span class="octicon octicon-link"></span></a>Mock API calls (Developing outside of SP)</h2>
+<a id="mock-api-calls-developing-outside-of-sp" class="anchor" href="#mock-api-calls-developing-outside-of-sp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Mock API calls (Developing outside of SP)</h2>
 
 <p>To help improve efficiency when working on front-end based SharePoint projects, we often start development offline (i.e creating the styling, HTML templates etc), and then integrate it to SharePoint once completed. This makes the development process much quicker. </p>
 
@@ -167,7 +167,7 @@
 <span class="pl-k">var</span> myListItems <span class="pl-k">=</span> [{Title<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Item One<span class="pl-pds">"</span></span>,Title<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Item Two<span class="pl-pds">"</span></span>, Title<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Item Three<span class="pl-pds">"</span></span>}];
 
 <span class="pl-c">// Create a mock list called 'MyList' and list items</span>
-<span class="pl-smi">SPOC</span>.<span class="pl-smi">Mock</span>.<span class="pl-en">createList</span>(<span class="pl-s"><span class="pl-pds">'</span>MyList<span class="pl-pds">'</span></span>, myListItems);
+<span class="pl-c1">SPOC</span>.<span class="pl-smi">Mock</span>.<span class="pl-en">createList</span>(<span class="pl-s"><span class="pl-pds">'</span>MyList<span class="pl-pds">'</span></span>, myListItems);
 
 <span class="pl-c">// Query SharePoint list as normal</span>
 
@@ -181,17 +181,17 @@
 </pre></div>
 
 <h2>
-<a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contributing</h2>
+<a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contributing</h2>
 
 <p>Please read the <a href="https://github.com/wearearchitect/SPOC/blob/master/docs/contributing.md">contributing.md</a> to find out how you can get involved in the project.</p>
 
 <h2>
-<a id="versions" class="anchor" href="#versions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Versions</h2>
+<a id="versions" class="anchor" href="#versions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Versions</h2>
 
 <p>0.0.1 - Bewared - still in early development stage</p>
 
 <h2>
-<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h2>
 
 <hr>
 
