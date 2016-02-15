@@ -50,7 +50,12 @@ SPOC.Utils.Url.AppWebUrl = function(url) {
  * @return  string
  */
 SPOC.Utils.Url.isSameDomain = function(url) {
-    var current = window.location.href.toLowerCase();
+    // Fix for .orgin on IE.
+    if (!window.location.origin) {
+        window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+    }
+
+    var current = window.location.origin.toLowerCase();
     return url.toLowerCase().indexOf(current) > -1 ? true : false;
 };
 
