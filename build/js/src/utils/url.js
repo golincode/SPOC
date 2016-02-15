@@ -85,6 +85,8 @@ SPOC.Utils.Url.convertToXDomain = function(url) {
 
     if (url.indexOf('?') === -1) {
         url = url + '?';
+    } else {
+        url = url + '&';
     }
 
     url = origin + '/_api' + url + '@target=%27' + domain + '%27';

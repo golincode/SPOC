@@ -133,11 +133,12 @@ SPOC.Utils.Request.get = function(url, cacheResult) {
                 }
             } else {
 
+                // If App web, use the SP RequestExecutor
                 if (!SPOC.Utils.Url.isSameDomain(url) && url.toLowerCase().indexOf('_api/web') > -1) {
                     url = SPOC.Utils.Url.convertToXDomain(url);
                     var appweburl = SPOC.Utils.Url.AppWebUrl();
                     var hostweburl = SPOC.Utils.Url.HostWebUrl();
-                    SPOC.Utils.Request.loadScript(hostweburl + '/_layouts/15/SP.RequestExecutor.js').then(function() {
+                    SPOC.Utils.Request.loadRequestor(hostweburl + '/_layouts/15/SP.RequestExecutor.js').then(function() {
                         var executor = new SP.RequestExecutor(appweburl);
                         executor.executeAsync({
                             url: url,
@@ -157,7 +158,6 @@ SPOC.Utils.Request.get = function(url, cacheResult) {
                 } else {
 
                     var req = new XMLHttpRequest();
-
                     req.open('GET', url, true);
                     req.setRequestHeader("Accept", "application/json;odata=verbose");
 
@@ -201,34 +201,65 @@ SPOC.Utils.Request.post = function(url, data, isFile) {
         } else {
 
             if (!SPOC.Utils.Url.isSameDomain(url) && url.toLowerCase().indexOf('_api/web') > -1) {
+
                 url = SPOC.Utils.Url.convertToXDomain(url);
-            }
+                var appweburl = SPOC.Utils.Url.AppWebUrl();
+                var hostweburl = SPOC.Utils.Url.HostWebUrl();
+                SPOC.Utils.Request.loadRequestor(hostweburl + '/_layouts/15/SP.RequestExecutor.js').then(function() {
+                    var executor = new SP.RequestExecutor(appweburl);
 
-            var req = new XMLHttpRequest();
+                    var headers = {
+                        "Accept": "application/json; odata=verbose",
+                        "X-RequestDigest": document.getElementById('__REQUESTDIGEST').value,
+                        "Content-Type": "application/json;odata=verbose"
+                    };
 
-            req.open('POST', url, true);
-            req.setRequestHeader("Accept", "application/json;odata=verbose");
-            req.setRequestHeader("X-RequestDigest", document.getElementById('__REQUESTDIGEST').value);
-            req.setRequestHeader("Content-Type", "application/json;odata=verbose");
-
-            if (isFile) {
-                req.setRequestHeader("content-length", data.byteLength);
-            }
-
-            req.onreadystatechange = function() {
-                if (req.readyState == 4) {
-                    if (req.status == 200) {
-                        resolve(data);
-                    } else {
-                        reject(Error(req.statusText));
+                    if (isFile) {
+                        headers["Content-Type"] = data.byteLength;
                     }
-                }
-            };
 
-            req.onerror = function(err) {
-                reject(Error('Network Error'));
-            };
-            req.send(isFile ? data : JSON.stringify(data));
+                    executor.executeAsync({
+                        url: url,
+                        method: "POST",
+                        body: JSON.stringify(data),
+                        headers: headers,
+                        success: function(data) {
+                            resolve(data);
+                        },
+                        error: function(err) {
+                            reject(err);
+                        }
+                    });
+                });
+
+            } else {
+
+                var req = new XMLHttpRequest();
+                req.open('POST', url, true);
+                req.setRequestHeader("Accept", "application/json;odata=verbose");
+                req.setRequestHeader("X-RequestDigest", document.getElementById('__REQUESTDIGEST').value);
+                req.setRequestHeader("Content-Type", "application/json;odata=verbose");
+
+                if (isFile) {
+                    req.setRequestHeader("content-length", data.byteLength);
+                }
+
+                req.onreadystatechange = function() {
+                    if (req.readyState == 4) {
+                        if (req.status == 200) {
+                            resolve(data);
+                        } else {
+                            reject(Error(req.statusText));
+                        }
+                    }
+                };
+
+                req.onerror = function(err) {
+                    reject(Error('Network Error'));
+                };
+
+                req.send(isFile ? data : JSON.stringify(data));
+            }
         }
 
     });
@@ -257,34 +288,62 @@ SPOC.Utils.Request.put = function(url, data) {
         } else {
 
             if (!SPOC.Utils.Url.isSameDomain(url) && url.toLowerCase().indexOf('_api/web') > -1) {
+
                 url = SPOC.Utils.Url.convertToXDomain(url);
-            }
+                var appweburl = SPOC.Utils.Url.AppWebUrl();
+                var hostweburl = SPOC.Utils.Url.HostWebUrl();
+                SPOC.Utils.Request.loadRequestor(hostweburl + '/_layouts/15/SP.RequestExecutor.js').then(function() {
+                    var executor = new SP.RequestExecutor(appweburl);
 
-            var req = new XMLHttpRequest();
+                    var headers = {
+                        "Accept": "application/json; odata=verbose",
+                        "X-RequestDigest": document.getElementById('__REQUESTDIGEST').value,
+                        "Content-Type": "application/json;odata=verbose",
+                        "X-HTTP-Method": "MERGE",
+                        "If-Match": "*"
+                    };
 
-            req.open('POST', url, true);
-            req.setRequestHeader("Accept", "application/json;odata=verbose");
-            req.setRequestHeader("X-RequestDigest", document.getElementById('__REQUESTDIGEST').value);
-            req.setRequestHeader("Content-Type", "application/json;odata=verbose");
-            req.setRequestHeader("X-HTTP-Method", "MERGE");
-            req.setRequestHeader("If-Match", "*");
+                    executor.executeAsync({
+                        url: url,
+                        method: "POST",
+                        body: JSON.stringify(data),
+                        headers: headers,
+                        success: function(data) {
+                            resolve(data);
+                        },
+                        error: function(err) {
+                            reject(err);
+                        }
+                    });
+                });
 
-            req.onreadystatechange = function() {
-                if (req.readyState == 4) {
-                    if (req.status == 200) {
-                        resolve(data);
-                    } else {
-                        reject(Error(req.statusText));
+            } else {
+
+                var req = new XMLHttpRequest();
+
+                req.open('POST', url, true);
+                req.setRequestHeader("Accept", "application/json;odata=verbose");
+                req.setRequestHeader("X-RequestDigest", document.getElementById('__REQUESTDIGEST').value);
+                req.setRequestHeader("Content-Type", "application/json;odata=verbose");
+                req.setRequestHeader("X-HTTP-Method", "MERGE");
+                req.setRequestHeader("If-Match", "*");
+
+                req.onreadystatechange = function() {
+                    if (req.readyState == 4) {
+                        if (req.status == 200) {
+                            resolve(data);
+                        } else {
+                            reject(Error(req.statusText));
+                        }
                     }
-                }
-            };
+                };
 
-            req.onerror = function(err) {
-                reject(Error('Network Error'));
-            };
-            req.send(JSON.stringify(data));
+                req.onerror = function(err) {
+                    reject(Error('Network Error'));
+                };
+                req.send(JSON.stringify(data));
+            }
         }
-
     });
 };
 
@@ -302,30 +361,59 @@ SPOC.Utils.Request.delete = function(url, data) {
         } else {
 
             if (!SPOC.Utils.Url.isSameDomain(url) && url.toLowerCase().indexOf('_api/web') > -1) {
+
                 url = SPOC.Utils.Url.convertToXDomain(url);
-            }
+                var appweburl = SPOC.Utils.Url.AppWebUrl();
+                var hostweburl = SPOC.Utils.Url.HostWebUrl();
+                SPOC.Utils.Request.loadRequestor(hostweburl + '/_layouts/15/SP.RequestExecutor.js').then(function() {
+                    var executor = new SP.RequestExecutor(appweburl);
 
-            var req = new XMLHttpRequest();
+                    var headers = {
+                        "Accept": "application/json; odata=verbose",
+                        "X-RequestDigest": document.getElementById('__REQUESTDIGEST').value,
+                        "Content-Type": "application/json;odata=verbose",
+                        "X-HTTP-Method": "DELETE",
+                        "If-Match": "*"
+                    };
 
-            req.open('POST', url, true);
-            req.setRequestHeader("X-RequestDigest", document.getElementById('__REQUESTDIGEST').value);
-            req.setRequestHeader("X-HTTP-Method", "DELETE");
-            req.setRequestHeader("If-Match", "*");
+                    executor.executeAsync({
+                        url: url,
+                        method: "POST",
+                        body: JSON.stringify(data),
+                        headers: headers,
+                        success: function(data) {
+                            resolve(data);
+                        },
+                        error: function(err) {
+                            reject(err);
+                        }
+                    });
+                });
 
-            req.onreadystatechange = function() {
-                if (req.readyState == 4) {
-                    if (req.status == 200) {
-                        resolve(data);
-                    } else {
-                        reject(Error(req.statusText));
+            } else {
+
+                var req = new XMLHttpRequest();
+
+                req.open('POST', url, true);
+                req.setRequestHeader("X-RequestDigest", document.getElementById('__REQUESTDIGEST').value);
+                req.setRequestHeader("X-HTTP-Method", "DELETE");
+                req.setRequestHeader("If-Match", "*");
+
+                req.onreadystatechange = function() {
+                    if (req.readyState == 4) {
+                        if (req.status == 200) {
+                            resolve(data);
+                        } else {
+                            reject(Error(req.statusText));
+                        }
                     }
-                }
-            };
+                };
 
-            req.onerror = function(err) {
-                reject(Error('Network Error'));
-            };
-            req.send(JSON.stringify(data));
+                req.onerror = function(err) {
+                    reject(Error('Network Error'));
+                };
+                req.send(JSON.stringify(data));
+            }
         }
 
     });
@@ -337,8 +425,8 @@ SPOC.Utils.Request.delete = function(url, data) {
  * @params  data bool data to post
  * @return  javascript promise
  */
-SPOC.Utils.Request.loadScript = function(url, success, failure) {
-    var scriptPromise = new Promise(function(resolve, reject) {
+SPOC.Utils.Request.loadScript = function(url) {
+    return new Promise(function(resolve, reject) {
         var script = document.createElement('script');
         script.src = url;
 
@@ -350,8 +438,35 @@ SPOC.Utils.Request.loadScript = function(url, success, failure) {
             reject(url);
         }, false);
 
-        // Add it to the body
         document.body.appendChild(script);
+
+    });
+};
+
+/**
+ * Loads SP Requestor
+ * @params  url url to retrieve
+ * @params  data bool data to post
+ * @return  javascript promise
+ */
+SPOC.Utils.Request.loadRequestor = function(url) {
+    return new Promise(function(resolve, reject) {
+        var script = document.createElement('script');
+        script.src = url;
+
+        script.addEventListener('load', function() {
+            resolve(url);
+        }, false);
+
+        script.addEventListener('error', function() {
+            reject(url);
+        }, false);
+
+        if (!SP.RequestExecutor) {
+            document.body.appendChild(script);
+        } else {
+            resolve(url);
+        }
     });
 };
 
@@ -667,6 +782,8 @@ SPOC.Utils.Url.convertToXDomain = function(url) {
 
     if (url.indexOf('?') === -1) {
         url = url + '?';
+    } else {
+        url = url + '&';
     }
 
     url = origin + '/_api' + url + '@target=%27' + domain + '%27';
