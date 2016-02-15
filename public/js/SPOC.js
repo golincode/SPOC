@@ -137,7 +137,7 @@ SPOC.Utils.Request.get = function(url, cacheResult) {
                     url = SPOC.Utils.Url.convertToXDomain(url);
                     var appweburl = SPOC.Utils.Url.AppWebUrl();
                     var hostweburl = SPOC.Utils.Url.HostWebUrl();
-                    SPOC.Utils.Request.loadScript(hostweburl + '/_layouts/15/SP.RequestExecutor.js', function() {
+                    SPOC.Utils.Request.loadScript(hostweburl + '/_layouts/15/SP.RequestExecutor.js').then(function() {
                         var executor = new SP.RequestExecutor(appweburl);
                         executor.executeAsync({
                             url: url,
