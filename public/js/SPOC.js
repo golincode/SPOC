@@ -630,19 +630,17 @@ SPOC.Utils.Url.isSameDomain = function(url) {
 SPOC.Utils.Url.convertToXDomain = function(url) {
     url = url.toLowerCase();
     url = url.replace('/_api/', '/_api/SP.AppContextSite(@target)/');
+
     var domain = url.split('/_api')[0];
+    var origin = window.location.href.toLowerCase().split('/pages')[0];
+
     url = url.split('/_api')[1];
 
     if (url.indexOf('?') === -1) {
         url = url + '?';
     }
 
-    // Fix for .orgin on IE.
-    if (!window.location.origin) {
-        window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-    }
-
-    url = window.location.origin + '/_api' + url + '@target=%27' + domain + '%27';
+    url = origin + '/_api' + url + '@target=%27' + domain + '%27';
 
     return url;
 };
