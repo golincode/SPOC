@@ -13,12 +13,12 @@ SPOC.SP.Site.prototype.Search = function(searchTerm) {
      * @params  Object query filter paramators in obj format
      * @return  promise
      */
-    methods.query = function(settings, forceNoCache) {
+    methods.query = function(settings, cache) {
         return new Promise(function(resolve, reject) {
             var searchUrl = site.url + '/_api/search/query?querytext=%27' + searchTerm + ' +path:' + site.url + '%27';
             searchUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
 
-            SPOC.Utils.Request.get(searchUrl, forceNoCache).then(function(result) {
+            SPOC.Utils.Request.get(searchUrl, cache).then(function(result) {
                 result = SPOC.Utils.SP.formatSearchResponse(result);
                 resolve(result);
             }, function(err) {

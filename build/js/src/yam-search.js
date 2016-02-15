@@ -15,7 +15,7 @@ SPOC.Yam.Search = function() {
      * Queries a Yammer Group and returns feed items
      * @return  jQuery Deferred Object
      */
-    methods.query = function(settings, forceNoCache) {
+    methods.query = function(settings, cache) {
         return new Promise(function(resolve, reject) {
             // Check user has access token and then then return group feed.
             SPOC.Utils.Yammer.checkLogin().then(function(result) {

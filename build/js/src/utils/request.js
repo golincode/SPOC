@@ -4,16 +4,16 @@ SPOC.Utils.Request = {};
 /**
  * Makes a ajax requestio to a sharepoint url
  * @params  url url to retrieve
- * @params  forceNoCache bool to set if cache should be ignored
+ * @params  cache bool to set if cache should be ignored
  * @return  javascript promise
  */
-SPOC.Utils.Request.get = function(url, forceNoCache) {
+SPOC.Utils.Request.get = function(url, cacheResult) {
 
     return new Promise(function(resolve, reject) {
         // Check if item is cached is session storage
         var cache = SPOC.Utils.Storage.get('SPOC-' + url);
 
-        if(cache && !forceNoCache){
+        if(cache && cacheResult){
              resolve(cache);
         } else {
 

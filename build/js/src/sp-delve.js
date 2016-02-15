@@ -13,7 +13,7 @@ SPOC.SP.Site.prototype.Delve = function(userEmail) {
      * @params  Object query filter paramators in obj format
      * @return  promise
      */
-    methods.board = function(searchTerm, actions, forceNoCache) {
+    methods.board = function(searchTerm, actions, cache) {
         return new Promise(function(resolve, reject) {
             var searchUrl, actor;
 
@@ -23,12 +23,12 @@ SPOC.SP.Site.prototype.Delve = function(userEmail) {
 
             if (userEmail) {
                  searchUrl = site.url + "/_api/search/query?Querytext=%27WorkEmail:" + userEmail + "%27&SelectProperties=%27UserName,DocId%27";
-                 
-                 SPOC.Utils.Request.get(searchUrl, forceNoCache).then(function(result) {
+
+                 SPOC.Utils.Request.get(searchUrl, cache).then(function(result) {
                     result = SPOC.Utils.SP.formatSearchResponse(result);
 
                     if (result.length){
-                        
+
                         if(result.length > 1){
                             result = result[0];
                         }
@@ -36,7 +36,7 @@ SPOC.SP.Site.prototype.Delve = function(userEmail) {
                         actor = result.DocId;
                         searchUrl = site.url + "/_api/search/query?Querytext='"+ searchTerm + "'&amp;Properties='GraphQuery:ACTOR("+ actor + actions ? (", " + actions) : "" + ")";
 
-                        SPOC.Utils.Request.get(searchUrl, forceNoCache).then(function(board) {
+                        SPOC.Utils.Request.get(searchUrl, cache).then(function(board) {
                             board = SPOC.Utils.SP.formatSearchResponse(board);
                             resolve(board);
                         }, function(err){
@@ -46,13 +46,13 @@ SPOC.SP.Site.prototype.Delve = function(userEmail) {
                     } else {
                         resolve(null);
                     }
-                    
+
                 }, function (err){
                     reject(err);
                 });
             } else {
                 searchUrl = site.url + "/_api/search/query?Querytext='"+ searchTerm + "'&amp;Properties='GraphQuery:ACTOR(ME" + actions ? (", " + actions) : "" + ")";
-                SPOC.Utils.Request.get(searchUrl, forceNoCache).then(function(board) {
+                SPOC.Utils.Request.get(searchUrl, cache).then(function(board) {
                     board = SPOC.Utils.SP.formatSearchResponse(board);
                     resolve(board);
                 }, function(err){
@@ -61,7 +61,7 @@ SPOC.SP.Site.prototype.Delve = function(userEmail) {
             }
 
         });
-          
+
     };
 
     return methods;

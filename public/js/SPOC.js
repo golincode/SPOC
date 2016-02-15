@@ -1,4 +1,4 @@
-/*! SPOC 12-02-2016 */
+/*! SPOC 15-02-2016 */
 
 
 /*!
@@ -108,16 +108,16 @@ SPOC.Utils.Request = {};
 /**
  * Makes a ajax requestio to a sharepoint url
  * @params  url url to retrieve
- * @params  forceNoCache bool to set if cache should be ignored
+ * @params  cache bool to set if cache should be ignored
  * @return  javascript promise
  */
-SPOC.Utils.Request.get = function(url, forceNoCache) {
+SPOC.Utils.Request.get = function(url, cacheResult) {
 
     return new Promise(function(resolve, reject) {
         // Check if item is cached is session storage
         var cache = SPOC.Utils.Storage.get('SPOC-' + url);
 
-        if(cache && !forceNoCache){
+        if(cache && cacheResult){
              resolve(cache);
         } else {
 
@@ -614,7 +614,7 @@ SPOC.Utils.Url.AppWebUrl = function(url) {
  * @return  string
  */
 SPOC.Utils.Url.isSameDomain = function(url) {
-    var current = window.location.origin.toLowerCase();
+    var current = window.location.href.toLowerCase();
     return url.toLowerCase().indexOf(current) > -1 ? true : false;
 };
 
@@ -861,7 +861,7 @@ SPOC.SP.Site.prototype.Delve = function(userEmail) {
      * @params  Object query filter paramators in obj format
      * @return  promise
      */
-    methods.board = function(searchTerm, actions, forceNoCache) {
+    methods.board = function(searchTerm, actions, cache) {
         return new Promise(function(resolve, reject) {
             var searchUrl, actor;
 
@@ -871,12 +871,12 @@ SPOC.SP.Site.prototype.Delve = function(userEmail) {
 
             if (userEmail) {
                  searchUrl = site.url + "/_api/search/query?Querytext=%27WorkEmail:" + userEmail + "%27&SelectProperties=%27UserName,DocId%27";
-                 
-                 SPOC.Utils.Request.get(searchUrl, forceNoCache).then(function(result) {
+
+                 SPOC.Utils.Request.get(searchUrl, cache).then(function(result) {
                     result = SPOC.Utils.SP.formatSearchResponse(result);
 
                     if (result.length){
-                        
+
                         if(result.length > 1){
                             result = result[0];
                         }
@@ -884,7 +884,7 @@ SPOC.SP.Site.prototype.Delve = function(userEmail) {
                         actor = result.DocId;
                         searchUrl = site.url + "/_api/search/query?Querytext='"+ searchTerm + "'&amp;Properties='GraphQuery:ACTOR("+ actor + actions ? (", " + actions) : "" + ")";
 
-                        SPOC.Utils.Request.get(searchUrl, forceNoCache).then(function(board) {
+                        SPOC.Utils.Request.get(searchUrl, cache).then(function(board) {
                             board = SPOC.Utils.SP.formatSearchResponse(board);
                             resolve(board);
                         }, function(err){
@@ -894,13 +894,13 @@ SPOC.SP.Site.prototype.Delve = function(userEmail) {
                     } else {
                         resolve(null);
                     }
-                    
+
                 }, function (err){
                     reject(err);
                 });
             } else {
                 searchUrl = site.url + "/_api/search/query?Querytext='"+ searchTerm + "'&amp;Properties='GraphQuery:ACTOR(ME" + actions ? (", " + actions) : "" + ")";
-                SPOC.Utils.Request.get(searchUrl, forceNoCache).then(function(board) {
+                SPOC.Utils.Request.get(searchUrl, cache).then(function(board) {
                     board = SPOC.Utils.SP.formatSearchResponse(board);
                     resolve(board);
                 }, function(err){
@@ -909,7 +909,7 @@ SPOC.SP.Site.prototype.Delve = function(userEmail) {
             }
 
         });
-          
+
     };
 
     return methods;
@@ -917,6 +917,7 @@ SPOC.SP.Site.prototype.Delve = function(userEmail) {
 //var test = SPOC.Utils.Request.get('https://architect365.sharepoint.com//_api/search/query?querytext=%27sharepoint%27');
 
 //https://architect365.sharepoint.com/_api/search/query?Querytext=%27WorkEmail:mpomeroy@architect365.co.uk%27&SelectProperties=%27UserName,DocId%27
+
 // SharePoint List Functionlity
 
 SPOC.SP.Site.prototype.Files = function(filePath) {
@@ -1130,12 +1131,12 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
      * @params  Object query filter paramators in obj format
      * @return  promise
      */
-    methods.query = function(settings, forceNoCache) {
+    methods.query = function(settings, cache) {
         var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/';
 
         listUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
 
-        return SPOC.Utils.Request.get(listUrl, forceNoCache);
+        return SPOC.Utils.Request.get(listUrl, cache);
     };
 
     /**
@@ -1180,12 +1181,12 @@ SPOC.SP.Site.prototype.Search = function(searchTerm) {
      * @params  Object query filter paramators in obj format
      * @return  promise
      */
-    methods.query = function(settings, forceNoCache) {
+    methods.query = function(settings, cache) {
         return new Promise(function(resolve, reject) {
             var searchUrl = site.url + '/_api/search/query?querytext=%27' + searchTerm + ' +path:' + site.url + '%27';
             searchUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
 
-            SPOC.Utils.Request.get(searchUrl, forceNoCache).then(function(result) {
+            SPOC.Utils.Request.get(searchUrl, cache).then(function(result) {
                 result = SPOC.Utils.SP.formatSearchResponse(result);
                 resolve(result);
             }, function(err) {
@@ -1215,7 +1216,7 @@ SPOC.SP.User.prototype.Profile = function() {
      * @params  Object query filter paramators in obj format
      * @return  promise
      */
-    methods.query = function(forceNoCache) {
+    methods.query = function(cache) {
         var listUrl = window._spPageContextInfo.webAbsoluteUrl;
 
         if (user.loginName){
@@ -1224,7 +1225,7 @@ SPOC.SP.User.prototype.Profile = function() {
             listUrl += "/_api/SP.UserProfiles.PeopleManager/GetMyProperties/UserProfileProperties";
         }
         // return promise
-        return SPOC.Utils.Request.get(listUrl, forceNoCache);
+        return SPOC.Utils.Request.get(listUrl, cache);
     };
 
 
@@ -1234,12 +1235,12 @@ SPOC.SP.User.prototype.Profile = function() {
      * @params  user Id to check (optional)
      * @return  bool
      */
-    methods.isMemberOfGroup = function(groupName, userId, forceNoCache) {
+    methods.isMemberOfGroup = function(groupName, userId, cache) {
         var user = userId ? userId : window._spPageContextInfo.userId;
         var listUrl = site.url +  "/_api/web/sitegroups/getByName('" + groupName + "')/Users?$filter=Id eq " + user;
 
         // return promise
-        return SPOC.Utils.Request.get(listUrl, forceNoCache);
+        return SPOC.Utils.Request.get(listUrl, cache);
     };
 
     return methods;
@@ -1314,7 +1315,7 @@ SPOC.Yam.Search = function() {
      * Queries a Yammer Group and returns feed items
      * @return  jQuery Deferred Object
      */
-    methods.query = function(settings, forceNoCache) {
+    methods.query = function(settings, cache) {
         return new Promise(function(resolve, reject) {
             // Check user has access token and then then return group feed.
             SPOC.Utils.Yammer.checkLogin().then(function(result) {
@@ -1359,7 +1360,7 @@ SPOC.Yam.User.prototype.Subscriptions = function() {
      * Queries a Yammer User Profile and returns properties
      * @return  promise
      */
-    methods.query = function(settings, forceNoCache) {
+    methods.query = function(settings, cache) {
         return new Promise(function(resolve, reject) {
             // Check user has access token and then then return group feed.
             SPOC.Utils.Yammer.checkLogin().then(function(result) {
@@ -1401,7 +1402,7 @@ SPOC.Yam.User.prototype.Profile = function() {
      * Queries a Yammer User Profile and returns properties
      * @return promise
      */
-    methods.query = function(settings, forceNoCache) {
+    methods.query = function(settings, cache) {
         return new Promise(function(resolve, reject) {
             // Check user has access token and then then return group feed.
             SPOC.Utils.Yammer.checkLogin().then(function(result) {

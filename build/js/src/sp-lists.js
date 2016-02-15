@@ -13,12 +13,12 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
      * @params  Object query filter paramators in obj format
      * @return  promise
      */
-    methods.query = function(settings, forceNoCache) {
+    methods.query = function(settings, cache) {
         var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/';
 
         listUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
 
-        return SPOC.Utils.Request.get(listUrl, forceNoCache);
+        return SPOC.Utils.Request.get(listUrl, cache);
     };
 
     /**

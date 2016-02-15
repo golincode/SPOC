@@ -12,7 +12,7 @@ SPOC.Yam.User.prototype.Subscriptions = function() {
      * Queries a Yammer User Profile and returns properties
      * @return  promise
      */
-    methods.query = function(settings, forceNoCache) {
+    methods.query = function(settings, cache) {
         return new Promise(function(resolve, reject) {
             // Check user has access token and then then return group feed.
             SPOC.Utils.Yammer.checkLogin().then(function(result) {

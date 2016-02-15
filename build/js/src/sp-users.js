@@ -15,7 +15,7 @@ SPOC.SP.User.prototype.Profile = function() {
      * @params  Object query filter paramators in obj format
      * @return  promise
      */
-    methods.query = function(forceNoCache) {
+    methods.query = function(cache) {
         var listUrl = window._spPageContextInfo.webAbsoluteUrl;
 
         if (user.loginName){
@@ -24,7 +24,7 @@ SPOC.SP.User.prototype.Profile = function() {
             listUrl += "/_api/SP.UserProfiles.PeopleManager/GetMyProperties/UserProfileProperties";
         }
         // return promise
-        return SPOC.Utils.Request.get(listUrl, forceNoCache);
+        return SPOC.Utils.Request.get(listUrl, cache);
     };
 
 
@@ -34,12 +34,12 @@ SPOC.SP.User.prototype.Profile = function() {
      * @params  user Id to check (optional)
      * @return  bool
      */
-    methods.isMemberOfGroup = function(groupName, userId, forceNoCache) {
+    methods.isMemberOfGroup = function(groupName, userId, cache) {
         var user = userId ? userId : window._spPageContextInfo.userId;
         var listUrl = site.url +  "/_api/web/sitegroups/getByName('" + groupName + "')/Users?$filter=Id eq " + user;
 
         // return promise
-        return SPOC.Utils.Request.get(listUrl, forceNoCache);
+        return SPOC.Utils.Request.get(listUrl, cache);
     };
 
     return methods;
