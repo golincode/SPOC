@@ -561,7 +561,6 @@ SPOC.Utils.Tpl.render = function(tpl, data) {
 
     return tpl;
 };
-
 SPOC.Utils.Url = {};
 
 /**
@@ -592,8 +591,8 @@ SPOC.Utils.Url.getQueryString = function(variable, query) {
  * @return  string
  */
 SPOC.Utils.Url.getListNameFromUrl = function(url) {
-   var regex = /\%27(.*)\%27/g;
-   var match = regex.exec(url);
+    var regex = /\%27(.*)\%27/g;
+    var match = regex.exec(url);
     return match ? match[1] : null;
 };
 
@@ -604,7 +603,7 @@ SPOC.Utils.Url.getListNameFromUrl = function(url) {
  * @return  string
  */
 SPOC.Utils.Url.AppWebUrl = function(url) {
-   return SPOC.Utils.Url.getQueryString('SPAppWebUrl');
+    return SPOC.Utils.Url.getQueryString('SPAppWebUrl');
 };
 
 
@@ -629,8 +628,13 @@ SPOC.Utils.Url.convertToXDomain = function(url) {
     var domain = url.split('/_api')[0];
     url = url.split('/_api')[1];
 
-    if (url.indexOf('?') === -1){
+    if (url.indexOf('?') === -1) {
         url = url + '?';
+    }
+
+    // Fix for .orgin on IE.
+    if (!window.location.origin) {
+        window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
     }
 
     url = window.location.origin + '/_api' + url + '@target=%27' + domain + '%27';
