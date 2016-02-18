@@ -73,12 +73,12 @@ SPOC.SP.Site.prototype.Files = function(filePath) {
 
     /**
      * Get file list item properties
-     * @params bool forceNoCache
+     * @params bool cache
      * @return Promise
      */
-    methods.query = function(forceNoCache) {
+    methods.query = function(cache) {
         var url = site.url + "/_api/web/getfilebyserverrelativeurl('" + filePath + "')/ListItemAllFields";
-        return SPOC.Utils.Request.get(url, forceNoCache);
+        return SPOC.Utils.Request.get(url, cache);
     };
 
     /**

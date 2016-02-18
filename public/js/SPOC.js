@@ -1,4 +1,4 @@
-/*! SPOC 15-02-2016 */
+/*! SPOC 18-02-2016 */
 
 
 /*!
@@ -415,30 +415,6 @@ SPOC.Utils.Request.delete = function(url, data) {
                 req.send(JSON.stringify(data));
             }
         }
-
-    });
-};
-
-/**
- * Makes a put ajax requestio to a sharepoint url
- * @params  url url to retrieve
- * @params  data bool data to post
- * @return  javascript promise
- */
-SPOC.Utils.Request.loadScript = function(url) {
-    return new Promise(function(resolve, reject) {
-        var script = document.createElement('script');
-        script.src = url;
-
-        script.addEventListener('load', function() {
-            resolve(url);
-        }, false);
-
-        script.addEventListener('error', function() {
-            reject(url);
-        }, false);
-
-        document.body.appendChild(script);
 
     });
 };
@@ -1146,12 +1122,12 @@ SPOC.SP.Site.prototype.Files = function(filePath) {
 
     /**
      * Get file list item properties
-     * @params bool forceNoCache
+     * @params bool cache
      * @return Promise
      */
-    methods.query = function(forceNoCache) {
+    methods.query = function(cache) {
         var url = site.url + "/_api/web/getfilebyserverrelativeurl('" + filePath + "')/ListItemAllFields";
-        return SPOC.Utils.Request.get(url, forceNoCache);
+        return SPOC.Utils.Request.get(url, cache);
     };
 
     /**
@@ -1197,14 +1173,51 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * @params  Object query filter paramators in obj format
      * @return promise
      */
-    methods.query = function(settings, forceNoCache, headers) {
+    methods.query = function(settings, cache, headers) {
         var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items';
 
         listUrl += settings ? '?' + SPOC.Utils.Conversion.objToQueryString(settings) : '';
 
-        return SPOC.Utils.Request.get(listUrl, forceNoCache);
+        return SPOC.Utils.Request.get(listUrl, cache);
     };
 
+
+    /**
+     * Queries a SharePont list via the CSOM
+     * @params  camlQuery string CAML query to filter
+     * @return promise
+     */
+    methods.queryCSOM = function(camlQuery) {
+        return new promise(function(resolve, reject) {
+            var ctx = new SP.ClientContext(site.url);
+            var list = ctx.get_web().get_lists().getByTitle(listTitle);
+            var query, items = [],
+                currentItem = {},
+                pageItem;
+
+            if (camlQuery) {
+                query = new SP.CamlQuery();
+                camlQuery.set_viewXml(camlQuery);
+            } else {
+                query = SP.CamlQuery.createAllItemsQuery();
+            }
+
+            items = list.getItems(query);
+            ctx.load(items);
+            ctx.executeQueryAsync(function(listItems) {
+                for (var i = 0; i < listItems.get_count(); i++) {
+                    pageItem = listItems.getItemAtIndex(i);
+                    currentItem = pageItem.get_fieldValues();
+                    items.push(currentItem);
+                }
+
+                resolve(items);
+
+            }, function(err) {
+                reject(err);
+            });
+        });
+    };
 
     /**
      * Creates a new list items

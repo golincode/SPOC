@@ -316,30 +316,6 @@ SPOC.Utils.Request.delete = function(url, data) {
 };
 
 /**
- * Makes a put ajax requestio to a sharepoint url
- * @params  url url to retrieve
- * @params  data bool data to post
- * @return  javascript promise
- */
-SPOC.Utils.Request.loadScript = function(url) {
-    return new Promise(function(resolve, reject) {
-        var script = document.createElement('script');
-        script.src = url;
-
-        script.addEventListener('load', function() {
-            resolve(url);
-        }, false);
-
-        script.addEventListener('error', function() {
-            reject(url);
-        }, false);
-
-        document.body.appendChild(script);
-
-    });
-};
-
-/**
  * Loads SP Requestor
  * @params  url url to retrieve
  * @params  data bool data to post
