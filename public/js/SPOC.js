@@ -1329,6 +1329,44 @@ SPOC.SP.Site.prototype.Lists = function(listTitle) {
         return SPOC.Utils.Request.post(url, defaults);
     };
 
+    /**
+     * Updates a list
+     * @params  data object of properties
+     * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
+     * @return promise
+     */
+    methods.update = function(data) {
+        var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29';
+        var defaults = {
+            __metadata: {
+                'type': SPOC.Utils.SP.getListItemType(listTitle)
+            }
+        };
+
+        if (data) {
+            defaults = SPOC.Utils.Objects.merge(defaults, data);
+        }
+
+        return SPOC.Utils.Request.put(listUrl, defaults);
+    };
+
+    /**
+     * Deletes a list
+     * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
+     * @return promise
+     */
+    methods.delete = function() {
+        var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29';
+
+        var defaults = {
+            __metadata: {
+                'type': SPOC.Utils.SP.getListItemType(listTitle)
+            }
+        };
+
+        return SPOC.Utils.Request.delete(listUrl, defaults);
+    };
+
     return methods;
 };
 
