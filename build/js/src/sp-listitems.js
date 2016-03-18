@@ -28,7 +28,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * @return promise
      */
     methods.queryCSOM = function(camlQuery) {
-        return new promise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             var ctx = new SP.ClientContext(site.url);
             var list = ctx.get_web().get_lists().getByTitle(listTitle);
             var query, items = [],
