@@ -1,4 +1,4 @@
-/*! SPOC 18-02-2016 */
+/*! SPOC 18-03-2016 */
 
 
 /*!
@@ -246,7 +246,7 @@ SPOC.Utils.Request.post = function(url, data, isFile) {
 
                 req.onreadystatechange = function() {
                     if (req.readyState == 4) {
-                        if (req.status == 200) {
+                        if (req.status == 200 || req.status == 201) {
                             resolve(data);
                         } else {
                             reject(Error(req.statusText));
@@ -330,7 +330,7 @@ SPOC.Utils.Request.put = function(url, data) {
 
                 req.onreadystatechange = function() {
                     if (req.readyState == 4) {
-                        if (req.status == 200) {
+                        if (req.status == 200 || req.status == 204) {
                             resolve(data);
                         } else {
                             reject(Error(req.statusText));
@@ -453,9 +453,10 @@ SPOC.Utils.SP = {};
  * Returns data type for list items
  * @return  bool
  */
-SPOC.Utils.SP.getListItemType = function(name) {
+SPOC.Utils.SP.getListItemType = function(name, library) {
+    var meta = library ? "Item" : "ListItem";
 	name = name[0].toUpperCase() + name.substring(1);
-    return "SP.Data." + name.replace(/ /g, '_x0020_') + "ListItem";
+    return "SP.Data." + name.replace(/ /g, '_x0020_') + meta;
 };
 
 /**
@@ -1225,11 +1226,11 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
      * @return  promise
      */
-    methods.create = function(data) {
+    methods.create = function(data, library) {
         var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items';
         var defaults = {
             __metadata: {
-                'type': SPOC.Utils.SP.getListItemType(listTitle)
+                'type': SPOC.Utils.SP.getListItemType(listTitle, library)
             }
         };
 
@@ -1247,11 +1248,11 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
      * @return promise
      */
-    methods.update = function(id, data) {
+    methods.update = function(id, data, library) {
         var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items(' + id + ')';
         var defaults = {
             __metadata: {
-                'type': SPOC.Utils.SP.getListItemType(listTitle)
+                'type': SPOC.Utils.SP.getListItemType(listTitle, library)
             }
         };
 
@@ -1268,11 +1269,11 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
      * @return promise
      */
-    methods.delete = function(id) {
+    methods.delete = function(id, library) {
         var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items(' + id + ')';
         var defaults = {
             __metadata: {
-                'type': SPOC.Utils.SP.getListItemType(listTitle)
+                'type': SPOC.Utils.SP.getListItemType(listTitle, library)
             }
         };
 

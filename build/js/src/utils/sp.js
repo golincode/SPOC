@@ -5,9 +5,10 @@ SPOC.Utils.SP = {};
  * Returns data type for list items
  * @return  bool
  */
-SPOC.Utils.SP.getListItemType = function(name) {
+SPOC.Utils.SP.getListItemType = function(name, library) {
+    var meta = library ? "Item" : "ListItem";
 	name = name[0].toUpperCase() + name.substring(1);
-    return "SP.Data." + name.replace(/ /g, '_x0020_') + "ListItem";
+    return "SP.Data." + name.replace(/ /g, '_x0020_') + meta;
 };
 
 /**
