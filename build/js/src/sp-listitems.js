@@ -28,7 +28,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * @return promise
      */
     methods.queryCSOM = function(camlQuery) {
-        return new promise(function(resolve, reject) {
+        return new Promise(function(resolve, reject) {
             var ctx = new SP.ClientContext(site.url);
             var list = ctx.get_web().get_lists().getByTitle(listTitle);
             var query, items = [],
@@ -65,11 +65,11 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
      * @return  promise
      */
-    methods.create = function(data) {
+    methods.create = function(data, library) {
         var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items';
         var defaults = {
             __metadata: {
-                'type': SPOC.Utils.SP.getListItemType(listTitle)
+                'type': SPOC.Utils.SP.getListItemType(listTitle, library)
             }
         };
 
@@ -87,11 +87,11 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
      * @return promise
      */
-    methods.update = function(id, data) {
+    methods.update = function(id, data, library) {
         var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items(' + id + ')';
         var defaults = {
             __metadata: {
-                'type': SPOC.Utils.SP.getListItemType(listTitle)
+                'type': SPOC.Utils.SP.getListItemType(listTitle, library)
             }
         };
 
@@ -108,11 +108,11 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
      * List of options can be found at https://msdn.microsoft.com/en-us/library/office/dn292552.aspx
      * @return promise
      */
-    methods.delete = function(id) {
+    methods.delete = function(id, library) {
         var listUrl = site.url + '/_api/web/lists/getByTitle%28%27' + listTitle + '%27%29/items(' + id + ')';
         var defaults = {
             __metadata: {
-                'type': SPOC.Utils.SP.getListItemType(listTitle)
+                'type': SPOC.Utils.SP.getListItemType(listTitle, library)
             }
         };
 
