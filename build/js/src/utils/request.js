@@ -142,7 +142,7 @@ SPOC.Utils.Request.post = function(url, data, isFile) {
 
                 req.onreadystatechange = function() {
                     if (req.readyState == 4) {
-                        if (req.status == 200 || req.status == 201) {
+                        if (req.status == 200 || req.status == 201 || req.status == 1223) {
                             resolve(data);
                         } else {
                             reject(Error(req.statusText));
@@ -226,7 +226,7 @@ SPOC.Utils.Request.put = function(url, data) {
 
                 req.onreadystatechange = function() {
                     if (req.readyState == 4) {
-                        if (req.status == 200 || req.status == 204) {
+                        if (req.status == 200 || req.status == 204 || req.status == 1223) {
                             resolve(data);
                         } else {
                             reject(Error(req.statusText));
@@ -297,7 +297,7 @@ SPOC.Utils.Request.delete = function(url, data) {
 
                 req.onreadystatechange = function() {
                     if (req.readyState == 4) {
-                        if (req.status == 200) {
+                        if (req.status == 200 || req.status == 204 || req.status == 1223) {
                             resolve(data);
                         } else {
                             reject(Error(req.statusText));
