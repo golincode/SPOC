@@ -13,7 +13,7 @@ SPOC.Yam.Feed.prototype.posts = function() {
 
     // If an id is passed and feedtype, formuate new endpoint
     if (_this.feedId) {
-        apiUrl = "messages/" + _this.feedType ? "in_group" : "from_user" + "/" + _this.feedId + ".json";
+        apiUrl = "messages/" + (_this.feedType ? "in_group" : "from_user") + "/" + _this.feedId + ".json";
     }
 
     /**

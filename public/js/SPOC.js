@@ -1,4 +1,4 @@
-/*! SPOC 18-02-2016 */
+/*! SPOC 25-02-2016 */
 
 
 /*!
@@ -782,7 +782,7 @@ SPOC.Utils.Yammer.formatFeedResponse = function(data) {
     for (i = 0; i < data.messages.length; i++) {
         if (!data.messages[i].replied_to_id) {
             if (data.messages[i].sender_type && data.messages[i].sender_type === 'user') {
-                data.messages[i].user = SPOC.Utils.Arrays.findByProperty(data.references, 'id', data.messages[i].sender_id);
+                data.messages[i].user = SPOC.Utils.Objects.findObjectByProperty(data.references, 'id', data.messages[i].sender_id);
                 cleanFeed.push(data.messages[i]);
             }
         }
@@ -803,7 +803,7 @@ SPOC.Utils.Yammer.formatSearchResponse = function(data) {
         for (i = 0; i < data.messages.messages.length; i++) {
             var message = data.messages.messages[i];
             if (message.sender_type && message.sender_type === 'user') {
-                message.user = SPOC.Utils.Arrays.findByProperty(data.messages.references, 'id', message.sender_id);
+                message.user = SPOC.Utils.Objects.findObjectByProperty(data.messages.references, 'id', message.sender_id);
             }
         }
     }
@@ -820,7 +820,7 @@ SPOC.Utils.Yammer.checkLogin = function(promptLogin) {
      return new Promise(function(resolve, reject) {
          yam.getLoginStatus(function(response) {
             if (response.authResponse) {
-                deferred.resolve(response);
+                resolve(response);
             } else {
                 if (promptLogin) {
                     yam.platform.login(function(user) {
@@ -837,6 +837,7 @@ SPOC.Utils.Yammer.checkLogin = function(promptLogin) {
         });
     });
 };
+
 SPOC.Mock = {
     active: false,
     db: {}
@@ -1465,7 +1466,7 @@ SPOC.Yam.Feed.prototype.posts = function() {
 
     // If an id is passed and feedtype, formuate new endpoint
     if (_this.feedId) {
-        apiUrl = "messages/" + _this.feedType ? "in_group" : "from_user" + "/" + _this.feedId + ".json";
+        apiUrl = "messages/" + (_this.feedType ? "in_group" : "from_user") + "/" + _this.feedId + ".json";
     }
 
     /**
