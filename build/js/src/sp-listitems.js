@@ -31,7 +31,7 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
         return new Promise(function(resolve, reject) {
             var ctx = new SP.ClientContext(site.url);
             var list = ctx.get_web().get_lists().getByTitle(listTitle);
-            var query, listItems = [],
+            var query,
                 currentItem = {},
                 pageItem;
 
