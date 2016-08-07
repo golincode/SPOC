@@ -31,27 +31,25 @@ SPOC.SP.Site.prototype.ListItems = function(listTitle) {
         return new Promise(function(resolve, reject) {
             var ctx = new SP.ClientContext(site.url);
             var list = ctx.get_web().get_lists().getByTitle(listTitle);
-            var query, items = [],
+            var query, listItems = [],
                 currentItem = {},
                 pageItem;
 
             if (camlQuery) {
                 query = new SP.CamlQuery();
-                camlQuery.set_viewXml(camlQuery);
+                query.set_viewXml(camlQuery);
             } else {
                 query = SP.CamlQuery.createAllItemsQuery();
             }
 
-            items = list.getItems(query);
+            var items = list.getItems(query);
             ctx.load(items);
-            ctx.executeQueryAsync(function(listItems) {
-                for (var i = 0; i < listItems.get_count(); i++) {
-                    pageItem = listItems.getItemAtIndex(i);
-                    currentItem = pageItem.get_fieldValues();
-                    items.push(currentItem);
-                }
+            ctx.executeQueryAsync(function() {
+                var result = items.get_data().map(function(i){
+                    return i.get_fieldValues();   
+                });
 
-                resolve(items);
+                resolve(result);
 
             }, function(err) {
                 reject(err);
