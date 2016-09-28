@@ -1059,11 +1059,6 @@ SPOC.SP.Site.prototype.Files = function(filePath) {
     // Create object to store public methods
     var methods = {};
 
-    // Add leading slash if not present.
-    if (filePath.charAt(0) !== '/') {
-        filePath = '/' + filePath;
-    }
-
     /**
      * Generates a time based External Sharing link
      * @params  Object query filter paramators in obj format
@@ -1100,14 +1095,15 @@ SPOC.SP.Site.prototype.Files = function(filePath) {
      * @params  file input
      * @return Promise
      */
-    methods.upload = function(fileInput) {
+    methods.upload = function(fileInput, expand) {
         return new Promise(function(resolve, reject) {
             var reader = new FileReader();
 
             reader.onloadend = function(e) {
                 var parts = fileInput.value.split('\\');
                 var fileName = parts[parts.length - 1];
-                var url = site.url + "/_api/Web/GetFolderByServerRelativeUrl('" + filePath + "')/files/add(overwrite=true, url='" + fileName + "')";
+                var url = site.url + "/_api/Web/GetFolderByServerRelativeUrl('" + filePath + "')/files/add(overwrite=true, url='" + fileName + "')" + 
+                            (expand ? "?$" + expand : "");
                 SPOC.Utils.Request.post(url, e.target.result, true).then(function(result) {
                     resolve(result);
                 }, function(result) {
