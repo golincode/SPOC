@@ -34,7 +34,7 @@ SPOC.SP.User.prototype.Profile = function() {
      * @params  user Id to check (optional)
      * @return  bool
      */
-    methods.isMemberOfGroup = function(groupName, userId, cache) {
+    methods.isMemberOfGroup = function(site, groupName, userId, cache) {
         var user = userId ? userId : window._spPageContextInfo.userId;
         var listUrl = site.url +  "/_api/web/sitegroups/getByName('" + groupName + "')/Users?$filter=Id eq " + user;
 
