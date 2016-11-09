@@ -1,4 +1,4 @@
-/*! SPOC 28-09-2016 */
+/*! SPOC 09-11-2016 */
 
 
 /*!
@@ -1115,6 +1115,33 @@ SPOC.SP.Site.prototype.Files = function(filePath) {
             };
 
             reader.readAsArrayBuffer(fileInput.files[0]);
+        });
+    };
+
+    /**
+     * Upload file to a document library
+     * @params  file input
+     * @return Promise
+     */
+    methods.uploadFile = function(file, expand) {
+        return new Promise(function(resolve, reject) {
+            var reader = new FileReader();
+
+            reader.onloadend = function(e) {                
+                var fileName = file ? file.name : "";
+                var url = site.url + "/_api/Web/GetFolderByServerRelativeUrl('" + filePath + "')/files/add(overwrite=true, url='" + fileName + "')" + 
+                            (expand ? "?$" + expand : "");
+                SPOC.Utils.Request.post(url, e.target.result, true).then(function(result) {
+                    resolve(result);
+                }, function(result) {
+                    reject(result);
+                });
+            };
+            reader.onerror = function(e) {
+                reject(e.target.error);
+            };
+
+            reader.readAsArrayBuffer(file);
         });
     };
 
