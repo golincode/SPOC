@@ -1,4 +1,4 @@
-/*! SPOC 28-09-2016 */
+/*! SPOC 18-11-2016 */
 
 
 /*!
@@ -1631,3 +1631,5 @@ SPOC.Yam.User.prototype.Profile = function() {
 };
 
 })(window, document, window.SPOC = window.SPOC || {});
+
+module.exports = window.SPOC;
