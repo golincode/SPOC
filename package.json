@@ -1,5 +1,6 @@
 {
   "name": "SPOC",
+  "main": "./public/js/SPOC.js",
   "description": "A Javascript library that simplifies working with the SharePoint and Yammer REST APIs from within Office 365",
   "version": "0.0.1",
   "homepage": "http://wearearchitect.github.io/SPOC",

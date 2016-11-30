@@ -28,7 +28,6 @@
     }];
    var results = SPOC.Utils.Objects.findObjectByProperty(objectArray, "Title", "Test1");
    console.log(results);
-   // Outputs {Title:"Test1", Description: "Descr Test1"};
 ```
 
 ###### Merge two objects
@@ -44,7 +43,6 @@
     };
    var results = SPOC.Utils.Objects.merge(object1, object2);
    console.log(results);
-   // Outputs [{Title:"Test1", Description: "Descr Test1"}, {Title:"Test2", Description: "Descr Test2"}];
 ```
 
 ### Requests (SPOC.Utils.Request)
@@ -54,7 +52,7 @@
     var url = "https://www.sharepoint.com/Test";
     var results = SPOC.Utils.Request.get(url, forceNoCache);
     console.log(results);
-    // Outputs if SPOC.Mock.active a mock object else a json object
+ 
 ```
 
 ###### Post an object by a request
@@ -64,7 +62,7 @@
     var data = {Title: "Test1", Description: "Descr Test1"};
     var results = SPOC.Utils.Request.post(url, data);
     console.log(results);
-    // Outputs 'Network error' or .then({Title: "Test1", Description: "Descr Test1"})
+
 ```
 
 ### SharePoint General (SPOC.Utils.SP)
@@ -86,7 +84,7 @@
     };
     var results = SPOC.Utils.SP.uploadDocument(ListGUID, settings);
     console.log(results);
-    // Outputs .then(data) after modal dialog and upload;
+
 ```
 
 ### Storage (SPOC.Utils.Storage)
@@ -94,7 +92,6 @@
 ```javascript
    var results = SPOC.Utils.Storage.storageAvailable();
    console.log(typeof(Storage) !== "undefined");
-   // Outputs {Title:"Test1", Description: "Descr Test1"};
 ```
 
 ###### Save data in browser storage
@@ -108,7 +105,6 @@
     var useLocalStorage = false;
     var results = SPOC.Utils.Storage.set(key, data, useLocalStorage);
     console.log(results);
-    // Outputs void;
 ```
 
 ###### Get data from browser storage by key
@@ -118,7 +114,6 @@
     var isLocalStorage = false;
     var results = SPOC.Utils.Storage.get(key, isLocalStorage);
     console.log(results);
-    // Outputs {Title:"Test1", Description: "Descr Test1"};
 ```
 
 ###### Remove data from browser storage by key
@@ -128,7 +123,6 @@
     var useLocalStorage = false;
     var results = SPOC.Utils.Storage.remove(key, isLocalStorage);
     console.log(results);
-    // Outputs void;
 ```
 
 ###### Get cookie by name
@@ -136,7 +130,6 @@
     var name = "ItemCookie";
     var results = SPOC.Utils.Storage.getCookie(name);
     console.log(results);
-   // Outputs false;
 ```
 
 ###### Set cookie
@@ -146,7 +139,6 @@
     var days = 5;
     var results = SPOC.Utils.Storage.setCookie(name, value, days);
     console.log(results);
-    // Outputs void;
 ```
 
 ###### Delete cookie
@@ -154,7 +146,6 @@
     var name = "ItemCookie";
     var results = SPOC.Utils.Storage.removeCookie(name);
     console.log(results);
-   // Outputs void;
 ```
 
 ### Strings (SPOC.Utils.Strings)
@@ -164,7 +155,6 @@
     var requiredLength = 4;
     var results = SPOC.Utils.Storage.truncate(string, requiredLength);
     console.log(results);
-   // Outputs test...;
 ```
  
 ### Templates (SPOC.Utils.Tpl)
@@ -178,7 +168,6 @@
     propertyName = "Title";
     var results = SPOC.Utils.Tpl.getProperty(propertyName, obj);
     console.log(results);
-    // Outputs {Title:"Test1", Description: "Descr Test1"};
 ```
 
 ###### Render template by matching the tpl with a array
@@ -199,7 +188,6 @@
     var key = "k";
     var results = SPOC.Utils.Url.getQueryString(key);
     console.log(results);
-   // Outputs "TestQuery";
 ```
 
 ###### Extracts and returns a list name from api url endpoint
@@ -207,7 +195,6 @@
     var url = "https://www.sharepoint.com/Test";
     var results = SPOC.Utils.Url.getListNameFromUrl(url);
     console.log(results);
-   // Outputs {Title:"Test1", Description: "Descr Test1"};
 ```
 
 ###### Checks if passed in url has the same domain
@@ -224,7 +211,7 @@
     var url = "https://www.sharepoint.com/Test";
     var results = SPOC.Utils.Url.convertToXDomain(url);
     console.log(results);
-   // Outputs https://www.sharepoint.com/_api/https://www.sharepoint.com/Test@target=%27'https://www.sharepoint.com%27';
+
 ```
 
 ### Yammer (SPOC.Utils.Yammer)
@@ -246,21 +233,7 @@
 
     var results = SPOC.Utils.Yammer.formatFeedResponse(data);
     console.log(results);
-    // Outputs [{Title: "Test1",
-    //    replied_to_id: false,
-    //    sender_type: 'user'
-    //    user: Martin Pomeroy
-    //},{
-    //    Title: "Test2",
-    //    replied_to_id: false,
-    //    sender_type: 'user'
-    //    user: Martin Pomeroy
-    //},{
-    //    Title: "Test3",
-    //    replied_to_id: false,
-    //    sender_type: 'user'
-    //    user: Martin Pomeroy
-    //}];
+
 ```
 
 ###### Tidy up a Yammer search response
@@ -281,21 +254,7 @@
 
    var results = SPOC.Utils.Yammer.formatFeedResponse(data);
     console.log(results);
-    // Outputs [{Title: "Test1",
-    //    replied_to_id: false,
-    //    sender_type: 'user'
-    //    user: Martin Pomeroy
-    //},{
-    //    Title: "Test2",
-    //    replied_to_id: false,
-    //    sender_type: 'user'
-    //    user: Martin Pomeroy
-    //},{
-    //    Title: "Test3",
-    //    replied_to_id: false,
-    //    sender_type: 'user'
-    //    user: Martin Pomeroy
-    //}];
+  
 ```
 
 ###### Check if a user is logged into Yammer
@@ -303,5 +262,5 @@
     var promptLogin = true;
     var results = SPOC.Utils.Yammer.checkLogin(promptLogin);
     console.log(results);
-   // Outputs .then(user);
+
 ```
